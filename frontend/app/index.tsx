@@ -2424,7 +2424,9 @@ const styles = StyleSheet.create({
   },
   styleVibeImage: {
     width: '100%',
-    height: 240,
+    height: 180,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
   },
   styleVibeTextContainer: {
     padding: 16,
