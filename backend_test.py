@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://smart-closet-14.preview.emergentagent.com"
+BASE_URL = "https://stylistai.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test data - using timestamp to avoid conflicts
