@@ -2466,8 +2466,52 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     textAlign: 'center',
   },
+  welcomeSubtitleCentered: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 32,
+    textAlign: 'center',
+  },
   formSection: {
     marginBottom: 28,
+  },
+  formSectionSpaced: {
+    marginBottom: 32,
+  },
+  bigBoldLabel: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#000',
+    marginBottom: 16,
+  },
+  horizontalButtonRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    gap: 12,
+  },
+  visibleButton: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+    borderWidth: 3,
+    borderColor: '#e0e0e0',
+    minWidth: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  selectedVisibleButton: {
+    backgroundColor: '#000000',
+    borderColor: '#000000',
+  },
+  visibleButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  selectedVisibleButtonText: {
+    color: '#FFFFFF',
   },
   sectionLabel: {
     fontSize: 20,
