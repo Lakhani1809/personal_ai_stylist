@@ -2313,6 +2313,129 @@ const styles = StyleSheet.create({
   skinToneLabel: {
     fontSize: 10,
     fontWeight: '600',
+
+  // Body shape with images
+  bodyShapeCard: {
+    width: '47%',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#e9ecef',
+    backgroundColor: 'white',
+    alignItems: 'center',
+    minHeight: 180,
+  },
+  bodyShapeImage: {
+    width: 80,
+    height: 120,
+    marginBottom: 12,
+  },
+  
+  // Style Inspiration
+  styleInspirationGrid: {
+    gap: 16,
+  },
+  styleInspirationCard: {
+    width: '100%',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#e9ecef',
+    backgroundColor: 'white',
+    overflow: 'hidden',
+    marginBottom: 16,
+  },
+  selectedStyleCard: {
+    borderColor: '#007AFF',
+    borderWidth: 3,
+  },
+  styleInspirationImage: {
+    width: '100%',
+    height: 200,
+  },
+  styleInspirationTextContainer: {
+    padding: 16,
+  },
+  styleInspirationLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  styleInspirationDescription: {
+    fontSize: 14,
+    color: '#666',
+  },
+  
+  // Style Vibe
+  styleVibeScroll: {
+    flex: 1,
+  },
+  styleVibeCard: {
+    width: '100%',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#e9ecef',
+    backgroundColor: 'white',
+    overflow: 'hidden',
+    marginBottom: 16,
+    position: 'relative',
+  },
+  selectedStyleVibeCard: {
+    borderColor: '#007AFF',
+    borderWidth: 3,
+  },
+  styleVibeImage: {
+    width: '100%',
+    height: 240,
+  },
+  styleVibeTextContainer: {
+    padding: 16,
+  },
+  styleVibeLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  styleVibeDescription: {
+    fontSize: 14,
+    color: '#666',
+  },
+  styleVibeCheckmark: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    backgroundColor: 'white',
+    borderRadius: 14,
+  },
+  
+  // Style Message
+  styleMessageGrid: {
+    gap: 12,
+  },
+  styleMessageCard: {
+    width: '100%',
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#e9ecef',
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  selectedStyleMessageCard: {
+    borderColor: '#007AFF',
+    borderWidth: 3,
+    backgroundColor: '#f0f8ff',
+  },
+  styleMessageLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    flex: 1,
+    marginLeft: 12,
+  },
+
     textAlign: 'center',
     color: '#333',
     textShadowColor: 'rgba(255, 255, 255, 0.8)',
