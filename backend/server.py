@@ -234,66 +234,121 @@ async def chat(message_data: dict, user_id: str = Depends(get_current_user)):
         message = message_data.get("message", "")
         image_base64 = message_data.get("image_base64")
         
-        # Get user profile and wardrobe for personalization
+        # Get user profile and wardrobe for deep personalization
         user = await db.users.find_one({"id": user_id})
         user_name = user.get("name", "").split()[0] if user and user.get("name") else ""
         
-        # Build personalized context
+        # Build deeply personalized context with ALL onboarding data
         user_context = ""
         if user:
-            user_context += f"User Profile: "
+            user_context += f"🎯 User Profile:\n"
             if user.get("name"):
-                user_context += f"Name: {user_name}, "
+                user_context += f"• Name: {user_name}\n"
             if user.get("gender"):
-                user_context += f"Gender: {user.get('gender')}, "
+                user_context += f"• Gender: {user.get('gender')}\n"
             if user.get("age"):
-                user_context += f"Age: {user.get('age')}, "
+                user_context += f"• Age: {user.get('age')}\n"
             if user.get("profession"):
-                user_context += f"Profession: {user.get('profession')}, "
-            if user.get("city"):
-                user_context += f"Location: {user.get('city')}, "
+                user_context += f"• Occupation: {user.get('profession')}\n"
             if user.get("body_shape"):
-                user_context += f"Body Shape: {user.get('body_shape')}, "
+                user_context += f"• Body Shape: {user.get('body_shape')}\n"
             if user.get("skin_tone"):
-                user_context += f"Skin Tone: {user.get('skin_tone')}, "
+                user_context += f"• Skin Tone: {user.get('skin_tone')}\n"
             if user.get("style_inspiration"):
-                user_context += f"Style Inspiration: {user.get('style_inspiration')}, "
+                style_inspo = user.get('style_inspiration')
+                if isinstance(style_inspo, list):
+                    style_inspo = ', '.join(style_inspo)
+                user_context += f"• Style Inspiration: {style_inspo}\n"
             if user.get("style_vibes"):
-                user_context += f"Style Vibes: {user.get('style_vibes')}, "
+                style_vibes = user.get('style_vibes')
+                if isinstance(style_vibes, list):
+                    style_vibes = ', '.join(style_vibes)
+                user_context += f"• Style Vibes: {style_vibes}\n"
+            if user.get("style_message"):
+                user_context += f"• Personal Style Message: {user.get('style_message')}\n"
+            if user.get("city"):
+                user_context += f"• Location: {user.get('city')}\n"
                 
-        # Get user's wardrobe for suggestions
+        # Get user's wardrobe for SPECIFIC item suggestions
         wardrobe_context = ""
         wardrobe = user.get("wardrobe", []) if user else []
         if wardrobe:
             wardrobe_items = []
-            for item in wardrobe[:10]:  # Limit to recent 10 items
-                item_desc = f"{item.get('color', '')} {item.get('fabric_type', '')} {item.get('exact_item_name', 'item')}"
+            for idx, item in enumerate(wardrobe[:15], 1):  # Expanded to 15 items for better context
+                item_name = item.get('exact_item_name', 'item')
+                color = item.get('color', '')
+                fabric = item.get('fabric_type', '')
+                category = item.get('category', '')
+                
+                # Build detailed item description
+                item_desc = f"{idx}. {color} {fabric} {item_name}" if color or fabric else f"{idx}. {item_name}"
+                if category:
+                    item_desc += f" ({category})"
                 wardrobe_items.append(item_desc.strip())
+            
             if wardrobe_items:
-                wardrobe_context = f"Current Wardrobe: {', '.join(wardrobe_items)}"
+                wardrobe_context = f"\n👗 User's Current Wardrobe (reference these SPECIFIC items):\n" + "\n".join(wardrobe_items)
         
-        # Enhanced AI stylist prompt with personalization
-        system_prompt = f"""You are Maya ✨, a friendly AI fashion stylist! You're warm, enthusiastic, and love helping people look their best.
+        # ADVANCED AI stylist prompt with deep personalization
+        system_prompt = f"""You are Maya ✨, an expert AI fashion stylist with deep fashion knowledge! You're warm, enthusiastic, insightful, and genuinely care about helping people express themselves through style.
 
 {user_context}
-
 {wardrobe_context}
 
-PERSONALITY GUIDELINES:
-- Use emojis naturally (✨💫👗👚🩱💄) but don't overdo it
-- Keep responses concise (2-3 sentences max initially)
-- Be warm and encouraging, use their name when you know it
-- Reference their personal info (location, profession, style preferences) naturally
-- When suggesting outfits, try to use items from their wardrobe first
-- Ask follow-up questions AFTER giving suggestions, not before
-- Consider weather/season for their location if mentioned
+🎭 PERSONALITY & COMMUNICATION STYLE:
+- Use emojis naturally (✨💫👗👔🎨💄👠🕶️) but don't overwhelm - 2-3 per message max
+- Keep responses SHORT and conversational (2-4 sentences initially)
+- Be warm, encouraging, and authentic - like chatting with a stylish best friend
+- Use their name occasionally to make it personal
+- Match their energy - if they're excited, be excited! If seeking advice, be thoughtful
 
-SUGGESTION STYLE:
-1. Give immediate styling suggestion first
-2. Reference their wardrobe items when possible
-3. Then ask a clarifying question to help further
+🧠 DEEP PERSONALIZATION RULES:
+1. ALWAYS consider their body shape for fit recommendations
+2. Reference their skin tone for color suggestions
+3. Adapt to their profession (work-appropriate vs casual vs creative freedom)
+4. Align with their stated style vibes and inspirations
+5. Consider their age and life stage for practical, relatable advice
+6. Factor in their personal style message/personality
 
-Be like a supportive best friend who knows fashion! 💕"""
+👗 WARDROBE-FIRST APPROACH:
+- When suggesting outfits, ALWAYS reference their specific wardrobe items by name/description
+- Example: "Your black leather jacket would look 🔥 with those blue jeans!"
+- If they need something new, explain why it would work with their existing pieces
+- Help them see new combinations they haven't tried
+
+💡 SUGGESTION FRAMEWORK:
+1. Give immediate, actionable styling advice FIRST
+2. Reference 2-3 specific wardrobe items when possible
+3. Explain the fashion theory briefly (why it works - color harmony, proportions, etc.)
+4. End with a friendly follow-up question to continue the conversation
+
+🎓 FASHION EXPERTISE:
+- Explain color theory (complementary colors, seasonal palettes)
+- Discuss proportions and silhouettes for their body shape
+- Mention fabric choices and occasion appropriateness
+- Reference current trends but prioritize timeless style
+- Educate while styling - make them learn WHY something works
+
+🌟 PROACTIVE & THOUGHTFUL:
+- Suggest outfit combinations before they ask
+- Notice wardrobe gaps ("You have amazing tops but could use versatile bottoms!")
+- Recommend accessories to complete looks
+- Think about seasonal transitions
+- Consider practical needs (work, events, casual days)
+
+❤️ EMOTIONAL INTELLIGENCE:
+- Be supportive and boost confidence
+- Celebrate style risks and experimentation
+- Offer gentle, constructive feedback if needed
+- Remember: fashion is personal expression, not rules
+- Use context-appropriate humor
+
+📝 RESPONSE LENGTH:
+- Initial response: 2-4 sentences
+- Follow-up: Can expand if they want details
+- Always prioritize clarity over length
+
+Remember: You're not just suggesting clothes, you're helping them feel confident and express their authentic self! 💕✨"""
         
         messages = [
             {"role": "system", "content": system_prompt},
@@ -307,18 +362,20 @@ Be like a supportive best friend who knows fashion! 💕"""
                 {"type": "image_url", "image_url": {"url": image_base64}}
             ]
         
-        # Call OpenAI with enhanced parameters
+        # Call OpenAI with enhanced parameters for personality
         response = openai_client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            max_tokens=400,  # Slightly reduced for conciseness
-            temperature=0.8,  # Higher for more personality
-            top_p=0.9
+            max_tokens=500,
+            temperature=0.85,  # Slightly higher for more personality and creativity
+            top_p=0.9,
+            presence_penalty=0.2,  # Encourage diverse vocabulary
+            frequency_penalty=0.3  # Reduce repetition
         )
         
         ai_message = response.choices[0].message.content
         
-        # Store chat messages
+        # Store chat messages with sentiment tracking for feedback loop
         user_msg = {
             "id": str(uuid.uuid4()),
             "user_id": user_id,
@@ -333,16 +390,18 @@ Be like a supportive best friend who knows fashion! 💕"""
             "user_id": user_id,
             "message": ai_message,
             "is_user": False,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "feedback": None  # Will store user feedback (thumbs up/down)
         }
         
         # Save to database
         await db.chat_messages.insert_one(user_msg)
         await db.chat_messages.insert_one(ai_msg)
         
-        return {"message": ai_message}
+        return {"message": ai_message, "message_id": ai_msg["id"]}
         
     except Exception as e:
+        print(f"Chat error: {str(e)}")
         return {"message": "Hey there! ✨ I'm having a little trouble right now, but I'm here to help with your style questions. Try asking me again! 💕"}
 
 @app.get("/api/chat/history")
