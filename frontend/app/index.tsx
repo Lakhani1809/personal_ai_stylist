@@ -1257,41 +1257,61 @@ export default function App() {
               {/* Step 5: Style Vibe */}
               {onboardingStep === 5 && (
                 <View style={styles.onboardingStep}>
-                  <Text style={styles.stepTitle}>What inspires your style?</Text>
-                  <Text style={styles.stepSubtitle}>How do you discover new looks?</Text>
+                  <Text style={styles.stepTitle}>Which style vibe do you relate to?</Text>
+                  <Text style={styles.stepSubtitle}>Choose the aesthetic that speaks to you</Text>
                   
-                  <View style={styles.styleInspirationGrid}>
-                    {STYLE_INSPIRATIONS.map((option) => (
-                      <TouchableOpacity
-                        key={option.id}
-                        style={[
-                          styles.styleInspirationCard,
-                          onboardingData.style_inspiration === option.id && styles.selectedStyleCard
-                        ]}
-                        onPress={() => setOnboardingData({...onboardingData, style_inspiration: option.id})}
-                      >
-                        <Image 
-                          source={{ 
-                            uri: option.id === 'trend_focused' 
-                              ? 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/r4dr5lw5_Trends%404x.png'
-                              : option.id === 'inspired_by_vibe' 
-                                ? (onboardingData.gender === 'male' 
-                                  ? 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/d4hww85j_Male%20Inspo%404x.png'
-                                  : 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/iw70gpmz_Female%20Inspo%404x.png')
-                                : (onboardingData.gender === 'male'
-                                  ? 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/e570og4o_Adam%201%404x.png'
-                                  : 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/89anhi7k_Geet%202%404x.png')
-                          }} 
-                          style={styles.styleInspirationImage}
-                          resizeMode="cover"
-                        />
-                        <View style={styles.styleInspirationTextContainer}>
-                          <Text style={styles.styleInspirationLabel}>{option.label}</Text>
-                          <Text style={styles.styleInspirationDescription}>{option.description}</Text>
-                        </View>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                  <ScrollView style={styles.styleVibeScroll} showsVerticalScrollIndicator={false}>
+                    {(STYLE_VIBES[onboardingData.gender as keyof typeof STYLE_VIBES] || STYLE_VIBES.other).map((option, index) => {
+                      // Map style vibes to images
+                      const getStyleVibeImage = () => {
+                        if (onboardingData.gender === 'female') {
+                          const femaleImages = [
+                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/4r6dijid_Frame%202087328105.png', // Streetwear chic
+                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/taln6og3_Frame%202087328106.png', // Minimal & clean
+                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/y4w156f0_Frame%202087328107.png', // Soft & feminine
+                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/uodqmnf6_Frame%202087328105-1.png', // Sporty athleisure
+                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/r41svisl_Frame%202087328106-1.png', // Bold & statement
+                          ];
+                          return femaleImages[index];
+                        } else {
+                          const maleImages = [
+                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/9uydlrew_Frame%202087328105.png', // Streetwear casual
+                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/lurvtpev_Frame%202087328106.png', // Minimal & clean
+                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/izvuvymm_Frame%202087328107.png', // Bold & statement
+                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/2kco8shh_Frame%202087328105-1.png', // Sporty athleisure
+                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/xn4hfg1x_Frame%202087328106-1.png', // Old Money
+                          ];
+                          return maleImages[index];
+                        }
+                      };
+                      
+                      return (
+                        <TouchableOpacity
+                          key={option.id}
+                          style={[
+                            styles.styleVibeCard,
+                            onboardingData.style_vibe === option.id && styles.selectedStyleVibeCard
+                          ]}
+                          onPress={() => setOnboardingData({...onboardingData, style_vibe: option.id})}
+                        >
+                          <Image 
+                            source={{ uri: getStyleVibeImage() }} 
+                            style={styles.styleVibeImage}
+                            resizeMode="cover"
+                          />
+                          <View style={styles.styleVibeTextContainer}>
+                            <Text style={styles.styleVibeLabel}>{option.label}</Text>
+                            <Text style={styles.styleVibeDescription}>{option.description}</Text>
+                          </View>
+                          {onboardingData.style_vibe === option.id && (
+                            <View style={styles.styleVibeCheckmark}>
+                              <Ionicons name="checkmark-circle" size={28} color="#007AFF" />
+                            </View>
+                          )}
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
                 </View>
               )}
 
