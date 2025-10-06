@@ -1076,9 +1076,9 @@ export default function App() {
             <ScrollView contentContainerStyle={styles.onboardingContainer}>
               <View style={styles.onboardingHeader}>
                 <Text style={styles.onboardingTitle}>Let's Create Your Style Profile!</Text>
-                <Text style={styles.onboardingSubtitle}>Step {onboardingStep} of 8</Text>
+                <Text style={styles.onboardingSubtitle}>Step {onboardingStep} of 6</Text>
                 <View style={styles.progressBar}>
-                  <View style={[styles.progressFill, { width: `${(onboardingStep / 8) * 100}%` }]} />
+                  <View style={[styles.progressFill, { width: `${(onboardingStep / 6) * 100}%` }]} />
                 </View>
               </View>
 
