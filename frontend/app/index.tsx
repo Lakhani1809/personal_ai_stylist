@@ -1108,14 +1108,19 @@ export default function App() {
                         <TouchableOpacity
                           key={option.id}
                           style={[
-                            styles.optionButton,
-                            onboardingData.gender === option.id && styles.selectedOptionButton
+                            styles.genderButton,
+                            onboardingData.gender === option.id && styles.selectedGenderButton
                           ]}
                           onPress={() => setOnboardingData({...onboardingData, gender: option.id})}
                         >
+                          <Ionicons 
+                            name={option.icon as any} 
+                            size={24} 
+                            color={onboardingData.gender === option.id ? '#FFF' : option.color} 
+                          />
                           <Text style={[
-                            styles.optionButtonText,
-                            onboardingData.gender === option.id && styles.selectedOptionButtonText
+                            styles.genderButtonText,
+                            onboardingData.gender === option.id && styles.selectedGenderButtonText
                           ]}>
                             {option.label}
                           </Text>
