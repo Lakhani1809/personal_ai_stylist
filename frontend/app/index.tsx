@@ -1203,8 +1203,8 @@ export default function App() {
                 </View>
               )}
 
-              {/* Step 6: Skin Tone */}
-              {onboardingStep === 6 && (
+              {/* Step 3: Skin Tone */}
+              {onboardingStep === 3 && (
                 <View style={styles.onboardingStep}>
                   <Text style={styles.stepTitle}>What's your skin tone?</Text>
                   <Text style={styles.stepSubtitle}>Colors that complement your natural beauty</Text>
