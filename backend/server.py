@@ -427,6 +427,31 @@ async def clear_chat(user_id: str = Depends(get_current_user)):
     except Exception as e:
         return {"message": "Chat cleared"}
 
+
+@app.post("/api/chat/feedback")
+async def chat_feedback(feedback_data: dict, user_id: str = Depends(get_current_user)):
+    """
+    Allow users to provide feedback on AI responses for continuous learning.
+    Feedback can be 'positive', 'negative', or a text comment.
+    """
+    try:
+        message_id = feedback_data.get("message_id")
+        feedback_type = feedback_data.get("feedback")  # 'positive', 'negative', or text
+        
+        if not message_id:
+            raise HTTPException(status_code=400, detail="Message ID required")
+        
+        # Update the message with feedback
+        await db.chat_messages.update_one(
+            {"id": message_id, "user_id": user_id},
+            {"$set": {"feedback": feedback_type, "feedback_timestamp": datetime.now().isoformat()}}
+        )
+        
+        return {"message": "Feedback recorded", "status": "success"}
+    except Exception as e:
+        print(f"Feedback error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to record feedback")
+
 @app.post("/api/wardrobe")
 async def add_wardrobe_item(item_data: dict, user_id: str = Depends(get_current_user)):
     try:
