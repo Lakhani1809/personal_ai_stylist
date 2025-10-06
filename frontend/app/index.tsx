@@ -2372,26 +2372,29 @@ const styles = StyleSheet.create({
   
   // Style Inspiration
   styleInspirationGrid: {
-    gap: 16,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 10,
   },
   styleInspirationCard: {
-    width: '100%',
-    borderRadius: 16,
+    width: '48%',
+    borderRadius: 12,
     borderWidth: 2,
     borderColor: '#e9ecef',
     backgroundColor: 'white',
     overflow: 'hidden',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   selectedStyleCard: {
-    borderColor: '#007AFF',
+    borderColor: '#000000',
     borderWidth: 3,
   },
   styleInspirationImage: {
     width: '100%',
-    height: 140,
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
+    height: 120,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
   styleInspirationTextContainer: {
     padding: 16,
