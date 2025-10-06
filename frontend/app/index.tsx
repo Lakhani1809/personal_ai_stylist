@@ -1316,7 +1316,7 @@ export default function App() {
                         </TouchableOpacity>
                       );
                     })}
-                  </ScrollView>
+                  </View>
                 </View>
               )}
 
