@@ -2470,10 +2470,10 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   sectionLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#000',
+    marginBottom: 16,
   },
   textInput: {
     backgroundColor: '#f8f9fa',
