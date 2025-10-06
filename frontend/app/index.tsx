@@ -1222,6 +1222,10 @@ export default function App() {
                       >
                         <Text style={styles.skinToneLabel}>{tone.label}</Text>
                       </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
 
               {/* Step 4: Style Inspiration */}
               {onboardingStep === 4 && (
