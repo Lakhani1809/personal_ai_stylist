@@ -1187,14 +1187,17 @@ export default function App() {
                       <TouchableOpacity
                         key={option.id}
                         style={[
-                          styles.visualCard,
+                          styles.bodyShapeCard,
                           onboardingData.body_shape === option.id && styles.selectedCard
                         ]}
                         onPress={() => setOnboardingData({...onboardingData, body_shape: option.id})}
                       >
-                        <Text style={styles.bodyShapeIcon}>{option.icon}</Text>
+                        <Image 
+                          source={{ uri: option.image }} 
+                          style={styles.bodyShapeImage}
+                          resizeMode="contain"
+                        />
                         <Text style={styles.cardLabel}>{option.label}</Text>
-                        <Text style={styles.cardSubtitle}>{option.description}</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
