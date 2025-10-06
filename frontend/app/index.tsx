@@ -2483,6 +2483,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e9ecef',
   },
+  nameInput: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 18,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+    marginBottom: 8,
+  },
   buttonRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
