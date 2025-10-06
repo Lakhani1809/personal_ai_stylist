@@ -1175,8 +1175,8 @@ export default function App() {
                 </ScrollView>
               )}
 
-              {/* Step 5: Body Shape */}
-              {onboardingStep === 5 && (
+              {/* Step 2: Body Shape */}
+              {onboardingStep === 2 && (
                 <View style={styles.onboardingStep}>
                   <Text style={styles.stepTitle}>What's your body shape?</Text>
                   <Text style={styles.stepSubtitle}>This helps me suggest the most flattering styles</Text>
