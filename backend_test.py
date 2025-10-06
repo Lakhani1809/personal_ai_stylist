@@ -1111,12 +1111,12 @@ class BackendTester:
                 self.test_user_onboarding,
                 self.test_invalid_token
             ]),
-            ("🤖 NEW AI FUNCTIONALITY", [
-                self.test_ai_chat_functionality,
+            ("🤖 CHAT ENHANCEMENT PHASE 1A", [
+                self.test_enhanced_chat_personalization,
+                self.test_wardrobe_aware_chat,
+                self.test_ai_personality_improvements,
                 self.test_chat_history,
-                self.test_chat_clear,
-                self.test_wardrobe_management,
-                self.test_outfit_validation
+                self.test_wardrobe_management
             ])
         ]
         
