@@ -2408,28 +2408,31 @@ const styles = StyleSheet.create({
   },
   
   // Style Vibe
-  styleVibeScroll: {
-    flex: 1,
+  styleVibeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 10,
   },
   styleVibeCard: {
-    width: '100%',
-    borderRadius: 16,
+    width: '48%',
+    borderRadius: 12,
     borderWidth: 2,
     borderColor: '#e9ecef',
     backgroundColor: 'white',
     overflow: 'hidden',
-    marginBottom: 16,
+    marginBottom: 10,
     position: 'relative',
   },
   selectedStyleVibeCard: {
-    borderColor: '#007AFF',
+    borderColor: '#000000',
     borderWidth: 3,
   },
   styleVibeImage: {
     width: '100%',
-    height: 180,
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
+    height: 140,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
   styleVibeTextContainer: {
     padding: 16,
