@@ -1254,32 +1254,8 @@ export default function App() {
                 </View>
               )}
 
-              {/* Step 3: Skin Tone */}
-              {onboardingStep === 3 && (
-                <View style={styles.onboardingStep}>
-                  <Text style={styles.stepTitle}>What's your skin tone?</Text>
-                  <Text style={styles.stepSubtitle}>Colors that complement your natural beauty</Text>
-                  
-                  <View style={styles.skinToneGrid}>
-                    {SKIN_TONES.map((tone) => (
-                      <TouchableOpacity
-                        key={tone.id}
-                        style={[
-                          styles.skinToneCard,
-                          { backgroundColor: tone.color },
-                          onboardingData.skin_tone === tone.id && styles.selectedSkinTone
-                        ]}
-                        onPress={() => setOnboardingData({...onboardingData, skin_tone: tone.id})}
-                      >
-                        <Text style={styles.skinToneLabel}>{tone.label}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
-              )}
-
-              {/* Step 4: Style Inspiration */}
-              {onboardingStep === 4 && (
+              {/* Step 5: Style Vibe */}
+              {onboardingStep === 5 && (
                 <View style={styles.onboardingStep}>
                   <Text style={styles.stepTitle}>What inspires your style?</Text>
                   <Text style={styles.stepSubtitle}>How do you discover new looks?</Text>
