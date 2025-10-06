@@ -1264,8 +1264,8 @@ export default function App() {
                 </View>
               )}
 
-              {/* Step 8: Style Vibe */}
-              {onboardingStep === 8 && (
+              {/* Step 5: Style Vibe */}
+              {onboardingStep === 5 && (
                 <View style={styles.onboardingStep}>
                   <Text style={styles.stepTitle}>What's your style vibe?</Text>
                   <Text style={styles.stepSubtitle}>Choose the aesthetic that speaks to you</Text>
