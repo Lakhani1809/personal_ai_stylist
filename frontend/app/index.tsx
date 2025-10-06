@@ -2238,15 +2238,15 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     width: '100%',
-    height: 4,
+    height: 6,
     backgroundColor: '#e9ecef',
-    borderRadius: 2,
+    borderRadius: 3,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#007AFF',
-    borderRadius: 2,
+    backgroundColor: '#4CAF50',
+    borderRadius: 3,
   },
   onboardingStep: {
     flex: 1,
