@@ -1265,7 +1265,7 @@ export default function App() {
                   <Text style={styles.stepTitle}>Which style vibe do you relate to?</Text>
                   <Text style={styles.stepSubtitle}>Choose the aesthetic that speaks to you</Text>
                   
-                  <ScrollView style={styles.styleVibeScroll} showsVerticalScrollIndicator={false}>
+                  <View style={styles.styleVibeGrid}>
                     {(STYLE_VIBES[onboardingData.gender as keyof typeof STYLE_VIBES] || STYLE_VIBES.other).map((option, index) => {
                       // Map style vibes to images
                       const getStyleVibeImage = () => {
