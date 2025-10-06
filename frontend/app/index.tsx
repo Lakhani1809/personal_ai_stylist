@@ -1090,10 +1090,10 @@ export default function App() {
                   
                   {/* Name Input */}
                   <View style={styles.formSection}>
-                    <Text style={styles.sectionLabel}>What's your name?</Text>
                     <TextInput
-                      style={styles.textInput}
-                      placeholder="Enter your name"
+                      style={styles.nameInput}
+                      placeholder="What can we call you?"
+                      placeholderTextColor="#999"
                       value={onboardingData.name}
                       onChangeText={(text) => setOnboardingData({...onboardingData, name: text})}
                       autoCapitalize="words"
