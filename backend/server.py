@@ -13,6 +13,9 @@ import uuid
 import asyncio
 from typing import List, Optional, Dict, Any
 
+# Import custom model handler
+from model_handlers.custom_model_handler import model_handler
+
 load_dotenv()
 
 # Database setup
