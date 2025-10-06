@@ -2345,6 +2345,18 @@ const styles = StyleSheet.create({
   aiMessageText: {
     color: '#333',
   },
+  typingIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  typingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#666',
+    opacity: 0.7,
+  },
   messageImage: {
     width: 200,
     height: 200,
