@@ -1,28 +1,19 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for AI Stylist App
-Tests authentication endpoints and NEW AI functionality endpoints
+Backend Testing Suite for AI Stylist Chat Improvements Round 2
+Testing enhanced chat functionality with personal stylist improvements
 """
 
 import requests
 import json
+import time
+import re
 import sys
-import base64
-import uuid
-from datetime import datetime
+from typing import Dict, List, Any
 
-# Configuration
+# Use the production URL from frontend/.env
 BASE_URL = "https://stylistai.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
-
-# Test data - using timestamp to avoid conflicts
-import time
-timestamp = int(time.time())
-TEST_USER = {
-    "email": f"testuser_{timestamp}@example.com",
-    "password": "SecurePass123!",
-    "name": f"Test User {timestamp}"
-}
 
 # Sample base64 image data (small 1x1 pixel PNG)
 SAMPLE_IMAGE_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
