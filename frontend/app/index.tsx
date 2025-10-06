@@ -2496,10 +2496,11 @@ const styles = StyleSheet.create({
     borderColor: '#e9ecef',
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 8,
   },
   selectedOptionButton: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: '#000000',
+    borderColor: '#000000',
   },
   optionButtonText: {
     fontSize: 14,
@@ -2507,6 +2508,33 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   selectedOptionButtonText: {
+    color: '#FFF',
+  },
+  
+  // Gender buttons with icons
+  genderButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+    backgroundColor: '#f8f9fa',
+    borderWidth: 2,
+    borderColor: '#e9ecef',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  selectedGenderButton: {
+    backgroundColor: '#000000',
+    borderColor: '#000000',
+  },
+  genderButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
+  },
+  selectedGenderButtonText: {
     color: '#FFF',
   },
 
