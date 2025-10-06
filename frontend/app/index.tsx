@@ -1175,8 +1175,59 @@ export default function App() {
                 </ScrollView>
               )}
 
-              {/* Step 2: Body Shape */}
+              {/* Step 2: Style Expression */}
               {onboardingStep === 2 && (
+                <View style={styles.onboardingStep}>
+                  <Text style={styles.stepTitle}>When you dress, what are you saying to the world?</Text>
+                  <Text style={styles.stepSubtitle}>Choose the statement that resonates with you</Text>
+                  
+                  <View style={styles.styleMessageGrid}>
+                    {STYLE_MESSAGES.map((option) => (
+                      <TouchableOpacity
+                        key={option.id}
+                        style={[
+                          styles.styleMessageCard,
+                          onboardingData.style_message === option.id && styles.selectedStyleMessageCard
+                        ]}
+                        onPress={() => setOnboardingData({...onboardingData, style_message: option.id})}
+                      >
+                        <Text style={styles.styleMessageLabel}>{option.label}</Text>
+                        {onboardingData.style_message === option.id && (
+                          <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Step 3: Skin Tone */}
+              {onboardingStep === 3 && (
+                <View style={styles.onboardingStep}>
+                  <Text style={styles.stepTitle}>Colors that love you back</Text>
+                  <Text style={styles.stepSubtitle}>Choose the one that's closest to your natural skin tone</Text>
+                  
+                  <View style={styles.skinToneGrid}>
+                    {SKIN_TONES.map((tone) => (
+                      <TouchableOpacity
+                        key={tone.id}
+                        style={[
+                          styles.skinToneCard,
+                          { backgroundColor: tone.color },
+                          onboardingData.skin_tone === tone.id && styles.selectedSkinTone
+                        ]}
+                        onPress={() => setOnboardingData({...onboardingData, skin_tone: tone.id})}
+                      >
+                        <Text style={styles.skinToneLabel}>{tone.label}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                  <Text style={styles.skinToneTip}>Tip: Choose the tone closest to your inner forearm or jawline</Text>
+                </View>
+              )}
+
+              {/* Step 4: Body Type */}
+              {onboardingStep === 4 && (
                 <View style={styles.onboardingStep}>
                   <Text style={styles.stepTitle}>What's your body shape?</Text>
                   <Text style={styles.stepSubtitle}>This helps me suggest the most flattering styles</Text>
