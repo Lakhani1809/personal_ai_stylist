@@ -689,6 +689,18 @@ export default function App() {
     setChatImage(null);
     
     setLoading(true);
+    
+    // Add typing indicator
+    const typingMessage: ChatMessage = {
+      id: 'typing-' + Date.now(),
+      user_id: user!.id,
+      message: '...',
+      is_user: false,
+      timestamp: new Date().toISOString(),
+      isTyping: true,
+    };
+    setChatMessages(prev => [...prev.filter(msg => !msg.id.startsWith('loading-')), typingMessage]);
+    
     try {
       const response = await fetch(`${BACKEND_URL}/api/chat`, {
         method: 'POST',
@@ -705,31 +717,37 @@ export default function App() {
       const data = await response.json();
 
       if (response.ok) {
-        // Remove loading message and add AI response
-        setChatMessages(prev => {
-          // Remove the loading message
-          const filtered = prev.filter(msg => !msg.id.startsWith('loading-'));
+        // Remove typing indicator
+        setChatMessages(prev => prev.filter(msg => !msg.id.startsWith('typing-') && !msg.id.startsWith('loading-')));
+        
+        // Handle chunked messages - add them sequentially with delays
+        const messageChunks = data.messages || [data.message]; // Support both new and old format
+        
+        for (let i = 0; i < messageChunks.length; i++) {
+          // Add slight delay between chunks for natural feel (except first one)
+          if (i > 0) {
+            await new Promise(resolve => setTimeout(resolve, 600)); // 600ms delay between chunks
+          }
           
-          // Add AI response
           const aiMessage: ChatMessage = {
-            id: (Date.now() + 1).toString(),
+            id: data.message_ids ? data.message_ids[i] : (Date.now() + i).toString(),
             user_id: user!.id,
-            message: data.message,
+            message: messageChunks[i],
             is_user: false,
             timestamp: new Date().toISOString(),
           };
           
-          return [...filtered, aiMessage];
-        });
+          setChatMessages(prev => [...prev, aiMessage]);
+        }
       } else {
-        // Remove loading message on error
-        setChatMessages(prev => prev.filter(msg => !msg.id.startsWith('loading-')));
+        // Remove typing indicator on error
+        setChatMessages(prev => prev.filter(msg => !msg.id.startsWith('typing-') && !msg.id.startsWith('loading-')));
         Alert.alert('Error', data.detail || 'Failed to send message');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      // Remove loading message on network error
-      setChatMessages(prev => prev.filter(msg => !msg.id.startsWith('loading-')));
+      // Remove typing indicator on network error
+      setChatMessages(prev => prev.filter(msg => !msg.id.startsWith('typing-') && !msg.id.startsWith('loading-')));
       Alert.alert('Network Error', 'Please check your internet connection and try again');
     } finally {
       setLoading(false);
