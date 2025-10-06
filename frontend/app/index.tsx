@@ -1357,32 +1357,6 @@ export default function App() {
               )}
 
               {/* Navigation Buttons */}
-              {onboardingStep === 6 && (
-                <View style={styles.onboardingStep}>
-                  <Text style={styles.stepTitle}>What's your style motto?</Text>
-                  <Text style={styles.stepSubtitle}>Choose the statement that resonates with you</Text>
-                  
-                  <View style={styles.styleMessageGrid}>
-                    {STYLE_MESSAGES.map((option) => (
-                      <TouchableOpacity
-                        key={option.id}
-                        style={[
-                          styles.styleMessageCard,
-                          onboardingData.style_message === option.id && styles.selectedStyleMessageCard
-                        ]}
-                        onPress={() => setOnboardingData({...onboardingData, style_message: option.id})}
-                      >
-                        <Text style={styles.styleMessageLabel}>{option.label}</Text>
-                        {onboardingData.style_message === option.id && (
-                          <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
-                        )}
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
-              )}
-
-              {/* Navigation Buttons */}
               <View style={styles.onboardingButtons}>
                 {onboardingStep > 1 && (
                   <TouchableOpacity
