@@ -2414,8 +2414,21 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.1 }],
   },
   skinToneLabel: {
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: 12,
+    color: '#333',
+    textAlign: 'center',
+  },
+  selectedSkinTone: {
+    borderColor: '#007AFF',
+    borderWidth: 3,
+  },
+  skinToneTip: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 16,
+    fontStyle: 'italic',
+  },
 
   // Body shape with images
   bodyShapeCard: {
