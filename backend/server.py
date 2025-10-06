@@ -375,7 +375,41 @@ Remember: You're their PERSONAL STYLIST - be specific, be conversational, be a t
         
         ai_message = response.choices[0].message.content
         
-        # Store chat messages with sentiment tracking for feedback loop
+        # Chunk the response into smaller messages (like texting)
+        message_chunks = []
+        if "||CHUNK||" in ai_message:
+            # AI used our chunking format
+            message_chunks = [chunk.strip() for chunk in ai_message.split("||CHUNK||") if chunk.strip()]
+        else:
+            # Fallback: split by sentences if AI didn't chunk
+            sentences = ai_message.replace(". ", ".|").replace("? ", "?|").replace("! ", "!|").split("|")
+            
+            # Group into chunks of 1-2 sentences (max ~30 words)
+            current_chunk = ""
+            for sentence in sentences:
+                sentence = sentence.strip()
+                if not sentence:
+                    continue
+                    
+                test_chunk = (current_chunk + " " + sentence).strip()
+                word_count = len(test_chunk.split())
+                
+                if word_count > 30 and current_chunk:
+                    # Current chunk is big enough, save it
+                    message_chunks.append(current_chunk)
+                    current_chunk = sentence
+                else:
+                    current_chunk = test_chunk
+            
+            # Add remaining chunk
+            if current_chunk:
+                message_chunks.append(current_chunk)
+        
+        # Limit to max 3 chunks for better UX
+        if len(message_chunks) > 3:
+            message_chunks = message_chunks[:3]
+        
+        # Store user message
         user_msg = {
             "id": str(uuid.uuid4()),
             "user_id": user_id,
@@ -384,21 +418,34 @@ Remember: You're their PERSONAL STYLIST - be specific, be conversational, be a t
             "timestamp": datetime.now().isoformat(),
             "image_base64": image_base64
         }
-        
-        ai_msg = {
-            "id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "message": ai_message,
-            "is_user": False,
-            "timestamp": datetime.now().isoformat(),
-            "feedback": None  # Will store user feedback (thumbs up/down)
-        }
-        
-        # Save to database
         await db.chat_messages.insert_one(user_msg)
-        await db.chat_messages.insert_one(ai_msg)
         
-        return {"message": ai_message, "message_id": ai_msg["id"]}
+        # Store each chunk as a separate message with slight timestamp offset
+        ai_message_ids = []
+        for idx, chunk in enumerate(message_chunks):
+            ai_msg = {
+                "id": str(uuid.uuid4()),
+                "user_id": user_id,
+                "message": chunk,
+                "is_user": False,
+                "timestamp": datetime.now().isoformat(),
+                "feedback": None,
+                "chunk_index": idx,
+                "total_chunks": len(message_chunks)
+            }
+            await db.chat_messages.insert_one(ai_msg)
+            ai_message_ids.append(ai_msg["id"])
+            
+            # Small delay between chunks
+            if idx < len(message_chunks) - 1:
+                await asyncio.sleep(0.1)
+        
+        # Return all message chunks
+        return {
+            "messages": message_chunks,
+            "message_ids": ai_message_ids,
+            "total_chunks": len(message_chunks)
+        }
         
     except Exception as e:
         print(f"Chat error: {str(e)}")
