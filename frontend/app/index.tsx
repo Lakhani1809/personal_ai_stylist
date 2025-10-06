@@ -2645,9 +2645,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: '#000000',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 24,
     gap: 8,
   },
   nextButtonText: {
