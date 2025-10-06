@@ -2354,19 +2354,20 @@ const styles = StyleSheet.create({
 
   // Body shape with images
   bodyShapeCard: {
-    width: '47%',
-    padding: 16,
+    width: '30%',
+    padding: 12,
     borderRadius: 16,
     borderWidth: 2,
     borderColor: '#e9ecef',
     backgroundColor: 'white',
     alignItems: 'center',
-    minHeight: 180,
+    minHeight: 150,
+    marginBottom: 12,
   },
   bodyShapeImage: {
-    width: 80,
-    height: 120,
-    marginBottom: 12,
+    width: 60,
+    height: 90,
+    marginBottom: 8,
   },
   
   // Style Inspiration
