@@ -1352,15 +1352,6 @@ export default function App() {
                 </View>
               )}
 
-                  </ScrollView>
-                </View>
-              )}
-
-                    ))}
-                  </View>
-                </View>
-              )}
-
               {/* Navigation Buttons */}
               <View style={styles.onboardingButtons}>
                 {onboardingStep > 1 && (
