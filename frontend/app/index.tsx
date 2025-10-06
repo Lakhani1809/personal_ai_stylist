@@ -156,6 +156,7 @@ interface ChatMessage {
   is_user: boolean;
   timestamp: string;
   image_base64?: string;
+  isTyping?: boolean; // For typing indicator
 }
 
 interface OutfitValidation {
