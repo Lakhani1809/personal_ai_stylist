@@ -1,0 +1,144 @@
+diff --git a/backend/server.py b/backend/server.py
+index 81621f2..63dad88 100644
+--- a/backend/server.py
++++ b/backend/server.py
+@@ -398,95 +398,58 @@ async def add_wardrobe_item(item_data: dict, user_id: str = Depends(get_current_
+             "tags": ["clothing", "wardrobe"]
+         }
+         
+-        # Advanced AI analysis with multiple attempts and better error handling
++        # Use custom model handler for clothing analysis
+         ai_success = False
+         try:
+-            if OPENAI_API_KEY and len(OPENAI_API_KEY) > 10:
+-                print(f"🤖 Starting advanced AI analysis for clothing item...")
+-                
+-                # Enhanced analysis prompt for maximum accuracy
+-                analysis_prompt = """You are an expert fashion analyst. Examine this clothing item image with extreme precision and attention to detail.
+-
+-CRITICAL INSTRUCTIONS:
+-- Look at the EXACT color - distinguish between similar shades (lavender vs blue, burgundy vs red, forest green vs emerald)
+-- Identify the SPECIFIC garment type - be precise (t-shirt vs blouse vs tank top vs sweater)
+-- Examine fabric texture, weave, and material properties closely
+-- Note ALL style details: neckline, sleeves, fit, cut, embellishments
+-- Provide professional-level accuracy as if cataloging for a high-end retailer
+-
+-Return ONLY this JSON format with NO additional text:
+-{
+-  "exact_item_name": "Ultra-specific description with exact color and garment type (e.g., 'Lavender Purple Cotton Crew Neck T-Shirt', 'Burgundy Wool V-Neck Cardigan', 'Black Denim Skinny Jeans')",
+-  "category": "Exact category: Tops, Bottoms, Dresses, Outerwear, Shoes, Accessories",
+-  "color": "Precise color name (Lavender Purple, Sage Green, Burgundy, Coral Pink, Navy Blue, Charcoal Gray, etc.)",
+-  "pattern": "Exact pattern: Solid, Vertical Stripes, Horizontal Stripes, Polka Dots, Floral Print, Plaid, Checkered, Paisley, Abstract, Animal Print, Tie-Dye, Geometric",
+-  "fabric_type": "Specific material: Cotton, Wool, Silk, Denim, Leather, Polyester, Linen, Cashmere, Velvet, Satin, Jersey Knit, French Terry, etc.",
+-  "style": "Detailed style: Casual Basic, Formal Business, Athleisure, Vintage Retro, Modern Minimalist, Boho Chic, Streetwear Urban, Preppy Classic, etc.",
+-  "tags": ["6 precise tags describing fit, occasion, season, vibe, etc."]
+-}
+-
+-ACCURACY IS CRITICAL - Take time to analyze every detail correctly."""
+-
+-                # Make API call with better parameters
+-                response = openai_client.chat.completions.create(
+-                    model="gpt-4o-mini", 
+-                    messages=[
+-                        {
+-                            "role": "system",
+-                            "content": "You are a professional fashion expert with perfect color vision and extensive knowledge of clothing, fabrics, and styles. Provide only accurate, detailed analysis."
+-                        },
+-                        {
+-                            "role": "user",
+-                            "content": [
+-                                {"type": "text", "text": analysis_prompt},
+-                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{clean_base64}"}}
+-                            ]
+-                        }
+-                    ],
+-                    max_tokens=350,
+-                    temperature=0.0,  # Zero temperature for maximum accuracy and consistency
+-                    top_p=0.1
+-                )
+-                
+-                ai_result = response.choices[0].message.content.strip()
+-                print(f"🔍 Raw AI response: {ai_result[:200]}...")
+-                
+-                # Clean the response - remove any markdown formatting
+-                ai_result = ai_result.replace('```json', '').replace('```', '').strip()
++            print(f"🤖 Starting custom model analysis for clothing item...")
++            
++            # Use custom models first (your models)
++            analysis_data = model_handler.analyze_clothing_item(f"data:image/jpeg;base64,{clean_base64}")
++            
++            if analysis_data and analysis_data.get("exact_item_name") != "Fashion Item":
++                ai_success = True
++                print(f"✅ Custom model analysis successful!")
++                print(f"   Item: {analysis_data['exact_item_name']}")
++                print(f"   Color: {analysis_data['color']}")
++                print(f"   Material: {analysis_data['fabric_type']}")
++            else:
++                print("⚠️ Custom models not available, falling back to OpenAI...")
+                 
+-                # Parse JSON with better error handling
+-                import json
+-                try:
+-                    parsed_result = json.loads(ai_result)
++                # Fallback to OpenAI if custom models aren't loaded
++                if OPENAI_API_KEY and len(OPENAI_API_KEY) > 10:
++                    analysis_prompt = """Analyze this clothing item precisely. Return JSON with: exact_item_name, category, color, pattern, fabric_type, style, tags."""
+                     
+-                    # Validate required fields exist
+-                    required_fields = ["exact_item_name", "category", "color", "pattern", "fabric_type", "style", "tags"]
+-                    if all(field in parsed_result for field in required_fields):
+-                        analysis_data = {
+-                            "exact_item_name": parsed_result.get("exact_item_name", "Clothing Item"),
+-                            "category": parsed_result.get("category", "Tops"),
+-                            "color": parsed_result.get("color", "Unknown"),
+-                            "pattern": parsed_result.get("pattern", "Solid"),
+-                            "fabric_type": parsed_result.get("fabric_type", "Cotton"),
+-                            "style": parsed_result.get("style", "Casual"),
+-                            "tags": parsed_result.get("tags", ["clothing"])
+-                        }
++                    response = openai_client.chat.completions.create(
++                        model="gpt-4o-mini",
++                        messages=[
++                            {
++                                "role": "user",
++                                "content": [
++                                    {"type": "text", "text": analysis_prompt},
++                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{clean_base64}"}}
++                                ]
++                            }
++                        ],
++                        max_tokens=300,
++                        temperature=0.1
++                    )
++                    
++                    ai_result = response.choices[0].message.content.strip()
++                    ai_result = ai_result.replace('```json', '').replace('```', '').strip()
++                    
++                    try:
++                        import json
++                        parsed_result = json.loads(ai_result)
++                        analysis_data.update(parsed_result)
+                         ai_success = True
+-                        print(f"✅ AI analysis successful!")
+-                        print(f"   Item: {analysis_data['exact_item_name']}")
+-                        print(f"   Color: {analysis_data['color']}")
+-                        print(f"   Material: {analysis_data['fabric_type']}")
+-                    else:
+-                        print(f"❌ AI response missing required fields: {ai_result}")
+-                        
+-                except json.JSONDecodeError as json_error:
+-                    print(f"❌ JSON parsing failed: {json_error}")
+-                    print(f"   Raw response: {ai_result}")
++                        print(f"✅ OpenAI fallback analysis successful!")
++                    except:
++                        print(f"❌ OpenAI fallback failed")
+                 
+         except Exception as ai_error:
+-            print(f"❌ AI analysis error: {str(ai_error)}")
++            print(f"❌ Model analysis error: {str(ai_error)}")
+             
+-        # Use enhanced fallback if AI failed
++        # Use enhanced fallback if both custom models and OpenAI failed
+         if not ai_success:
+             print("⚠️ Using enhanced fallback analysis")
+             # Keep the original fallback data
