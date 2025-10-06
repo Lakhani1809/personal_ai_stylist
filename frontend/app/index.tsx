@@ -1223,8 +1223,8 @@ export default function App() {
                         <Text style={styles.skinToneLabel}>{tone.label}</Text>
                       </TouchableOpacity>
 
-              {/* Step 7: Style Inspiration */}
-              {onboardingStep === 7 && (
+              {/* Step 4: Style Inspiration */}
+              {onboardingStep === 4 && (
                 <View style={styles.onboardingStep}>
                   <Text style={styles.stepTitle}>What inspires your style?</Text>
                   <Text style={styles.stepSubtitle}>How do you discover new looks?</Text>
