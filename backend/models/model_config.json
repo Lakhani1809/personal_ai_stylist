@@ -1,0 +1,56 @@
+{
+  "clothing_classifier": {
+    "path": "/app/backend/models/clothing_classifier.pt",
+    "type": "pytorch",
+    "task": "clothing_classification",
+    "categories": [
+      "tops",
+      "bottoms",
+      "dresses",
+      "outerwear",
+      "shoes",
+      "accessories"
+    ],
+    "input_size": [
+      224,
+      224
+    ],
+    "enabled": false
+  },
+  "color_detector": {
+    "path": "/app/backend/models/color_detector.onnx",
+    "type": "onnx",
+    "task": "color_detection",
+    "colors": [
+      "red",
+      "blue",
+      "green",
+      "yellow",
+      "black",
+      "white",
+      "brown",
+      "pink",
+      "purple",
+      "orange"
+    ],
+    "input_size": [
+      256,
+      256
+    ],
+    "enabled": false
+  },
+  "style_analyzer": {
+    "path": "/app/backend/models/style_analyzer.pkl",
+    "type": "sklearn",
+    "task": "style_analysis",
+    "styles": [
+      "casual",
+      "formal",
+      "athletic",
+      "vintage",
+      "modern",
+      "bohemian"
+    ],
+    "enabled": false
+  }
+}
