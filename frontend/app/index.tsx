@@ -1229,8 +1229,8 @@ export default function App() {
               {/* Step 4: Body Type */}
               {onboardingStep === 4 && (
                 <View style={styles.onboardingStep}>
-                  <Text style={styles.stepTitle}>What's your body shape?</Text>
-                  <Text style={styles.stepSubtitle}>This helps me suggest the most flattering styles</Text>
+                  <Text style={styles.stepTitle}>Let's get the fit right</Text>
+                  <Text style={styles.stepSubtitle}>Pick the body type that feels closest to you, no stress, all styles welcome</Text>
                   
                   <View style={styles.cardGrid}>
                     {(BODY_SHAPES[onboardingData.gender as keyof typeof BODY_SHAPES] || BODY_SHAPES.other).map((option) => (
