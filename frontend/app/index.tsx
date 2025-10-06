@@ -2530,14 +2530,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
     flex: 1,
-    marginLeft: 12,
-  },
-
-    textAlign: 'center',
-    color: '#333',
-    textShadowColor: 'rgba(255, 255, 255, 0.8)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
   },
   
   onboardingButtons: {
