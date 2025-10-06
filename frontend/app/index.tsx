@@ -1357,60 +1357,6 @@ export default function App() {
               )}
 
               {/* Navigation Buttons */}
-                      // Map style vibes to images
-                      const getStyleVibeImage = () => {
-                        if (onboardingData.gender === 'female') {
-                          const femaleImages = [
-                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/4r6dijid_Frame%202087328105.png', // Streetwear chic
-                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/taln6og3_Frame%202087328106.png', // Minimal & clean
-                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/y4w156f0_Frame%202087328107.png', // Soft & feminine
-                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/uodqmnf6_Frame%202087328105-1.png', // Sporty athleisure
-                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/r41svisl_Frame%202087328106-1.png', // Bold & statement
-                          ];
-                          return femaleImages[index];
-                        } else {
-                          const maleImages = [
-                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/9uydlrew_Frame%202087328105.png', // Streetwear casual
-                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/lurvtpev_Frame%202087328106.png', // Minimal & clean
-                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/izvuvymm_Frame%202087328107.png', // Bold & statement
-                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/2kco8shh_Frame%202087328105-1.png', // Sporty athleisure
-                            'https://customer-assets.emergentagent.com/job_stylistai/artifacts/xn4hfg1x_Frame%202087328106-1.png', // Old Money
-                          ];
-                          return maleImages[index];
-                        }
-                      };
-                      
-                      return (
-                        <TouchableOpacity
-                          key={option.id}
-                          style={[
-                            styles.styleVibeCard,
-                            onboardingData.style_vibe === option.id && styles.selectedStyleVibeCard
-                          ]}
-                          onPress={() => setOnboardingData({...onboardingData, style_vibe: option.id})}
-                        >
-                          <Image 
-                            source={{ uri: getStyleVibeImage() }} 
-                            style={styles.styleVibeImage}
-                            resizeMode="cover"
-                          />
-                          <View style={styles.styleVibeTextContainer}>
-                            <Text style={styles.styleVibeLabel}>{option.label}</Text>
-                            <Text style={styles.styleVibeDescription}>{option.description}</Text>
-                          </View>
-                          {onboardingData.style_vibe === option.id && (
-                            <View style={styles.styleVibeCheckmark}>
-                              <Ionicons name="checkmark-circle" size={28} color="#007AFF" />
-                            </View>
-                          )}
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </ScrollView>
-                </View>
-              )}
-
-              {/* Step 6: Style Message */}
               {onboardingStep === 6 && (
                 <View style={styles.onboardingStep}>
                   <Text style={styles.stepTitle}>What's your style motto?</Text>
