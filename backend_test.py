@@ -415,18 +415,18 @@ class BackendTester:
 
     # ===== NEW AI FUNCTIONALITY TESTS =====
     
-    def test_ai_chat_functionality(self):
-        """Test AI chat endpoint with OpenAI integration"""
+    def test_enhanced_chat_personalization(self):
+        """Test enhanced chat personalization with ALL onboarding data"""
         if not self.access_token:
-            self.log_result("AI Chat Test", False, "No access token available")
+            self.log_result("Enhanced Chat Personalization", False, "No access token available")
             return False
             
-        print("   🤖 Testing AI Chat with OpenAI integration...")
+        print("   ✨ Testing Enhanced Chat Personalization (Phase 1A)...")
         
         try:
-            # Test 1: Simple text chat
+            # Test 1: Basic personalized chat
             chat_data = {
-                "message": "Hello! Can you give me some fashion advice for a casual summer outfit?"
+                "message": "What should I wear today?"
             }
             
             headers = {"Authorization": f"Bearer {self.access_token}"}
@@ -434,82 +434,263 @@ class BackendTester:
                 f"{API_BASE}/chat",
                 json=chat_data,
                 headers=headers,
-                timeout=30  # Longer timeout for AI response
+                timeout=30
             )
             
             if response.status_code == 200:
                 data = response.json()
                 ai_message = data.get("message", "")
+                message_id = data.get("message_id", "")
                 
-                # Check if we get an actual AI response (not just "Hello")
-                if ai_message and len(ai_message) > 20 and "Hello" not in ai_message:
-                    self.log_result(
-                        "AI Chat - Text Message", 
-                        True, 
-                        f"Received intelligent AI response: {ai_message[:100]}...",
-                        {"response_length": len(ai_message), "preview": ai_message[:200]}
-                    )
-                    
-                    # Test 2: Chat with image
-                    try:
-                        chat_with_image = {
-                            "message": "What do you think of this outfit?",
-                            "image_base64": SAMPLE_IMAGE_BASE64
-                        }
-                        
-                        image_response = self.session.post(
-                            f"{API_BASE}/chat",
-                            json=chat_with_image,
-                            headers=headers,
-                            timeout=30
-                        )
-                        
-                        if image_response.status_code == 200:
-                            image_data = image_response.json()
-                            image_ai_message = image_data.get("message", "")
-                            
-                            if image_ai_message and len(image_ai_message) > 10:
-                                self.log_result(
-                                    "AI Chat - Image Message", 
-                                    True, 
-                                    f"AI processed image successfully: {image_ai_message[:100]}...",
-                                    {"response_length": len(image_ai_message)}
-                                )
-                                return True
-                            else:
-                                self.log_result(
-                                    "AI Chat - Image Message", 
-                                    False, 
-                                    f"Poor AI response with image: {image_ai_message}"
-                                )
-                        else:
-                            self.log_result(
-                                "AI Chat - Image Message", 
-                                False, 
-                                f"Image chat failed: {image_response.status_code}",
-                                image_response.text
-                            )
-                    except Exception as e:
-                        self.log_result("AI Chat - Image Message", False, f"Image chat error: {str(e)}")
-                    
-                    return True
-                else:
-                    self.log_result(
-                        "AI Chat - Text Message", 
-                        False, 
-                        f"Received generic/short response (expected intelligent AI): {ai_message}",
-                        data
-                    )
+                # Enhanced personalization checks
+                personalization_checks = {
+                    "has_emojis": any(char in ai_message for char in "✨💫👗👔🎨💄👠🕶️🔥💕"),
+                    "short_response": 20 <= len(ai_message.split()) <= 100,  # 2-4 sentences
+                    "has_message_id": bool(message_id),
+                    "conversational": any(word in ai_message.lower() for word in ["you", "your", "i'd", "let's"]),
+                    "not_generic": "Hello" not in ai_message and len(ai_message) > 30
+                }
+                
+                passed_checks = sum(personalization_checks.values())
+                success = passed_checks >= 4  # At least 4/5 checks should pass
+                
+                self.log_result(
+                    "Enhanced Chat Personalization", 
+                    success, 
+                    f"Personalization score: {passed_checks}/5 | Response: '{ai_message[:100]}...' | Message ID: {message_id}",
+                    {"checks": personalization_checks, "response_preview": ai_message[:200]}
+                )
+                
+                return message_id if success else None
             else:
                 self.log_result(
-                    "AI Chat - Text Message", 
+                    "Enhanced Chat Personalization", 
                     False, 
                     f"Chat failed: {response.status_code}",
                     response.text
                 )
                 
         except Exception as e:
-            self.log_result("AI Chat - Text Message", False, f"Chat error: {str(e)}")
+            self.log_result("Enhanced Chat Personalization", False, f"Chat error: {str(e)}")
+        return None
+
+    def test_wardrobe_aware_chat(self):
+        """Test wardrobe-aware suggestions referencing specific items"""
+        if not self.access_token:
+            self.log_result("Wardrobe-Aware Chat", False, "No access token available")
+            return False
+            
+        print("   👗 Testing Wardrobe-Aware Chat Suggestions...")
+        
+        try:
+            # First ensure we have wardrobe items
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            
+            # Add a few wardrobe items if needed
+            wardrobe_items = [
+                {"image_base64": SAMPLE_IMAGE_BASE64, "exact_item_name": "Black Leather Jacket"},
+                {"image_base64": SAMPLE_IMAGE_BASE64, "exact_item_name": "Blue Skinny Jeans"},
+                {"image_base64": SAMPLE_IMAGE_BASE64, "exact_item_name": "White Silk Blouse"}
+            ]
+            
+            for item in wardrobe_items:
+                try:
+                    self.session.post(f"{API_BASE}/wardrobe", json=item, headers=headers, timeout=10)
+                except:
+                    pass  # Ignore errors, items might already exist
+            
+            # Test wardrobe-aware chat
+            chat_data = {
+                "message": "Can you suggest an outfit from my wardrobe?"
+            }
+            
+            response = self.session.post(
+                f"{API_BASE}/chat",
+                json=chat_data,
+                headers=headers,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                ai_message = data.get("message", "")
+                message_id = data.get("message_id", "")
+                
+                # Check for wardrobe item references
+                wardrobe_references = {
+                    "mentions_specific_items": any(item in ai_message.lower() for item in ["jacket", "jeans", "blouse"]),
+                    "mentions_colors": any(color in ai_message.lower() for color in ["black", "blue", "white"]),
+                    "substantial_response": len(ai_message) > 50,
+                    "has_styling_advice": any(word in ai_message.lower() for word in ["wear", "pair", "style", "look", "outfit"]),
+                    "has_message_id": bool(message_id)
+                }
+                
+                passed_checks = sum(wardrobe_references.values())
+                success = passed_checks >= 3  # At least 3/5 checks should pass
+                
+                self.log_result(
+                    "Wardrobe-Aware Chat", 
+                    success, 
+                    f"Wardrobe awareness score: {passed_checks}/5 | Response: '{ai_message[:150]}...'",
+                    {"checks": wardrobe_references, "message_id": message_id}
+                )
+                
+                return message_id if success else None
+            else:
+                self.log_result(
+                    "Wardrobe-Aware Chat", 
+                    False, 
+                    f"Chat failed: {response.status_code}",
+                    response.text
+                )
+                
+        except Exception as e:
+            self.log_result("Wardrobe-Aware Chat", False, f"Chat error: {str(e)}")
+        return None
+
+    def test_chat_feedback_endpoint(self, message_id):
+        """Test new chat feedback endpoint"""
+        if not self.access_token:
+            self.log_result("Chat Feedback Endpoint", False, "No access token available")
+            return False
+            
+        if not message_id:
+            self.log_result("Chat Feedback Endpoint", False, "No message_id available for testing")
+            return False
+            
+        print("   👍 Testing Chat Feedback Endpoint...")
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            
+            # Test positive feedback
+            feedback_data = {
+                "message_id": message_id,
+                "feedback": "positive"
+            }
+            
+            response = self.session.post(
+                f"{API_BASE}/chat/feedback",
+                json=feedback_data,
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                if data.get("status") == "success" and "recorded" in data.get("message", "").lower():
+                    # Test negative feedback as well
+                    feedback_data["feedback"] = "negative"
+                    response2 = self.session.post(
+                        f"{API_BASE}/chat/feedback",
+                        json=feedback_data,
+                        headers=headers,
+                        timeout=10
+                    )
+                    
+                    if response2.status_code == 200:
+                        data2 = response2.json()
+                        if data2.get("status") == "success":
+                            self.log_result(
+                                "Chat Feedback Endpoint", 
+                                True, 
+                                "Both positive and negative feedback recorded successfully",
+                                {"positive_response": data, "negative_response": data2}
+                            )
+                            return True
+                    
+                    self.log_result(
+                        "Chat Feedback Endpoint", 
+                        True, 
+                        "Positive feedback recorded successfully",
+                        data
+                    )
+                    return True
+                else:
+                    self.log_result(
+                        "Chat Feedback Endpoint", 
+                        False, 
+                        f"Unexpected feedback response: {data}",
+                        data
+                    )
+            else:
+                self.log_result(
+                    "Chat Feedback Endpoint", 
+                    False, 
+                    f"Feedback failed: {response.status_code}",
+                    response.text
+                )
+                
+        except Exception as e:
+            self.log_result("Chat Feedback Endpoint", False, f"Feedback error: {str(e)}")
+        return False
+
+    def test_ai_personality_improvements(self):
+        """Test improved AI personality with emojis and conversational tone"""
+        if not self.access_token:
+            self.log_result("AI Personality Improvements", False, "No access token available")
+            return False
+            
+        print("   🎭 Testing AI Personality Improvements...")
+        
+        try:
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            
+            # Test multiple personality aspects
+            test_scenarios = [
+                {"message": "I have a job interview tomorrow, what should I wear?", "context": "professional"},
+                {"message": "What colors look good with my skin tone?", "context": "color_advice"},
+                {"message": "Help me style my black leather jacket", "context": "styling"}
+            ]
+            
+            personality_scores = []
+            
+            for scenario in test_scenarios:
+                chat_data = {"message": scenario["message"]}
+                response = self.session.post(
+                    f"{API_BASE}/chat",
+                    json=chat_data,
+                    headers=headers,
+                    timeout=30
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    ai_message = data.get("message", "")
+                    
+                    # Personality checks
+                    checks = {
+                        "has_emojis": sum(1 for char in ai_message if char in "✨💫👗👔🎨💄👠🕶️🔥💕") >= 1,
+                        "conversational_tone": any(word in ai_message.lower() for word in ["you", "your", "i'd", "let's", "we"]),
+                        "appropriate_length": 20 <= len(ai_message.split()) <= 80,
+                        "fashion_expertise": any(word in ai_message.lower() for word in ["color", "style", "look", "outfit", "wear"]),
+                        "encouraging_tone": any(word in ai_message.lower() for word in ["great", "perfect", "love", "amazing", "beautiful"])
+                    }
+                    
+                    score = sum(checks.values()) / len(checks)
+                    personality_scores.append(score)
+                    
+                    print(f"      {scenario['context']}: {score:.2f} score - '{ai_message[:60]}...'")
+                
+                time.sleep(1)  # Rate limiting
+            
+            if personality_scores:
+                avg_score = sum(personality_scores) / len(personality_scores)
+                success = avg_score >= 0.6  # At least 60% of personality checks pass
+                
+                self.log_result(
+                    "AI Personality Improvements", 
+                    success, 
+                    f"Average personality score: {avg_score:.2f} across {len(personality_scores)} scenarios",
+                    {"individual_scores": personality_scores, "average": avg_score}
+                )
+                return success
+            else:
+                self.log_result("AI Personality Improvements", False, "No responses received")
+                
+        except Exception as e:
+            self.log_result("AI Personality Improvements", False, f"Personality test error: {str(e)}")
         return False
     
     def test_chat_history(self):
