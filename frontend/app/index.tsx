@@ -2411,16 +2411,13 @@ const styles = StyleSheet.create({
   },
   selectedSkinTone: {
     borderColor: '#007AFF',
+    borderWidth: 3,
     transform: [{ scale: 1.1 }],
   },
   skinToneLabel: {
     fontSize: 12,
     color: '#333',
     textAlign: 'center',
-  },
-  selectedSkinTone: {
-    borderColor: '#007AFF',
-    borderWidth: 3,
   },
   skinToneTip: {
     fontSize: 12,
