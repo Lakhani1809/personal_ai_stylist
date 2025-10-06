@@ -111,11 +111,40 @@ const PERSONALITY_TYPES = [
   { id: 'romantic', label: 'Romantic', icon: 'heart-outline', color: '#E91E63', description: 'Soft & feminine' },
 ];
 
+const STYLE_INSPIRATIONS = [
+  { id: 'trend_focused', label: 'Trend-Focused', description: 'Following latest fashion trends', icon: 'trending-up-outline', color: '#FF6B6B' },
+  { id: 'inspired_by_vibe', label: 'Inspired by a Vibe', description: 'Following influencers and celebrities', icon: 'people-outline', color: '#4ECDC4' },
+  { id: 'self_expressive', label: 'Self-Expressive', description: 'Creating my own unique style', icon: 'person-outline', color: '#F39C12' },
+];
+
+const STYLE_VIBES = {
+  male: [
+    { id: 'streetwear_casual', label: 'Streetwear casual', description: 'Urban and relaxed' },
+    { id: 'minimal_clean', label: 'Minimal & clean', description: 'Simple and sophisticated' },
+    { id: 'bold_statement', label: 'Bold & statement', description: 'Eye-catching looks' },
+    { id: 'sporty_athleisure', label: 'Sporty athleisure', description: 'Active and comfortable' },
+    { id: 'old_money', label: 'Old Money', description: 'Classic and refined' },
+  ],
+  female: [
+    { id: 'streetwear_chic', label: 'Streetwear chic', description: 'Urban feminine' },
+    { id: 'minimal_clean', label: 'Minimal & clean', description: 'Effortless elegance' },
+    { id: 'soft_feminine', label: 'Soft & feminine', description: 'Romantic and delicate' },
+    { id: 'sporty_athleisure', label: 'Sporty athleisure', description: 'Active lifestyle' },
+    { id: 'bold_statement', label: 'Bold & statement', description: 'Confident and daring' },
+  ],
+  other: [
+    { id: 'streetwear', label: 'Streetwear', description: 'Urban and trendy' },
+    { id: 'minimal_clean', label: 'Minimal & clean', description: 'Clean and simple' },
+    { id: 'expressive', label: 'Expressive', description: 'Uniquely you' },
+    { id: 'sporty', label: 'Sporty', description: 'Active and comfortable' },
+  ]
+};
+
 const STYLE_MESSAGES = [
-  { id: 'confident', label: 'I am confident and bold', icon: 'shield-outline', color: '#E74C3C' },
-  { id: 'chill', label: 'I am chill AF', icon: 'leaf-outline', color: '#27AE60' },
-  { id: 'polished', label: 'I am polished and put together', icon: 'diamond-outline', color: '#3498DB' },
-  { id: 'unpredictable', label: 'I am unpredictable, in a good way', icon: 'color-wand-outline', color: '#9B59B6' },
+  { id: 'confident', label: "I'm confident & bold" },
+  { id: 'chill', label: "I'm chill AF" },
+  { id: 'polished', label: "I'm polished & put-together" },
+  { id: 'unpredictable', label: "I'm unpredictable, in a good way" },
 ];
 
 interface User {
