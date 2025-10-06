@@ -1376,7 +1376,7 @@ export default function App() {
                     loading && styles.disabledButton,
                   ]}
                   onPress={() => {
-                    if (onboardingStep < 8) {
+                    if (onboardingStep < 6) {
                       setOnboardingStep(onboardingStep + 1);
                     } else {
                       completeOnboarding();
@@ -1389,7 +1389,7 @@ export default function App() {
                   ) : (
                     <>
                       <Text style={styles.nextButtonText}>
-                        {onboardingStep === 8 ? 'Complete Profile ✨' : 'Continue'}
+                        {onboardingStep === 6 ? 'Complete Profile ✨' : 'Continue'}
                       </Text>
                       <Ionicons name="arrow-forward" size={20} color="white" />
                     </>
