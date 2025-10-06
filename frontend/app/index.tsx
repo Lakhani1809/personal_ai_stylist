@@ -227,7 +227,8 @@ export default function App() {
     profession: '',
     body_shape: '',
     skin_tone: '',
-    personality_type: '',
+    style_inspiration: '',
+    style_vibe: '',
     style_message: '',
   });
 
