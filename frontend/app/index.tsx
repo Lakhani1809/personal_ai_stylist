@@ -467,12 +467,14 @@ export default function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          name: onboardingData.name,
+          gender: onboardingData.gender,
           age: onboardingData.age_group ? parseInt(onboardingData.age_group.split('-')[0]) : null,
           profession: onboardingData.profession,
           body_shape: onboardingData.body_shape,
           skin_tone: onboardingData.skin_tone,
-          style_inspiration: [onboardingData.personality_type],
-          style_vibes: [onboardingData.personality_type],
+          style_inspiration: onboardingData.style_inspiration,
+          style_vibe: onboardingData.style_vibe,
           style_message: onboardingData.style_message,
         }),
       });
