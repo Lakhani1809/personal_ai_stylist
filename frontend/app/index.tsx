@@ -1469,9 +1469,17 @@ export default function App() {
                         onError={() => console.log('Image failed to load')}
                       />
                     )}
-                    <Text style={[styles.messageText, msg.is_user ? styles.userMessageText : styles.aiMessageText]}>
-                      {msg.message}
-                    </Text>
+                    {msg.isTyping ? (
+                      <View style={styles.typingIndicator}>
+                        <View style={styles.typingDot} />
+                        <View style={[styles.typingDot, { marginLeft: 4 }]} />
+                        <View style={[styles.typingDot, { marginLeft: 4 }]} />
+                      </View>
+                    ) : (
+                      <Text style={[styles.messageText, msg.is_user ? styles.userMessageText : styles.aiMessageText]}>
+                        {msg.message}
+                      </Text>
+                    )}
                   </View>
                 ))
               )}
