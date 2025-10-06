@@ -1082,100 +1082,97 @@ export default function App() {
                 </View>
               </View>
 
-              {/* Step 1: Name Input */}
+              {/* Step 1: Name + Gender + Age + Occupation (Combined Screen) */}
               {onboardingStep === 1 && (
-                <View style={styles.onboardingStep}>
-                  <Text style={styles.stepTitle}>What's your name?</Text>
-                  <Text style={styles.stepSubtitle}>This helps me personalize your experience</Text>
+                <ScrollView style={styles.combinedOnboardingStep} showsVerticalScrollIndicator={false}>
+                  <Text style={styles.welcomeTitle}>Hey there, Style Icon! ✨</Text>
+                  <Text style={styles.welcomeSubtitle}>Let's get to know you better</Text>
                   
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Your name"
-                    value={onboardingData.name}
-                    onChangeText={(text) => setOnboardingData({...onboardingData, name: text})}
-                    autoCapitalize="words"
-                  />
-                </View>
-              )}
-
-              {/* Step 2: Gender Selection */}
-              {onboardingStep === 2 && (
-                <View style={styles.onboardingStep}>
-                  <Text style={styles.stepTitle}>How do you identify?</Text>
-                  <Text style={styles.stepSubtitle}>This helps me understand your style preferences</Text>
-                  
-                  <View style={styles.cardGrid}>
-                    {GENDER_OPTIONS.map((option) => (
-                      <TouchableOpacity
-                        key={option.id}
-                        style={[
-                          styles.visualCard,
-                          onboardingData.gender === option.id && { ...styles.selectedCard, borderColor: option.color }
-                        ]}
-                        onPress={() => setOnboardingData({...onboardingData, gender: option.id})}
-                      >
-                        <View style={[styles.cardIcon, { backgroundColor: option.color + '20' }]}>
-                          <Ionicons name={option.icon as any} size={32} color={option.color} />
-                        </View>
-                        <Text style={styles.cardLabel}>{option.label}</Text>
-                      </TouchableOpacity>
-                    ))}
+                  {/* Name Input */}
+                  <View style={styles.formSection}>
+                    <Text style={styles.sectionLabel}>What's your name?</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="Enter your name"
+                      value={onboardingData.name}
+                      onChangeText={(text) => setOnboardingData({...onboardingData, name: text})}
+                      autoCapitalize="words"
+                    />
                   </View>
-                </View>
-              )}
 
-              {/* Step 3: Age Group */}
-              {onboardingStep === 3 && (
-                <View style={styles.onboardingStep}>
-                  <Text style={styles.stepTitle}>What's your age group?</Text>
-                  <Text style={styles.stepSubtitle}>Different life stages, different style needs</Text>
-                  
-                  <View style={styles.cardGrid}>
-                    {AGE_GROUPS.map((option) => (
-                      <TouchableOpacity
-                        key={option.id}
-                        style={[
-                          styles.visualCard,
-                          onboardingData.age_group === option.id && { ...styles.selectedCard, borderColor: option.color }
-                        ]}
-                        onPress={() => setOnboardingData({...onboardingData, age_group: option.id})}
-                      >
-                        <View style={[styles.cardIcon, { backgroundColor: option.color + '20' }]}>
-                          <Ionicons name={option.icon as any} size={32} color={option.color} />
-                        </View>
-                        <Text style={styles.cardLabel}>{option.label}</Text>
-                        <Text style={styles.cardSubtitle}>{option.subtitle}</Text>
-                      </TouchableOpacity>
-                    ))}
+                  {/* Gender Selection */}
+                  <View style={styles.formSection}>
+                    <Text style={styles.sectionLabel}>Gender</Text>
+                    <View style={styles.buttonRow}>
+                      {GENDER_OPTIONS.map((option) => (
+                        <TouchableOpacity
+                          key={option.id}
+                          style={[
+                            styles.optionButton,
+                            onboardingData.gender === option.id && styles.selectedOptionButton
+                          ]}
+                          onPress={() => setOnboardingData({...onboardingData, gender: option.id})}
+                        >
+                          <Text style={[
+                            styles.optionButtonText,
+                            onboardingData.gender === option.id && styles.selectedOptionButtonText
+                          ]}>
+                            {option.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
                   </View>
-                </View>
-              )}
 
-              {/* Step 4: Profession */}
-              {onboardingStep === 4 && (
-                <View style={styles.onboardingStep}>
-                  <Text style={styles.stepTitle}>What's your profession?</Text>
-                  <Text style={styles.stepSubtitle}>Your lifestyle shapes your fashion needs</Text>
-                  
-                  <View style={styles.cardGrid}>
-                    {PROFESSIONS.map((option) => (
-                      <TouchableOpacity
-                        key={option.id}
-                        style={[
-                          styles.visualCard,
-                          { backgroundColor: option.bg },
-                          onboardingData.profession === option.id && { ...styles.selectedCard, borderColor: option.color }
-                        ]}
-                        onPress={() => setOnboardingData({...onboardingData, profession: option.id})}
-                      >
-                        <View style={[styles.cardIcon, { backgroundColor: option.color + '20' }]}>
-                          <Ionicons name={option.icon as any} size={32} color={option.color} />
-                        </View>
-                        <Text style={styles.cardLabel}>{option.label}</Text>
-                      </TouchableOpacity>
-                    ))}
+                  {/* Age Selection */}
+                  <View style={styles.formSection}>
+                    <Text style={styles.sectionLabel}>Age</Text>
+                    <View style={styles.buttonRow}>
+                      {AGE_GROUPS.map((option) => (
+                        <TouchableOpacity
+                          key={option.id}
+                          style={[
+                            styles.optionButton,
+                            onboardingData.age_group === option.id && styles.selectedOptionButton
+                          ]}
+                          onPress={() => setOnboardingData({...onboardingData, age_group: option.id})}
+                        >
+                          <Text style={[
+                            styles.optionButtonText,
+                            onboardingData.age_group === option.id && styles.selectedOptionButtonText
+                          ]}>
+                            {option.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
                   </View>
-                </View>
+
+                  {/* Occupation Selection */}
+                  <View style={styles.formSection}>
+                    <Text style={styles.sectionLabel}>Occupation</Text>
+                    <View style={styles.buttonRow}>
+                      {PROFESSIONS.map((option) => (
+                        <TouchableOpacity
+                          key={option.id}
+                          style={[
+                            styles.optionButton,
+                            onboardingData.profession === option.id && styles.selectedOptionButton
+                          ]}
+                          onPress={() => setOnboardingData({...onboardingData, profession: option.id})}
+                        >
+                          <Ionicons name={option.icon as any} size={20} color={onboardingData.profession === option.id ? '#FFF' : '#666'} style={{ marginRight: 6 }} />
+                          <Text style={[
+                            styles.optionButtonText,
+                            onboardingData.profession === option.id && styles.selectedOptionButtonText
+                          ]}>
+                            {option.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
+                </ScrollView>
               )}
 
               {/* Step 5: Body Shape */}
