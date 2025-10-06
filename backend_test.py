@@ -1123,18 +1123,32 @@ class BackendTester:
         total_passed = 0
         total_tests = 0
         
+        message_id_for_feedback = None
+        
         for section_name, tests in auth_tests:
             print(f"\n{'='*20} {section_name} {'='*20}")
             section_passed = 0
             
             for test in tests:
                 total_tests += 1
-                if test():
+                result = test()
+                if result:
                     total_passed += 1
                     section_passed += 1
+                    # Capture message_id from chat tests for feedback testing
+                    if hasattr(result, '__class__') and result.__class__.__name__ == 'str':
+                        message_id_for_feedback = result
                 print()  # Empty line between tests
             
             print(f"📊 {section_name} Results: {section_passed}/{len(tests)} passed")
+        
+        # Test feedback endpoint separately with captured message_id
+        if message_id_for_feedback:
+            print(f"\n{'='*20} FEEDBACK ENDPOINT TEST {'='*20}")
+            total_tests += 1
+            if self.test_chat_feedback_endpoint(message_id_for_feedback):
+                total_passed += 1
+            print()
         
         # Final Summary
         print("\n" + "=" * 60)
