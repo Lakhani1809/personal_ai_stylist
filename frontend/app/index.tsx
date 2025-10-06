@@ -2483,19 +2483,42 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e9ecef',
   },
-  nameInput: {
-    backgroundColor: '#f8f9fa',
+  nameInputBox: {
+    backgroundColor: 'white',
     borderRadius: 12,
     padding: 18,
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
     marginBottom: 8,
   },
-  buttonRow: {
+  optionRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 12,
+  },
+  optionBox: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
+    minWidth: 90,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  selectedBox: {
+    backgroundColor: '#000000',
+    borderColor: '#000000',
+  },
+  optionBoxText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
+  },
+  selectedBoxText: {
+    color: '#FFFFFF',
   },
   optionButton: {
     paddingVertical: 12,
