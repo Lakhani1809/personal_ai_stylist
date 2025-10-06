@@ -1325,6 +1325,9 @@ export default function App() {
                         </TouchableOpacity>
                       );
                     })}
+                  </ScrollView>
+                </View>
+              )}
 
               {/* Step 6: Style Message */}
               {onboardingStep === 6 && (
