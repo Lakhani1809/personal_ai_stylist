@@ -1295,14 +1295,48 @@ export default function App() {
                 </View>
               )}
 
-              {/* Step 5: Style Vibe */}
-              {onboardingStep === 5 && (
+              {/* Step 6: Style Inspiration */}
+              {onboardingStep === 6 && (
                 <View style={styles.onboardingStep}>
-                  <Text style={styles.stepTitle}>What's your style vibe?</Text>
-                  <Text style={styles.stepSubtitle}>Choose the aesthetic that speaks to you</Text>
+                  <Text style={styles.stepTitle}>Where does your style come from?</Text>
+                  <Text style={styles.stepSubtitle}>Choose what inspires you most</Text>
                   
-                  <ScrollView style={styles.styleVibeScroll} showsVerticalScrollIndicator={false}>
-                    {(STYLE_VIBES[onboardingData.gender as keyof typeof STYLE_VIBES] || STYLE_VIBES.other).map((option, index) => {
+                  <View style={styles.styleInspirationGrid}>
+                    {STYLE_INSPIRATIONS.map((option) => (
+                      <TouchableOpacity
+                        key={option.id}
+                        style={[
+                          styles.styleInspirationCard,
+                          onboardingData.style_inspiration === option.id && styles.selectedStyleCard
+                        ]}
+                        onPress={() => setOnboardingData({...onboardingData, style_inspiration: option.id})}
+                      >
+                        <Image 
+                          source={{ 
+                            uri: option.id === 'trend_focused' 
+                              ? 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/r4dr5lw5_Trends%404x.png'
+                              : option.id === 'inspired_by_vibe' 
+                                ? (onboardingData.gender === 'male' 
+                                  ? 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/d4hww85j_Male%20Inspo%404x.png'
+                                  : 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/iw70gpmz_Female%20Inspo%404x.png')
+                                : (onboardingData.gender === 'male'
+                                  ? 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/e570og4o_Adam%201%404x.png'
+                                  : 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/89anhi7k_Geet%202%404x.png')
+                          }} 
+                          style={styles.styleInspirationImage}
+                          resizeMode="cover"
+                        />
+                        <View style={styles.styleInspirationTextContainer}>
+                          <Text style={styles.styleInspirationLabel}>{option.label}</Text>
+                          <Text style={styles.styleInspirationDescription}>{option.description}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Navigation Buttons */}
                       // Map style vibes to images
                       const getStyleVibeImage = () => {
                         if (onboardingData.gender === 'female') {
