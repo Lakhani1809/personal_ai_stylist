@@ -1086,10 +1086,10 @@ export default function App() {
               {onboardingStep === 1 && (
                 <ScrollView style={styles.combinedOnboardingStep} showsVerticalScrollIndicator={false}>
                   <Text style={styles.welcomeTitle}>Hey there, Style Icon! ✨</Text>
-                  <Text style={styles.welcomeSubtitle}>Start by telling us a bit about you.</Text>
+                  <Text style={styles.welcomeSubtitleCentered}>Start by telling us a bit about you.</Text>
                   
                   {/* Name Input */}
-                  <View style={styles.formSection}>
+                  <View style={styles.formSectionSpaced}>
                     <TextInput
                       style={styles.nameInputBox}
                       placeholder="What can we call you?"
@@ -1101,21 +1101,21 @@ export default function App() {
                   </View>
 
                   {/* Gender Selection */}
-                  <View style={styles.formSection}>
-                    <Text style={styles.sectionLabel}>Gender</Text>
-                    <View style={styles.optionRow}>
+                  <View style={styles.formSectionSpaced}>
+                    <Text style={styles.bigBoldLabel}>Gender</Text>
+                    <View style={styles.horizontalButtonRow}>
                       {GENDER_OPTIONS.map((option) => (
                         <TouchableOpacity
                           key={option.id}
                           style={[
-                            styles.optionBox,
-                            onboardingData.gender === option.id && styles.selectedBox
+                            styles.visibleButton,
+                            onboardingData.gender === option.id && styles.selectedVisibleButton
                           ]}
                           onPress={() => setOnboardingData({...onboardingData, gender: option.id})}
                         >
                           <Text style={[
-                            styles.optionBoxText,
-                            onboardingData.gender === option.id && styles.selectedBoxText
+                            styles.visibleButtonText,
+                            onboardingData.gender === option.id && styles.selectedVisibleButtonText
                           ]}>
                             {option.label}
                           </Text>
@@ -1125,21 +1125,21 @@ export default function App() {
                   </View>
 
                   {/* Age Selection */}
-                  <View style={styles.formSection}>
-                    <Text style={styles.sectionLabel}>Age</Text>
-                    <View style={styles.optionRow}>
+                  <View style={styles.formSectionSpaced}>
+                    <Text style={styles.bigBoldLabel}>Age</Text>
+                    <View style={styles.horizontalButtonRow}>
                       {AGE_GROUPS.map((option) => (
                         <TouchableOpacity
                           key={option.id}
                           style={[
-                            styles.optionBox,
-                            onboardingData.age_group === option.id && styles.selectedBox
+                            styles.visibleButton,
+                            onboardingData.age_group === option.id && styles.selectedVisibleButton
                           ]}
                           onPress={() => setOnboardingData({...onboardingData, age_group: option.id})}
                         >
                           <Text style={[
-                            styles.optionBoxText,
-                            onboardingData.age_group === option.id && styles.selectedBoxText
+                            styles.visibleButtonText,
+                            onboardingData.age_group === option.id && styles.selectedVisibleButtonText
                           ]}>
                             {option.label}
                           </Text>
@@ -1149,21 +1149,21 @@ export default function App() {
                   </View>
 
                   {/* Occupation Selection */}
-                  <View style={styles.formSection}>
-                    <Text style={styles.sectionLabel}>Occupation</Text>
-                    <View style={styles.optionRow}>
+                  <View style={styles.formSectionSpaced}>
+                    <Text style={styles.bigBoldLabel}>Occupation</Text>
+                    <View style={styles.horizontalButtonRow}>
                       {PROFESSIONS.map((option) => (
                         <TouchableOpacity
                           key={option.id}
                           style={[
-                            styles.optionBox,
-                            onboardingData.profession === option.id && styles.selectedBox
+                            styles.visibleButton,
+                            onboardingData.profession === option.id && styles.selectedVisibleButton
                           ]}
                           onPress={() => setOnboardingData({...onboardingData, profession: option.id})}
                         >
                           <Text style={[
-                            styles.optionBoxText,
-                            onboardingData.profession === option.id && styles.selectedBoxText
+                            styles.visibleButtonText,
+                            onboardingData.profession === option.id && styles.selectedVisibleButtonText
                           ]}>
                             {option.label}
                           </Text>
