@@ -72,22 +72,23 @@ const PROFESSIONS = [
 
 const BODY_SHAPES = {
   female: [
-    { id: 'hourglass', label: 'Hourglass', icon: '⏳', description: 'Balanced bust & hips' },
-    { id: 'pear', label: 'Pear', icon: '🍐', description: 'Hip emphasis' },
-    { id: 'apple', label: 'Apple', icon: '🍎', description: 'Midsection focus' },
-    { id: 'rectangle', label: 'Rectangle', icon: '▭', description: 'Straight silhouette' },
-    { id: 'triangle', label: 'Inverted Triangle', icon: '🔺', description: 'Shoulder emphasis' },
+    { id: 'hourglass', label: 'Hourglass', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/53fftmcb_Group%201321316023.png' },
+    { id: 'pear', label: 'Pear', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/2w168gmc_Group%201321316024.png' },
+    { id: 'apple', label: 'Apple', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/ynwnpelz_Group%201321316025.png' },
+    { id: 'rectangle', label: 'Rectangle', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/3yins757_Group%201321316026.png' },
+    { id: 'inverted_triangle', label: 'Inverted Triangle', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/c4nyw67g_Group%201321316027.png' },
   ],
   male: [
-    { id: 'rectangle', label: 'Rectangle', icon: '▭', description: 'Straight build' },
-    { id: 'triangle', label: 'Triangle', icon: '🔺', description: 'Broad shoulders' },
-    { id: 'oval', label: 'Oval', icon: '🥚', description: 'Fuller midsection' },
-    { id: 'trapezoid', label: 'Trapezoid', icon: '🔷', description: 'Athletic build' },
+    { id: 'rectangle', label: 'Rectangle', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/pfdonfcy_Group%201321316029.png' },
+    { id: 'triangle', label: 'Triangle', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/qkjzx3dg_Group%201321316028.png' },
+    { id: 'oval', label: 'Oval', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/cbdjggb8_Group%201321316030.png' },
+    { id: 'trapezoid', label: 'Trapezoid', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/0g1mj6e2_Group%201321316031.png' },
+    { id: 'inverted_triangle', label: 'Inverted Triangle', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/cetw5hm4_Group%201321316043.png' },
   ],
   other: [
-    { id: 'straight', label: 'Straight', icon: '|', description: 'Linear silhouette' },
-    { id: 'curved', label: 'Curved', icon: '~', description: 'Flowing lines' },
-    { id: 'athletic', label: 'Athletic', icon: '💪', description: 'Toned build' },
+    { id: 'rectangle', label: 'Rectangle', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/pfdonfcy_Group%201321316029.png' },
+    { id: 'triangle', label: 'Triangle', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/qkjzx3dg_Group%201321316028.png' },
+    { id: 'oval', label: 'Oval', image: 'https://customer-assets.emergentagent.com/job_stylistai/artifacts/cbdjggb8_Group%201321316030.png' },
   ]
 };
 
