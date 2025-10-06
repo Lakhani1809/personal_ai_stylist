@@ -530,105 +530,77 @@ async def validate_outfit(outfit_data: dict, user_id: str = Depends(get_current_
         if not image_base64:
             raise HTTPException(status_code=400, detail="Image is required")
         
-        # Advanced AI outfit validation with maximum accuracy
+        # Use custom model handler for outfit validation
         validation_success = False
         try:
-            if OPENAI_API_KEY and len(OPENAI_API_KEY) > 10:
-                print(f"👗 Starting advanced outfit validation analysis...")
+            print(f"👗 Starting custom outfit validation analysis...")
+            
+            # Use custom models first (your models)
+            validation = model_handler.analyze_outfit_validation(image_base64)
+            
+            if validation and validation.get("overall_score", 0) > 3.0:
+                validation["id"] = str(uuid.uuid4())
+                validation["image_base64"] = image_base64.split(',')[-1] if ',' in image_base64 else image_base64
+                validation_success = True
+                print(f"✅ Custom outfit validation successful!")
+                print(f"   Overall Score: {validation['overall_score']}")
+                print(f"   Feedback: {validation['feedback'][:100]}...")
+            else:
+                print("⚠️ Custom validation models not available, falling back to OpenAI...")
                 
-                validation_prompt = """You are a world-class fashion stylist and personal shopper with expertise in color theory, body proportions, and style coordination. Analyze this complete outfit with professional precision.
-
-DETAILED ANALYSIS REQUIRED:
-- COLORS: Examine exact color combinations, undertones, contrast levels, seasonal appropriateness
-- FIT: Assess how each garment fits the body, proportions, tailoring, silhouette enhancement  
-- STYLE: Evaluate aesthetic cohesion, fashion-forwardness, personal expression, trend alignment
-- OCCASION: Determine appropriateness for setting, formality level, functionality
-
-SCORING (1.0-5.0, use decimals for precision):
-1.0-2.0 = Poor/Needs Major Improvement
-2.0-3.0 = Below Average/Some Issues  
-3.0-4.0 = Good/Minor Adjustments Needed
-4.0-5.0 = Excellent/Professional Level
-
-Return ONLY this JSON with NO additional text:
-{
-  "color_combo": 4.2,
-  "fit": 4.0,
-  "style": 4.5, 
-  "occasion": 4.1,
-  "overall_score": 4.2,
-  "feedback": "Professional 2-3 sentence analysis with SPECIFIC observations about colors (exact shades), fit details (how garments sit), style elements (what works/doesn't), and 1-2 concrete improvement suggestions or compliments."
-}
-
-BE PRECISE AND HONEST - Notice real details like color harmony, garment proportions, styling choices, and provide genuinely helpful feedback."""
-
-                # Enhanced API call for outfit validation
-                response = openai_client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[
-                        {
-                            "role": "system", 
-                            "content": "You are a professional fashion consultant with perfect visual analysis skills. Provide accurate, helpful styling advice based on what you actually see in the image."
-                        },
-                        {
-                            "role": "user",
-                            "content": [
-                                {"type": "text", "text": validation_prompt},
-                                {"type": "image_url", "image_url": {"url": image_base64}}
-                            ]
-                        }
-                    ],
-                    max_tokens=500,
-                    temperature=0.1,  # Low temperature for consistent, accurate analysis
-                    top_p=0.2
-                )
-                
-                ai_result = response.choices[0].message.content.strip()
-                print(f"🔍 Outfit analysis response: {ai_result[:150]}...")
-                
-                # Clean response format
-                ai_result = ai_result.replace('```json', '').replace('```', '').strip()
-                
-                try:
-                    import json
-                    analysis_data = json.loads(ai_result)
+                # Fallback to OpenAI if custom models aren't loaded
+                if OPENAI_API_KEY and len(OPENAI_API_KEY) > 10:
+                    validation_prompt = """Analyze this outfit professionally. Return JSON with scores (1.0-5.0) for: color_combo, fit, style, occasion, overall_score, and detailed feedback."""
                     
-                    # Validate scores are in proper range
-                    def validate_score(score, default=3.5):
-                        try:
-                            score_val = float(score)
-                            return max(1.0, min(5.0, score_val))  # Clamp between 1.0-5.0
-                        except:
-                            return default
+                    response = openai_client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": validation_prompt},
+                                    {"type": "image_url", "image_url": {"url": image_base64}}
+                                ]
+                            }
+                        ],
+                        max_tokens=400,
+                        temperature=0.1
+                    )
                     
-                    if all(key in analysis_data for key in ["color_combo", "fit", "style", "occasion", "overall_score", "feedback"]):
+                    ai_result = response.choices[0].message.content.strip()
+                    ai_result = ai_result.replace('```json', '').replace('```', '').strip()
+                    
+                    try:
+                        import json
+                        analysis_data = json.loads(ai_result)
+                        
+                        def validate_score(score, default=3.5):
+                            try:
+                                return max(1.0, min(5.0, float(score)))
+                            except:
+                                return default
+                        
                         validation = {
                             "id": str(uuid.uuid4()),
                             "scores": {
                                 "color_combo": validate_score(analysis_data.get("color_combo")),
                                 "fit": validate_score(analysis_data.get("fit")),
-                                "style": validate_score(analysis_data.get("style")), 
+                                "style": validate_score(analysis_data.get("style")),
                                 "occasion": validate_score(analysis_data.get("occasion"))
                             },
                             "overall_score": validate_score(analysis_data.get("overall_score")),
-                            "feedback": analysis_data.get("feedback", "Great outfit choice! The styling works well together."),
+                            "feedback": analysis_data.get("feedback", "Great styling choice!"),
                             "image_base64": image_base64.split(',')[-1] if ',' in image_base64 else image_base64
                         }
                         validation_success = True
-                        print(f"✅ Outfit validation successful!")
-                        print(f"   Overall Score: {validation['overall_score']}")
-                        print(f"   Feedback: {validation['feedback'][:100]}...")
-                    else:
-                        print(f"❌ Validation response missing required fields")
+                        print(f"✅ OpenAI validation fallback successful!")
+                    except:
+                        print(f"❌ OpenAI validation fallback failed")
                         
-                except json.JSONDecodeError as json_error:
-                    print(f"❌ Validation JSON parsing failed: {json_error}")
-                    print(f"   Raw response: {ai_result}")
-                    
         except Exception as ai_error:
             print(f"❌ Outfit validation error: {str(ai_error)}")
         
-        # Enhanced fallback if AI analysis failed
+        # Enhanced fallback if both custom models and OpenAI failed
         if not validation_success:
             print("⚠️ Using enhanced validation fallback")
             validation = {
