@@ -2388,7 +2388,9 @@ const styles = StyleSheet.create({
   },
   styleInspirationImage: {
     width: '100%',
-    height: 200,
+    height: 140,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
   },
   styleInspirationTextContainer: {
     padding: 16,
