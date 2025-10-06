@@ -18,27 +18,21 @@ API_BASE = f"{BASE_URL}/api"
 # Sample base64 image data (small 1x1 pixel PNG)
 SAMPLE_IMAGE_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
 
-class BackendTester:
+class ChatImprovementsTestSuite:
     def __init__(self):
-        self.session = requests.Session()
         self.access_token = None
         self.user_id = None
         self.test_results = []
         
-    def log_result(self, test_name, success, message, response_data=None):
-        """Log test result"""
-        result = {
+    def log_result(self, test_name: str, passed: bool, details: str):
+        """Log test results"""
+        status = "✅ PASS" if passed else "❌ FAIL"
+        print(f"{status} {test_name}: {details}")
+        self.test_results.append({
             "test": test_name,
-            "success": success,
-            "message": message,
-            "timestamp": datetime.now().isoformat(),
-            "response_data": response_data
-        }
-        self.test_results.append(result)
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}: {message}")
-        if response_data and not success:
-            print(f"   Response: {json.dumps(response_data, indent=2)}")
+            "passed": passed,
+            "details": details
+        })
     
     def test_health_check(self):
         """Test health endpoint"""
