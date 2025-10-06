@@ -2428,6 +2428,70 @@ const styles = StyleSheet.create({
   styleVibeCheckmark: {
     position: 'absolute',
     top: 12,
+
+  // Combined Step 1 styles
+  combinedOnboardingStep: {
+    flex: 1,
+    padding: 20,
+  },
+  welcomeTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  welcomeSubtitle: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 32,
+    textAlign: 'center',
+  },
+  formSection: {
+    marginBottom: 28,
+  },
+  sectionLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
+  },
+  textInput: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  optionButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 24,
+    backgroundColor: '#f8f9fa',
+    borderWidth: 2,
+    borderColor: '#e9ecef',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  selectedOptionButton: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+  },
+  optionButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+  },
+  selectedOptionButtonText: {
+    color: '#FFF',
+  },
+
     right: 12,
     backgroundColor: 'white',
     borderRadius: 14,
