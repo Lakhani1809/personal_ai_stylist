@@ -12,7 +12,7 @@ import sys
 from typing import Dict, List, Any
 
 # Use the production URL from frontend/.env
-BASE_URL = "https://stylistai.preview.emergentagent.com"
+BASE_URL = "https://ai-wardrobe-buddy.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 class ChatImprovementsTestSuite:
