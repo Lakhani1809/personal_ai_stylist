@@ -1147,8 +1147,8 @@ export default function App() {
                   </View>
 
                   {/* Age Selection */}
-                  <View style={styles.formSectionSpaced}>
-                    <Text style={{fontSize: 22, fontWeight: '700', color: '#000', marginBottom: 16}}>Age</Text>
+                  <View style={{marginBottom: 32}}>
+                    <Text style={{fontSize: 18, fontWeight: '700', color: '#000', marginBottom: 16}}>Age</Text>
                     <View style={{flexDirection: 'row', flexWrap: 'wrap', gap: 12}}>
                       {AGE_GROUPS.map((option) => (
                         <TouchableOpacity
