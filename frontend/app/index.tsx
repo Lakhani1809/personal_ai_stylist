@@ -1791,10 +1791,10 @@ export default function App() {
                     flex: 1,
                     paddingVertical: 14,
                     alignItems: 'center',
-                    backgroundColor: wardrobeTab === 'items' ? '#000000' : 'white',
+                    backgroundColor: wardrobeTab === 'items' ? '#007AFF' : 'white',
                     borderRadius: 12,
                     borderWidth: 2,
-                    borderColor: wardrobeTab === 'items' ? '#000000' : '#e0e0e0',
+                    borderColor: wardrobeTab === 'items' ? '#007AFF' : '#e0e0e0',
                   }}
                   onPress={() => setWardrobeTab('items')}
                 >
@@ -1807,10 +1807,10 @@ export default function App() {
                     flex: 1,
                     paddingVertical: 14,
                     alignItems: 'center',
-                    backgroundColor: wardrobeTab === 'outfits' ? '#000000' : 'white',
+                    backgroundColor: wardrobeTab === 'outfits' ? '#007AFF' : 'white',
                     borderRadius: 12,
                     borderWidth: 2,
-                    borderColor: wardrobeTab === 'outfits' ? '#000000' : '#e0e0e0',
+                    borderColor: wardrobeTab === 'outfits' ? '#007AFF' : '#e0e0e0',
                   }}
                   onPress={() => {
                     setWardrobeTab('outfits');
