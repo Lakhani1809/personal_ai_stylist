@@ -568,18 +568,18 @@ Example: {"exact_item_name": "White cotton crew neck t-shirt", "category": "T-sh
                 ai_result = response.choices[0].message.content.strip()
                 ai_result = ai_result.replace('```json', '').replace('```', '').strip()
                     
-                    try:
-                        import json
-                        parsed_result = json.loads(ai_result)
-                        analysis_data.update(parsed_result)
-                        ai_success = True
-                        print(f"✅ OpenAI Vision analysis successful!")
-                        print(f"   Item: {analysis_data.get('exact_item_name', 'Unknown')}")
-                        print(f"   Color: {analysis_data.get('color', 'Unknown')}")
-                        print(f"   Category: {analysis_data.get('category', 'Unknown')}")
-                    except json.JSONDecodeError as json_err:
-                        print(f"❌ JSON parsing error: {json_err}")
-                        print(f"Raw AI response: {ai_result[:200]}")
+                try:
+                    import json
+                    parsed_result = json.loads(ai_result)
+                    analysis_data.update(parsed_result)
+                    ai_success = True
+                    print(f"✅ OpenAI Vision analysis successful!")
+                    print(f"   Item: {analysis_data.get('exact_item_name', 'Unknown')}")
+                    print(f"   Color: {analysis_data.get('color', 'Unknown')}")
+                    print(f"   Category: {analysis_data.get('category', 'Unknown')}")
+                except json.JSONDecodeError as json_err:
+                    print(f"❌ JSON parsing error: {json_err}")
+                    print(f"Raw AI response: {ai_result[:200]}")
             else:
                 print("❌ OpenAI API key not configured")
         except Exception as ai_error:
