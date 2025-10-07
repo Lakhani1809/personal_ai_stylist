@@ -1745,7 +1745,11 @@ export default function App() {
                 <Text style={styles.newChatText}>New Chat</Text>
               </TouchableOpacity>
             </View>
-            <ScrollView style={styles.messagesContainer} contentContainerStyle={styles.messagesContent}>
+            <ScrollView 
+              ref={chatScrollRef}
+              style={styles.messagesContainer} 
+              contentContainerStyle={styles.messagesContent}
+            >
               {chatMessages.length === 0 ? (
                 <View style={styles.welcomeMessage}>
                   <View style={styles.welcomeIconContainer}>
