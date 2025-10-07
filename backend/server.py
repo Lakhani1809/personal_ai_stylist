@@ -630,10 +630,13 @@ Example: {"exact_item_name": "White cotton crew neck t-shirt", "category": "T-sh
 @app.delete("/api/wardrobe/{item_id}")
 async def delete_wardrobe_item(item_id: str, user_id: str = Depends(get_current_user)):
     try:
-        # Remove item from user's wardrobe array
+        # Remove item from user's wardrobe array and clear saved outfits (force regeneration)
         result = await db.users.update_one(
             {"id": user_id},
-            {"$pull": {"wardrobe": {"id": item_id}}}
+            {
+                "$pull": {"wardrobe": {"id": item_id}},
+                "$unset": {"saved_outfits": "", "last_outfit_generation_count": ""}
+            }
         )
         
         if result.modified_count > 0:
