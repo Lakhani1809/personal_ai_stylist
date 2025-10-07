@@ -690,15 +690,25 @@ async def add_wardrobe_item(item_data: dict, user_id: str = Depends(get_current_
         
         print(f"Processing wardrobe item for user: {user_id}")
         
-        # Clean the base64 data and check size
+        # Clean the base64 data and compress it to reduce size
         clean_base64 = image_base64.split(',')[-1] if ',' in image_base64 else image_base64
         
-        # Check if image is too large for MongoDB (16MB limit)
-        image_size_mb = len(clean_base64) * 0.75 / (1024 * 1024)  # Convert base64 to approximate bytes
-        print(f"Image size: {image_size_mb:.2f} MB")
+        # Check original image size
+        original_size_mb = len(clean_base64) * 0.75 / (1024 * 1024)  
+        print(f"Original image size: {original_size_mb:.2f} MB")
         
-        if image_size_mb > 15:  # Leave some margin
-            raise HTTPException(status_code=400, detail=f"Image too large ({image_size_mb:.1f}MB). Please use an image smaller than 15MB.")
+        # Compress image to reduce size for MongoDB storage
+        compressed_base64 = compress_base64_image(clean_base64, quality=30, max_width=800)
+        
+        # Check final compressed size
+        final_size_mb = len(compressed_base64) * 0.75 / (1024 * 1024)
+        print(f"Compressed image size: {final_size_mb:.2f} MB")
+        
+        if final_size_mb > 10:  # MongoDB limit with safety margin
+            raise HTTPException(status_code=400, detail=f"Image still too large after compression ({final_size_mb:.1f}MB). Please use a smaller image.")
+        
+        # Use compressed image for storage
+        clean_base64 = compressed_base64
         
         # Try OpenAI Vision analysis with better error handling
         analysis_data = {
