@@ -818,7 +818,7 @@ export default function App() {
     
     setLoading(true);
     
-    // Add typing indicator
+    // Add typing indicator and start animation
     const typingMessage: ChatMessage = {
       id: 'typing-' + Date.now(),
       user_id: user!.id,
@@ -828,6 +828,8 @@ export default function App() {
       isTyping: true,
     };
     setChatMessages(prev => [...prev.filter(msg => !msg.id.startsWith('loading-')), typingMessage]);
+    startTypingAnimation();
+    scrollToBottom();
     
     try {
       const response = await fetch(`${BACKEND_URL}/api/chat`, {
