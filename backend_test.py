@@ -1,19 +1,100 @@
 #!/usr/bin/env python3
+"""
+Backend Testing Suite for Enhanced Chat Personalization with API Integrations
+Tests weather, events, and fashion services integration in the chat system.
+"""
 
+import asyncio
 import requests
 import json
-import base64
 import os
 from datetime import datetime
+from dotenv import load_dotenv
 
-# Get backend URL from frontend env
-BACKEND_URL = "https://ai-wardrobe-buddy.preview.emergentagent.com/api"
+load_dotenv()
 
-def create_test_image_base64():
-    """Create a simple test image in base64 format"""
-    # Create a minimal 1x1 pixel PNG in base64
-    # This is a valid PNG image data
-    return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAI9jU77zgAAAABJRU5ErkJggg=="
+# Configuration
+BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'https://ai-wardrobe-buddy.preview.emergentagent.com')
+API_BASE = f"{BACKEND_URL}/api"
+
+class BackendTester:
+    def __init__(self):
+        self.access_token = None
+        self.user_id = None
+        self.test_results = []
+        
+    def log_result(self, test_name, success, details="", error=""):
+        """Log test result"""
+        result = {
+            "test": test_name,
+            "success": success,
+            "details": details,
+            "error": error,
+            "timestamp": datetime.now().isoformat()
+        }
+        self.test_results.append(result)
+        status = "✅ PASS" if success else "❌ FAIL"
+        print(f"{status}: {test_name}")
+        if details:
+            print(f"   Details: {details}")
+        if error:
+            print(f"   Error: {error}")
+        print()
+
+    def setup_test_user(self):
+        """Create and authenticate a test user with location data"""
+        try:
+            # Register test user
+            register_data = {
+                "email": f"chattest_{int(datetime.now().timestamp())}@example.com",
+                "password": "testpass123",
+                "name": "Chat Test User"
+            }
+            
+            response = requests.post(f"{API_BASE}/auth/register", json=register_data, timeout=30)
+            if response.status_code != 200:
+                self.log_result("User Registration", False, error=f"Status: {response.status_code}, Response: {response.text}")
+                return False
+                
+            data = response.json()
+            self.access_token = data.get("access_token")
+            self.user_id = data.get("user", {}).get("id")
+            
+            if not self.access_token:
+                self.log_result("User Registration", False, error="No access token received")
+                return False
+                
+            self.log_result("User Registration", True, f"User ID: {self.user_id}")
+            
+            # Complete onboarding with location data for contextual testing
+            onboarding_data = {
+                "name": "Maya Test",
+                "gender": "female",
+                "age": 28,
+                "profession": "Software Engineer",
+                "body_shape": "hourglass",
+                "skin_tone": "medium",
+                "style_inspiration": ["minimalist", "professional"],
+                "style_vibes": ["elegant", "comfortable"],
+                "style_message": "I love clean lines and versatile pieces",
+                "city": "New York",  # Important for weather/events testing
+                "color_preferences": ["navy", "white", "beige"],
+                "budget_range": "medium"
+            }
+            
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            response = requests.put(f"{API_BASE}/auth/onboarding", json=onboarding_data, headers=headers, timeout=30)
+            
+            if response.status_code == 200:
+                self.log_result("User Onboarding", True, "Profile completed with location data")
+                return True
+            else:
+                self.log_result("User Onboarding", False, error=f"Status: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_result("User Setup", False, error=str(e))
+            return False
 
 def test_outfit_functionality():
     """Test the complete outfit generation and persistence functionality"""
