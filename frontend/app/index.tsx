@@ -1141,21 +1141,29 @@ export default function App() {
 
                   {/* Age Selection */}
                   <View style={styles.formSectionSpaced}>
-                    <Text style={styles.bigBoldLabel}>Age</Text>
-                    <View style={styles.horizontalButtonRow}>
+                    <Text style={{fontSize: 22, fontWeight: '700', color: '#000', marginBottom: 16}}>Age</Text>
+                    <View style={{flexDirection: 'row', flexWrap: 'wrap', gap: 12}}>
                       {AGE_GROUPS.map((option) => (
                         <TouchableOpacity
                           key={option.id}
-                          style={[
-                            styles.visibleButton,
-                            onboardingData.age_group === option.id && styles.selectedVisibleButton
-                          ]}
+                          style={{
+                            backgroundColor: onboardingData.age_group === option.id ? '#000000' : 'white',
+                            borderRadius: 16,
+                            paddingVertical: 18,
+                            paddingHorizontal: 24,
+                            borderWidth: 3,
+                            borderColor: onboardingData.age_group === option.id ? '#000000' : '#e0e0e0',
+                            minWidth: 100,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
                           onPress={() => setOnboardingData({...onboardingData, age_group: option.id})}
                         >
-                          <Text style={[
-                            styles.visibleButtonText,
-                            onboardingData.age_group === option.id && styles.selectedVisibleButtonText
-                          ]}>
+                          <Text style={{
+                            fontSize: 16,
+                            fontWeight: '600',
+                            color: onboardingData.age_group === option.id ? '#FFFFFF' : '#333',
+                          }}>
                             {option.label}
                           </Text>
                         </TouchableOpacity>
@@ -1165,21 +1173,29 @@ export default function App() {
 
                   {/* Occupation Selection */}
                   <View style={styles.formSectionSpaced}>
-                    <Text style={styles.bigBoldLabel}>Occupation</Text>
-                    <View style={styles.horizontalButtonRow}>
+                    <Text style={{fontSize: 22, fontWeight: '700', color: '#000', marginBottom: 16}}>Occupation</Text>
+                    <View style={{flexDirection: 'row', flexWrap: 'wrap', gap: 12}}>
                       {PROFESSIONS.map((option) => (
                         <TouchableOpacity
                           key={option.id}
-                          style={[
-                            styles.visibleButton,
-                            onboardingData.profession === option.id && styles.selectedVisibleButton
-                          ]}
+                          style={{
+                            backgroundColor: onboardingData.profession === option.id ? '#000000' : 'white',
+                            borderRadius: 16,
+                            paddingVertical: 18,
+                            paddingHorizontal: 24,
+                            borderWidth: 3,
+                            borderColor: onboardingData.profession === option.id ? '#000000' : '#e0e0e0',
+                            minWidth: 100,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
                           onPress={() => setOnboardingData({...onboardingData, profession: option.id})}
                         >
-                          <Text style={[
-                            styles.visibleButtonText,
-                            onboardingData.profession === option.id && styles.selectedVisibleButtonText
-                          ]}>
+                          <Text style={{
+                            fontSize: 16,
+                            fontWeight: '600',
+                            color: onboardingData.profession === option.id ? '#FFFFFF' : '#333',
+                          }}>
                             {option.label}
                           </Text>
                         </TouchableOpacity>
