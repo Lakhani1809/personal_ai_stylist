@@ -550,36 +550,36 @@ Identify:
 Format: Return ONLY valid JSON, no markdown, no explanations.
 Example: {"exact_item_name": "White cotton crew neck t-shirt", "category": "T-shirts", "color": "White", "pattern": "Solid", "fabric_type": "Cotton", "style": "Casual", "tags": ["basics", "summer", "versatile"]}"""
                     
-                response = openai_client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": [
-                                {"type": "text", "text": analysis_prompt},
-                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{clean_base64}"}}
-                            ]
-                        }
-                    ],
-                    max_tokens=400,
-                    temperature=0.1
-                )
-                
-                ai_result = response.choices[0].message.content.strip()
-                ai_result = ai_result.replace('```json', '').replace('```', '').strip()
-                
-                try:
-                    import json
-                    parsed_result = json.loads(ai_result)
-                    analysis_data.update(parsed_result)
-                    ai_success = True
-                    print(f"✅ OpenAI Vision analysis successful!")
-                    print(f"   Item: {analysis_data.get('exact_item_name', 'Unknown')}")
-                    print(f"   Color: {analysis_data.get('color', 'Unknown')}")
-                    print(f"   Category: {analysis_data.get('category', 'Unknown')}")
-                except json.JSONDecodeError as json_err:
-                    print(f"❌ JSON parsing error: {json_err}")
-                    print(f"Raw AI response: {ai_result[:200]}")
+                    response = openai_client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": analysis_prompt},
+                                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{clean_base64}"}}
+                                ]
+                            }
+                        ],
+                        max_tokens=400,
+                        temperature=0.1
+                    )
+                    
+                    ai_result = response.choices[0].message.content.strip()
+                    ai_result = ai_result.replace('```json', '').replace('```', '').strip()
+                    
+                    try:
+                        import json
+                        parsed_result = json.loads(ai_result)
+                        analysis_data.update(parsed_result)
+                        ai_success = True
+                        print(f"✅ OpenAI Vision analysis successful!")
+                        print(f"   Item: {analysis_data.get('exact_item_name', 'Unknown')}")
+                        print(f"   Color: {analysis_data.get('color', 'Unknown')}")
+                        print(f"   Category: {analysis_data.get('category', 'Unknown')}")
+                    except json.JSONDecodeError as json_err:
+                        print(f"❌ JSON parsing error: {json_err}")
+                        print(f"Raw AI response: {ai_result[:200]}")
             else:
                 print("❌ OpenAI API key not configured")
         except Exception as ai_error:
