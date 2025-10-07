@@ -12,6 +12,9 @@ import openai
 import uuid
 import asyncio
 from typing import List, Optional, Dict, Any
+from PIL import Image
+from io import BytesIO
+import base64
 
 # Import custom model handler
 from model_handlers.custom_model_handler import model_handler
