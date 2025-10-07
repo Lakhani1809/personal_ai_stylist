@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend Testing Suite for AI Stylist App - Outfit Generation Testing
-Tests the outfit generation system to identify why users are seeing "no outfits yet"
+Backend Testing Suite for AI Stylist App - Wardrobe Fixes Testing
+Tests the fixes for wardrobe issues: image compression, outfit generation guardrails, and category analysis
 """
 
 import asyncio
@@ -12,6 +12,8 @@ import sys
 import base64
 from datetime import datetime
 from typing import Dict, Any, Optional
+from PIL import Image
+from io import BytesIO
 
 # Add backend to path for imports
 sys.path.append('/app/backend')
