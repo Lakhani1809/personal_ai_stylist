@@ -343,7 +343,9 @@ async def chat(message_data: dict, user_id: str = Depends(get_current_user)):
         
         # Gather contextual data from all services
         contextual_data = await gather_contextual_data(user) if user else {}
-        print(f"🔍 Contextual data gathered: {contextual_data}")
+        print(f"🔍 DEBUG - User city: {user.get('city', 'Not set') if user else 'No user'}")
+        print(f"🔍 DEBUG - Contextual data gathered: {contextual_data}")
+        print(f"🔍 DEBUG - Weather data present: {bool(contextual_data.get('weather'))}")
         
         # Build contextual information for enhanced recommendations
         context_info = ""
