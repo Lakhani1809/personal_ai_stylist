@@ -373,7 +373,7 @@ async def chat(message_data: dict, user_id: str = Depends(get_current_user)):
                 wardrobe_context = f"\n👗 User's Current Wardrobe (reference these SPECIFIC items):\n" + "\n".join(wardrobe_items)
         
         # Gather contextual data from all services
-        contextual_data = await gather_contextual_data(user) if user else {}
+        contextual_data = await gather_contextual_data(user, message_data.get('message', '')) if user else {}
         print(f"🔍 DEBUG - User city: {user.get('city', 'Not set') if user else 'No user'}")
         print(f"🔍 DEBUG - Contextual data gathered: {contextual_data}")
         print(f"🔍 DEBUG - Weather data present: {bool(contextual_data.get('weather'))}")
