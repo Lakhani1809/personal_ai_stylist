@@ -901,6 +901,20 @@ Remember: Only use item numbers that exist in the wardrobe list!"""
                     "explanation": outfit.get("explanation", "A great outfit combination!")
                 })
         
+        # Save the generated outfits to user document
+        await db.users.update_one(
+            {"id": user_id},
+            {
+                "$set": {
+                    "saved_outfits": formatted_outfits,
+                    "last_outfit_generation_count": len(wardrobe),
+                    "last_outfit_generation": datetime.utcnow().isoformat()
+                }
+            }
+        )
+        
+        print(f"💾 Saved {len(formatted_outfits)} outfits to user profile")
+        
         return {"outfits": formatted_outfits}
         
     except Exception as e:
