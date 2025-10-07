@@ -871,7 +871,8 @@ export default function App() {
           setChatMessages(prev => [...prev, aiMessage]);
         }
       } else {
-        // Remove typing indicator on error
+        // Remove typing indicator on error and stop animation
+        stopTypingAnimation();
         setChatMessages(prev => prev.filter(msg => !msg.id.startsWith('typing-') && !msg.id.startsWith('loading-')));
         Alert.alert('Error', data.detail || 'Failed to send message');
       }
