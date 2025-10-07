@@ -1784,9 +1784,29 @@ export default function App() {
                     )}
                     {msg.isTyping ? (
                       <View style={styles.typingIndicator}>
-                        <View style={styles.typingDot} />
-                        <View style={[styles.typingDot, { marginLeft: 4 }]} />
-                        <View style={[styles.typingDot, { marginLeft: 4 }]} />
+                        <Animated.View style={[
+                          styles.typingDot, 
+                          { 
+                            opacity: typingAnimation1,
+                            transform: [{ scale: typingAnimation1 }]
+                          }
+                        ]} />
+                        <Animated.View style={[
+                          styles.typingDot, 
+                          { 
+                            marginLeft: 4,
+                            opacity: typingAnimation2,
+                            transform: [{ scale: typingAnimation2 }]
+                          }
+                        ]} />
+                        <Animated.View style={[
+                          styles.typingDot, 
+                          { 
+                            marginLeft: 4,
+                            opacity: typingAnimation3,
+                            transform: [{ scale: typingAnimation3 }]
+                          }
+                        ]} />
                       </View>
                     ) : (
                       <Text style={[styles.messageText, msg.is_user ? styles.userMessageText : styles.aiMessageText]}>
