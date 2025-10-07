@@ -749,9 +749,9 @@ class WardrobeFixesTester:
         return True
     
     def print_diagnostic_summary(self):
-        """Print comprehensive diagnostic summary focused on outfit generation issues"""
+        """Print comprehensive diagnostic summary focused on wardrobe fixes"""
         print("\n" + "=" * 70)
-        print("🔍 OUTFIT GENERATION DIAGNOSTIC SUMMARY")
+        print("🔍 WARDROBE FIXES DIAGNOSTIC SUMMARY")
         print("=" * 70)
         
         total_tests = len(self.test_results)
@@ -765,71 +765,75 @@ class WardrobeFixesTester:
         print(f"⚠️  Warnings: {warned_tests}")
         print(f"📈 Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
-        # Analyze specific outfit generation issues
-        outfit_tests = [r for r in self.test_results if "Outfit Generation" in r["test"]]
-        outfit_failures = [r for r in outfit_tests if r["status"] == "FAIL"]
+        # Analyze specific fix areas
+        compression_tests = [r for r in self.test_results if "Compression" in r["test"]]
+        guardrail_tests = [r for r in self.test_results if "Guardrail" in r["test"]]
+        category_tests = [r for r in self.test_results if "Category" in r["test"]]
+        mongodb_tests = [r for r in self.test_results if "MongoDB" in r["test"]]
         
-        print(f"\n🎯 OUTFIT GENERATION ANALYSIS:")
-        print(f"   Total outfit tests: {len(outfit_tests)}")
-        print(f"   Failed outfit tests: {len(outfit_failures)}")
-        
-        if len(outfit_failures) > 0:
-            print(f"\n🚨 CRITICAL OUTFIT GENERATION ISSUES:")
-            for failure in outfit_failures:
-                print(f"   • {failure['test']}: {failure['details']}")
+        print(f"\n🎯 WARDROBE FIXES ANALYSIS:")
+        print(f"   Image Compression Tests: {len([r for r in compression_tests if r['status'] == 'PASS'])}/{len(compression_tests)} passed")
+        print(f"   Guardrail Tests: {len([r for r in guardrail_tests if r['status'] == 'PASS'])}/{len(guardrail_tests)} passed")
+        print(f"   Category Analysis Tests: {len([r for r in category_tests if r['status'] == 'PASS'])}/{len(category_tests)} passed")
+        print(f"   MongoDB Size Fix Tests: {len([r for r in mongodb_tests if r['status'] == 'PASS'])}/{len(mongodb_tests)} passed")
         
         # Check for specific issue patterns
-        document_size_issues = [r for r in self.test_results if "Document Size" in r["test"] and r["status"] == "FAIL"]
-        json_issues = [r for r in self.test_results if "JSON" in r["test"] and r["status"] == "FAIL"]
-        openai_issues = [r for r in self.test_results if "OpenAI" in r["test"] and r["status"] == "FAIL"]
+        compression_failures = [r for r in compression_tests if r["status"] == "FAIL"]
+        guardrail_failures = [r for r in guardrail_tests if r["status"] == "FAIL"]
+        category_issues = [r for r in category_tests if r["status"] in ["FAIL", "WARN"]]
+        mongodb_failures = [r for r in mongodb_tests if r["status"] == "FAIL"]
         
-        print(f"\n🔍 ROOT CAUSE ANALYSIS:")
+        print(f"\n🔍 FIX STATUS ANALYSIS:")
         
-        if document_size_issues:
-            print(f"   🚨 DOCUMENT SIZE ISSUE DETECTED:")
-            for issue in document_size_issues:
-                print(f"      • {issue['details']}")
-            print(f"      💡 SOLUTION: Reduce image sizes or store images separately")
-        
-        if json_issues:
-            print(f"   🚨 JSON PARSING ISSUES DETECTED:")
-            for issue in json_issues:
-                print(f"      • {issue['details']}")
-            print(f"      💡 SOLUTION: Fix OpenAI response parsing logic")
-        
-        if openai_issues:
-            print(f"   🚨 OPENAI INTEGRATION ISSUES DETECTED:")
-            for issue in openai_issues:
-                print(f"      • {issue['details']}")
-            print(f"      💡 SOLUTION: Check API keys and rate limits")
-        
-        # Check categorization issues
-        categorization_issues = [r for r in self.test_results if "Category" in r["test"] and r["status"] == "WARN"]
-        if categorization_issues:
-            print(f"   ⚠️  CATEGORIZATION ISSUES:")
-            for issue in categorization_issues:
-                print(f"      • {issue['details']}")
-            print(f"      💡 SUGGESTION: Improve AI prompts for more specific categories")
-        
-        print(f"\n📋 RECOMMENDATIONS:")
-        
-        if len(outfit_failures) == 0:
-            print(f"   ✅ Outfit generation appears to be working correctly")
+        if len(compression_failures) == 0:
+            print(f"   ✅ IMAGE COMPRESSION FIX: Working correctly")
         else:
-            print(f"   🔧 IMMEDIATE ACTIONS NEEDED:")
-            if document_size_issues:
-                print(f"      1. 🚨 CRITICAL: Fix MongoDB document size limit issue")
-                print(f"         - Store images in separate collection or external storage")
-                print(f"         - Compress base64 images before storing")
-            if json_issues:
-                print(f"      2. Fix JSON parsing in outfit generation endpoint")
-            if openai_issues:
-                print(f"      3. Verify OpenAI API configuration and limits")
-            
-            print(f"   🔍 FURTHER INVESTIGATION:")
-            print(f"      - Check backend logs for 'DocumentTooLarge' errors")
-            print(f"      - Monitor MongoDB document sizes")
-            print(f"      - Test with smaller/compressed images")
+            print(f"   ❌ IMAGE COMPRESSION FIX: Issues detected")
+            for failure in compression_failures:
+                print(f"      • {failure['details']}")
+        
+        if len(guardrail_failures) == 0:
+            print(f"   ✅ OUTFIT GENERATION GUARDRAILS: Working correctly")
+        else:
+            print(f"   ❌ OUTFIT GENERATION GUARDRAILS: Issues detected")
+            for failure in guardrail_failures:
+                print(f"      • {failure['details']}")
+        
+        if len(category_issues) == 0:
+            print(f"   ✅ CATEGORY ANALYSIS: Working correctly")
+        else:
+            print(f"   ⚠️  CATEGORY ANALYSIS: Issues detected")
+            for issue in category_issues:
+                print(f"      • {issue['details']}")
+        
+        if len(mongodb_failures) == 0:
+            print(f"   ✅ MONGODB DOCUMENT SIZE FIX: Working correctly")
+        else:
+            print(f"   ❌ MONGODB DOCUMENT SIZE FIX: Issues detected")
+            for failure in mongodb_failures:
+                print(f"      • {failure['details']}")
+        
+        print(f"\n📋 OVERALL ASSESSMENT:")
+        
+        critical_failures = compression_failures + mongodb_failures
+        if len(critical_failures) == 0:
+            print(f"   🎉 CRITICAL FIXES: All working correctly!")
+            print(f"   ✅ Image compression preventing MongoDB document size errors")
+            print(f"   ✅ Outfit generation working with large wardrobes")
+        else:
+            print(f"   🚨 CRITICAL ISSUES REMAINING:")
+            for failure in critical_failures:
+                print(f"      • {failure['test']}: {failure['details']}")
+        
+        if len(guardrail_failures) == 0:
+            print(f"   ✅ GUARDRAILS: Enhanced outfit generation guardrails working")
+        else:
+            print(f"   ❌ GUARDRAILS: Issues with outfit generation guardrails")
+        
+        if len(category_issues) == 0:
+            print(f"   ✅ CATEGORIZATION: AI analysis providing good categories")
+        else:
+            print(f"   ⚠️  CATEGORIZATION: Room for improvement in AI categorization")
         
         print("\n" + "=" * 70)
 
