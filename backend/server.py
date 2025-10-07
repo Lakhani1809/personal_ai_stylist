@@ -627,26 +627,6 @@ Example: {"exact_item_name": "White cotton crew neck t-shirt", "category": "T-sh
         print(f"Wardrobe error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to add wardrobe item: {str(e)}")
 
-@app.delete("/api/wardrobe/{item_id}")
-async def delete_wardrobe_item(item_id: str, user_id: str = Depends(get_current_user)):
-    try:
-        # Remove item from user's wardrobe array and clear saved outfits (force regeneration)
-        result = await db.users.update_one(
-            {"id": user_id},
-            {
-                "$pull": {"wardrobe": {"id": item_id}},
-                "$unset": {"saved_outfits": "", "last_outfit_generation_count": ""}
-            }
-        )
-        
-        if result.modified_count > 0:
-            return {"message": "Item deleted successfully"}
-        else:
-            raise HTTPException(status_code=404, detail="Item not found")
-            
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to delete item")
-
 @app.delete("/api/wardrobe/clear")
 async def clear_wardrobe(user_id: str = Depends(get_current_user)):
     try:
@@ -667,6 +647,26 @@ async def clear_wardrobe(user_id: str = Depends(get_current_user)):
     except Exception as e:
         print(f"Clear wardrobe error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to clear wardrobe: {str(e)}")
+
+@app.delete("/api/wardrobe/{item_id}")
+async def delete_wardrobe_item(item_id: str, user_id: str = Depends(get_current_user)):
+    try:
+        # Remove item from user's wardrobe array and clear saved outfits (force regeneration)
+        result = await db.users.update_one(
+            {"id": user_id},
+            {
+                "$pull": {"wardrobe": {"id": item_id}},
+                "$unset": {"saved_outfits": "", "last_outfit_generation_count": ""}
+            }
+        )
+        
+        if result.modified_count > 0:
+            return {"message": "Item deleted successfully"}
+        else:
+            raise HTTPException(status_code=404, detail="Item not found")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to delete item")
 
 @app.post("/api/validate-outfit")
 async def validate_outfit(outfit_data: dict, user_id: str = Depends(get_current_user)):
