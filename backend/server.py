@@ -893,23 +893,5 @@ Remember: Only use item numbers that exist in the wardrobe list!"""
         traceback.print_exc()
         return {"outfits": [], "message": f"Error generating outfits: {str(e)}"}
 
-            validation = {
-                "id": str(uuid.uuid4()),
-                "scores": {
-                    "color_combo": 3.8,
-                    "fit": 3.7,
-                    "style": 4.0,
-                    "occasion": 3.9
-                },
-                "overall_score": 3.9,
-                "feedback": "Your outfit has a nice overall composition! The pieces work well together and show good style sense.",
-                "image_base64": image_base64.split(',')[-1] if ',' in image_base64 else image_base64
-            }
-        
-        return validation
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to validate outfit")
-
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
