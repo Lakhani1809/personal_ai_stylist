@@ -16,7 +16,7 @@ from typing import Dict, Any, Optional
 # Add backend to path for imports
 sys.path.append('/app/backend')
 
-class BackendTester:
+class OutfitGenerationTester:
     def __init__(self):
         # Get backend URL from frontend env
         with open('/app/frontend/.env', 'r') as f:
@@ -33,9 +33,11 @@ class BackendTester:
         self.headers = {"Content-Type": "application/json"}
         self.test_results = []
         self.auth_token = None
+        self.user_id = None
         
-        print(f"🔧 Backend Tester initialized")
+        print(f"🔧 Outfit Generation Tester initialized")
         print(f"   API URL: {self.api_url}")
+        print(f"🎯 Focus: Testing outfit generation system to debug 'no outfits yet' issue")
         
     def log_test(self, test_name: str, status: str, details: str = ""):
         """Log test results"""
