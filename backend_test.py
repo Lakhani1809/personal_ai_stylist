@@ -438,6 +438,10 @@ class BackendTester:
     def test_api_service_availability(self):
         """Test individual API service availability"""
         try:
+            # Load environment variables from backend directory
+            from dotenv import load_dotenv
+            load_dotenv('/app/backend/.env')
+            
             # Check environment variables for API keys
             openweather_key = os.getenv("OPENWEATHER_API_KEY")
             rapidapi_key = os.getenv("RAPIDAPI_KEY")
