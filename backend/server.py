@@ -24,6 +24,55 @@ from services.weather_service import weather_service
 from services.events_service import events_service
 from services.fashion_service import fashion_service
 
+def compress_base64_image(base64_string: str, quality: int = 30, max_width: int = 800) -> str:
+    """
+    Compress a base64 encoded image to reduce storage size.
+    
+    Args:
+        base64_string: Base64 encoded image (with or without data prefix)
+        quality: JPEG compression quality (1-95, lower = smaller file)
+        max_width: Maximum width in pixels (height scaled proportionally)
+    
+    Returns:
+        Compressed base64 string without data prefix
+    """
+    try:
+        # Remove data prefix if present
+        if ',' in base64_string:
+            base64_data = base64_string.split(',')[1]
+        else:
+            base64_data = base64_string
+            
+        # Decode base64 to image
+        image_data = base64.b64decode(base64_data)
+        image = Image.open(BytesIO(image_data))
+        
+        # Convert to RGB if necessary (handles RGBA, P mode images)
+        if image.mode in ('RGBA', 'P'):
+            image = image.convert('RGB')
+        
+        # Resize if too large
+        if image.width > max_width:
+            ratio = max_width / image.width
+            new_height = int(image.height * ratio)
+            image = image.resize((max_width, new_height), Image.Resampling.LANCZOS)
+        
+        # Compress image
+        buffer = BytesIO()
+        image.save(buffer, format='JPEG', quality=quality, optimize=True)
+        
+        # Convert back to base64
+        compressed_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        
+        print(f"📸 Image compressed: {len(base64_data)} → {len(compressed_base64)} bytes ({len(compressed_base64)/len(base64_data)*100:.1f}%)")
+        
+        return compressed_base64
+        
+    except Exception as e:
+        print(f"❌ Image compression failed: {e}")
+        # Return original if compression fails
+        return base64_string.split(',')[1] if ',' in base64_string else base64_string
+
 load_dotenv()
 
 # Database setup
