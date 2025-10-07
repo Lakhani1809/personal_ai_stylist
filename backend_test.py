@@ -1,53 +1,68 @@
 #!/usr/bin/env python3
 """
-Backend Testing Suite for Enhanced Chat Personalization with API Integrations
-Tests weather, events, and fashion services integration in the chat system.
+Backend Testing Suite for AI Stylist App - Weather Integration & City Field Testing
+Tests the improvements and fixes made for weather integration and city field functionality.
 """
 
 import asyncio
 import requests
 import json
 import os
+import sys
 from datetime import datetime
-from dotenv import load_dotenv
+from typing import Dict, Any, Optional
 
-load_dotenv()
+# Add backend to path for imports
+sys.path.append('/app/backend')
 
-# Configuration
-BACKEND_URL = os.getenv('EXPO_PUBLIC_BACKEND_URL', 'https://ai-wardrobe-buddy.preview.emergentagent.com')
-API_BASE = f"{BACKEND_URL}/api"
+# Import services for direct testing
+from services.weather_service import weather_service
+from services.events_service import events_service
+from services.fashion_service import fashion_service
 
 class BackendTester:
     def __init__(self):
-        self.access_token = None
-        self.user_id = None
-        self.test_results = []
+        # Get backend URL from frontend env
+        with open('/app/frontend/.env', 'r') as f:
+            env_content = f.read()
+            for line in env_content.split('\n'):
+                if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
+                    self.base_url = line.split('=')[1].strip()
+                    break
         
-    def log_result(self, test_name, success, details="", error=""):
-        """Log test result"""
+        if not hasattr(self, 'base_url'):
+            self.base_url = "https://ai-wardrobe-buddy.preview.emergentagent.com"
+        
+        self.api_url = f"{self.base_url}/api"
+        self.headers = {"Content-Type": "application/json"}
+        self.test_results = []
+        self.auth_token = None
+        
+        print(f"🔧 Backend Tester initialized")
+        print(f"   API URL: {self.api_url}")
+        
+    def log_test(self, test_name: str, status: str, details: str = ""):
+        """Log test results"""
         result = {
             "test": test_name,
-            "success": success,
+            "status": status,
             "details": details,
-            "error": error,
             "timestamp": datetime.now().isoformat()
         }
         self.test_results.append(result)
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status}: {test_name}")
+        
+        status_emoji = "✅" if status == "PASS" else "❌" if status == "FAIL" else "⚠️"
+        print(f"{status_emoji} {test_name}: {status}")
         if details:
             print(f"   Details: {details}")
-        if error:
-            print(f"   Error: {error}")
-        print()
-
-    def setup_test_user(self):
-        """Create and authenticate a test user with location data"""
+    
+    async def setup_test_user(self):
+        """Create and authenticate a test user with city field"""
         try:
             # Register test user
             register_data = {
-                "email": f"chattest_{int(datetime.now().timestamp())}@example.com",
-                "password": "testpass123",
+                "email": f"weathertest_{int(datetime.now().timestamp())}@example.com",
+                "password": "TestPassword123!",
                 "name": "Chat Test User"
             }
             
