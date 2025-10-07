@@ -1836,21 +1836,23 @@ export default function App() {
               >
                 <TouchableOpacity
                   style={{
-                    backgroundColor: selectedCategoryFilter === 'all' ? '#000000' : 'white',
-                    borderRadius: 20,
-                    paddingVertical: 12,
-                    paddingHorizontal: 20,
-                    borderWidth: 2,
-                    borderColor: selectedCategoryFilter === 'all' ? '#000000' : '#e0e0e0',
-                    minWidth: 80,
+                    backgroundColor: selectedCategoryFilter === 'all' ? '#007AFF' : 'white',
+                    borderRadius: 16,
+                    paddingVertical: 8,
+                    paddingHorizontal: 16,
+                    borderWidth: 1.5,
+                    borderColor: selectedCategoryFilter === 'all' ? '#007AFF' : '#D1D5DB',
+                    minWidth: 70,
                     alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                   onPress={() => setSelectedCategoryFilter('all')}
                 >
                   <Text style={{
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: '600',
-                    color: selectedCategoryFilter === 'all' ? '#FFFFFF' : '#333',
+                    color: selectedCategoryFilter === 'all' ? '#FFFFFF' : '#4B5563',
+                    textAlign: 'center',
                   }}>
                     All ({wardrobe.length})
                   </Text>
