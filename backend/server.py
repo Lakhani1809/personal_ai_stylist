@@ -381,6 +381,7 @@ async def chat(message_data: dict, user_id: str = Depends(get_current_user)):
 
 {user_context}
 {wardrobe_context}
+{context_info}
 
 🎭 YOUR ROLE - PERSONAL STYLIST:
 - You're THEIR stylist - not a wardrobe manager or outfit builder
