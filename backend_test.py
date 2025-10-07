@@ -18,7 +18,7 @@ from io import BytesIO
 # Add backend to path for imports
 sys.path.append('/app/backend')
 
-class OutfitGenerationTester:
+class WardrobeFixesTester:
     def __init__(self):
         # Get backend URL from frontend env
         with open('/app/frontend/.env', 'r') as f:
