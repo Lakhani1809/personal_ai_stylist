@@ -1242,6 +1242,27 @@ export default function App() {
                       ))}
                     </View>
                   </View>
+
+                  {/* City Input for Weather Integration */}
+                  <View style={{marginBottom: 32}}>
+                    <Text style={{fontSize: 18, fontWeight: '700', color: '#000', marginBottom: 16}}>City 🌤️</Text>
+                    <Text style={{fontSize: 14, color: '#666', marginBottom: 16}}>For weather-based outfit recommendations</Text>
+                    <TextInput
+                      style={{
+                        backgroundColor: 'white',
+                        borderRadius: 12,
+                        padding: 18,
+                        fontSize: 16,
+                        borderWidth: 2,
+                        borderColor: '#e0e0e0',
+                      }}
+                      placeholder="e.g., New York, London, Mumbai"
+                      placeholderTextColor="#999"
+                      value={city}
+                      onChangeText={setCity}
+                      autoCapitalize="words"
+                    />
+                  </View>
                 </ScrollView>
               )}
 
