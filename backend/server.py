@@ -532,23 +532,23 @@ async def add_wardrobe_item(item_data: dict, user_id: str = Depends(get_current_
         # Use custom model handler for clothing analysis
         ai_success = False
         try:
-            print(f"🤖 Starting custom model analysis for clothing item...")
+            print(f"🤖 Starting OpenAI Vision analysis for clothing item...")
             
-            # Use custom models first (your models)
-            analysis_data = model_handler.analyze_clothing_item(f"data:image/jpeg;base64,{clean_base64}")
-            
-            if analysis_data and analysis_data.get("exact_item_name") != "Fashion Item":
-                ai_success = True
-                print(f"✅ Custom model analysis successful!")
-                print(f"   Item: {analysis_data['exact_item_name']}")
-                print(f"   Color: {analysis_data['color']}")
-                print(f"   Material: {analysis_data['fabric_type']}")
-            else:
-                print("⚠️ Custom models not available, falling back to OpenAI...")
-                
-                # Fallback to OpenAI if custom models aren't loaded
-                if OPENAI_API_KEY and len(OPENAI_API_KEY) > 10:
-                    analysis_prompt = """Analyze this clothing item precisely. Return JSON with: exact_item_name, category, color, pattern, fabric_type, style, tags."""
+            # Use OpenAI Vision with improved prompt
+            if OPENAI_API_KEY and len(OPENAI_API_KEY) > 10:
+                analysis_prompt = """You are an expert fashion analyst. Analyze this clothing item image with precision and return ONLY valid JSON.
+
+Identify:
+1. exact_item_name: Specific garment type (e.g., "Crew neck cotton t-shirt", "High-waisted denim jeans", "Leather bomber jacket")
+2. category: Main category (choose ONE: "T-shirts", "Shirts", "Pants", "Jeans", "Jackets", "Dresses", "Skirts", "Shoes", "Accessories", "Tops", "Bottoms")
+3. color: Primary color(s) in order of dominance (e.g., "Navy blue", "Black and white", "Burgundy")
+4. pattern: Pattern type ("Solid", "Striped", "Floral", "Plaid", "Polka dot", "Geometric", "Animal print", "Abstract", "None")
+5. fabric_type: Material/fabric ("Cotton", "Denim", "Leather", "Silk", "Wool", "Polyester", "Linen", "Velvet", "Knit", "Blend")
+6. style: Style category (choose: "Casual", "Formal", "Business casual", "Sporty", "Streetwear", "Bohemian", "Vintage", "Modern", "Minimalist")
+7. tags: Array of relevant descriptive tags (e.g., ["summer", "versatile", "basics"], max 5 tags)
+
+Format: Return ONLY valid JSON, no markdown, no explanations.
+Example: {"exact_item_name": "White cotton crew neck t-shirt", "category": "T-shirts", "color": "White", "pattern": "Solid", "fabric_type": "Cotton", "style": "Casual", "tags": ["basics", "summer", "versatile"]}"""
                     
                     response = openai_client.chat.completions.create(
                         model="gpt-4o-mini",
