@@ -302,6 +302,51 @@ export default function App() {
     }
   }, [user, token, currentTab]);
 
+  // Typing indicator animation functions
+  const startTypingAnimation = () => {
+    const animateIn = (animation: Animated.Value, delay: number) => {
+      return Animated.loop(
+        Animated.sequence([
+          Animated.timing(animation, {
+            toValue: 1,
+            duration: 400,
+            delay,
+            useNativeDriver: true,
+          }),
+          Animated.timing(animation, {
+            toValue: 0,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+        ]),
+        { iterations: -1 }
+      );
+    };
+
+    // Start all animations with staggered delays
+    Animated.parallel([
+      animateIn(typingAnimation1, 0),
+      animateIn(typingAnimation2, 200),
+      animateIn(typingAnimation3, 400),
+    ]).start();
+  };
+
+  const stopTypingAnimation = () => {
+    typingAnimation1.stopAnimation();
+    typingAnimation2.stopAnimation();
+    typingAnimation3.stopAnimation();
+    typingAnimation1.setValue(0);
+    typingAnimation2.setValue(0);
+    typingAnimation3.setValue(0);
+  };
+
+  // Auto-scroll chat to bottom
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      chatScrollRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  };
+
   const clearChatSession = () => {
     setChatMessages([]);
     setChatSessionId(Date.now().toString());
