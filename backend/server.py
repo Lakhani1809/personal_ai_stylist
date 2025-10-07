@@ -233,6 +233,53 @@ async def get_wardrobe(user_id: str = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="User not found")
     return {"items": user.get("wardrobe", [])}
 
+async def gather_contextual_data(user: dict) -> dict:
+    """Gather contextual data from all services for enhanced chat experience."""
+    context = {
+        "weather": None,
+        "events": [],
+        "fashion_trends": None,
+        "location": None
+    }
+    
+    # Get user location
+    user_city = user.get("city", "")
+    if user_city:
+        context["location"] = user_city
+        
+        # Get weather data for outfit recommendations
+        try:
+            weather_data = await weather_service.get_current_weather(user_city)
+            if weather_data:
+                context["weather"] = weather_service.get_outfit_recommendations_by_weather(weather_data)
+        except Exception as e:
+            print(f"Weather service error: {e}")
+        
+        # Get local events for styling inspiration
+        try:
+            events_data = await events_service.search_events(user_city, limit=3)
+            if events_data:
+                context["events"] = [events_service.categorize_event_for_styling(event) for event in events_data[:3]]
+        except Exception as e:
+            print(f"Events service error: {e}")
+    
+    # Get fashion trends for current recommendations
+    try:
+        trending_products = await fashion_service.get_trending_products(limit=10)
+        if trending_products:
+            trend_analysis = fashion_service.analyze_fashion_trends(trending_products)
+            user_prefs = {
+                "favorite_colors": user.get("color_preferences", []),
+                "budget_range": user.get("budget_range", "")
+            }
+            context["fashion_trends"] = fashion_service.get_style_recommendations_by_trend(
+                trend_analysis, user_prefs
+            )
+    except Exception as e:
+        print(f"Fashion service error: {e}")
+    
+    return context
+
 @app.post("/api/chat")
 async def chat(message_data: dict, user_id: str = Depends(get_current_user)):
     try:
