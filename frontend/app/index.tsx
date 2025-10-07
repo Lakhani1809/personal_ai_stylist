@@ -1109,21 +1109,29 @@ export default function App() {
 
                   {/* Gender Selection */}
                   <View style={styles.formSectionSpaced}>
-                    <Text style={styles.bigBoldLabel}>Gender</Text>
-                    <View style={styles.horizontalButtonRow}>
+                    <Text style={{fontSize: 22, fontWeight: '700', color: '#000', marginBottom: 16}}>Gender</Text>
+                    <View style={{flexDirection: 'row', flexWrap: 'wrap', gap: 12}}>
                       {GENDER_OPTIONS.map((option) => (
                         <TouchableOpacity
                           key={option.id}
-                          style={[
-                            styles.visibleButton,
-                            onboardingData.gender === option.id && styles.selectedVisibleButton
-                          ]}
+                          style={{
+                            backgroundColor: onboardingData.gender === option.id ? '#000000' : 'white',
+                            borderRadius: 16,
+                            paddingVertical: 18,
+                            paddingHorizontal: 24,
+                            borderWidth: 3,
+                            borderColor: onboardingData.gender === option.id ? '#000000' : '#e0e0e0',
+                            minWidth: 100,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
                           onPress={() => setOnboardingData({...onboardingData, gender: option.id})}
                         >
-                          <Text style={[
-                            styles.visibleButtonText,
-                            onboardingData.gender === option.id && styles.selectedVisibleButtonText
-                          ]}>
+                          <Text style={{
+                            fontSize: 16,
+                            fontWeight: '600',
+                            color: onboardingData.gender === option.id ? '#FFFFFF' : '#333',
+                          }}>
                             {option.label}
                           </Text>
                         </TouchableOpacity>
