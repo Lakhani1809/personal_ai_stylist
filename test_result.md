@@ -157,15 +157,18 @@ backend:
 
   - task: "Wardrobe Outfit Generation & Persistence"
     implemented: true
-    working: true
+    working: false
     file: "backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
       - working: true
         agent: "testing"
         comment: "OUTFIT FUNCTIONALITY COMPREHENSIVE TEST PASSED: All requested features working perfectly! ✅ Outfit Generation & Persistence - Generates outfits when none exist, saves to user profile with saved_outfits field, returns saved outfits on subsequent calls without regenerating, includes last_outfit_generation_count tracking. ✅ Outfit Cache Invalidation - Outfits cleared when new items added via POST /api/wardrobe and when items deleted via DELETE /api/wardrobe/{item_id}. ✅ Force Regeneration - force_regenerate=true parameter works correctly. ✅ Edge Cases - Proper handling of insufficient wardrobe items (requires minimum 2 items), invalid authentication, empty wardrobes. ✅ Fixed routing conflict between /api/wardrobe/clear and /api/wardrobe/{item_id} endpoints. All 10 test scenarios passed successfully including user profile integration with outfit generation."
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL ISSUE IDENTIFIED: Root cause of 'no outfits yet' problem found! MongoDB DocumentTooLarge errors occurring when saving generated outfits to user profiles. Backend logs show: 'update command document too large' and '❌ Outfit generation error'. The AI successfully generates outfits (✅ Generated X outfits) but fails to save them due to 16MB MongoDB document limit. Users with large wardrobes (many base64 images) hit this limit. OpenAI integration working correctly. Wardrobe categorization using broad categories (Tops, Bottoms) instead of specific ones. SOLUTION NEEDED: Store images separately or compress base64 data to reduce document size."
 
   - task: "Enhanced Chat Personalization with API Integrations"
     implemented: true
