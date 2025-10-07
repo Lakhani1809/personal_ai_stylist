@@ -1756,8 +1756,51 @@ export default function App() {
 
             {/* Upload Progress Removed as requested */}
 
-            {/* Category Filters */}
+            {/* Tab Switcher - My Items vs Outfits */}
             {wardrobe.length > 0 && (
+              <View style={{flexDirection: 'row', paddingHorizontal: 16, paddingTop: 16, gap: 12}}>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    paddingVertical: 14,
+                    alignItems: 'center',
+                    backgroundColor: wardrobeTab === 'items' ? '#000000' : 'white',
+                    borderRadius: 12,
+                    borderWidth: 2,
+                    borderColor: wardrobeTab === 'items' ? '#000000' : '#e0e0e0',
+                  }}
+                  onPress={() => setWardrobeTab('items')}
+                >
+                  <Text style={{fontSize: 16, fontWeight: '600', color: wardrobeTab === 'items' ? '#FFF' : '#333'}}>
+                    My Items
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    paddingVertical: 14,
+                    alignItems: 'center',
+                    backgroundColor: wardrobeTab === 'outfits' ? '#000000' : 'white',
+                    borderRadius: 12,
+                    borderWidth: 2,
+                    borderColor: wardrobeTab === 'outfits' ? '#000000' : '#e0e0e0',
+                  }}
+                  onPress={() => {
+                    setWardrobeTab('outfits');
+                    if (generatedOutfits.length === 0 && !outfitsLoading) {
+                      loadOutfits();
+                    }
+                  }}
+                >
+                  <Text style={{fontSize: 16, fontWeight: '600', color: wardrobeTab === 'outfits' ? '#FFF' : '#333'}}>
+                    Outfits
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Category Filters - Only show for Items tab */}
+            {wardrobe.length > 0 && wardrobeTab === 'items' && (
               <ScrollView 
                 horizontal 
                 showsHorizontalScrollIndicator={false} 
