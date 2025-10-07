@@ -667,6 +667,7 @@ export default function App() {
 
       if (response.ok) {
         console.log('✅ Item deleted successfully');
+        setGeneratedOutfits([]); // Clear outfits cache to force regeneration
       } else {
         console.error(`Delete failed: ${response.status}`);
         // If delete failed, revert the optimistic update
