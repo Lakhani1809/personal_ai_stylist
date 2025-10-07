@@ -548,6 +548,33 @@ export default function App() {
   const [generatedOutfits, setGeneratedOutfits] = useState<any[]>([]);
   const [outfitsLoading, setOutfitsLoading] = useState(false);
 
+  // Load AI-generated outfits
+  const loadOutfits = async () => {
+    if (!token) return;
+    
+    setOutfitsLoading(true);
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/wardrobe/outfits`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setGeneratedOutfits(data.outfits || []);
+      } else {
+        Alert.alert('Error', data.message || 'Failed to generate outfits');
+      }
+    } catch (error) {
+      console.error('Error loading outfits:', error);
+      Alert.alert('Error', 'Failed to load outfits');
+    } finally {
+      setOutfitsLoading(false);
+    }
+  };
+
   const addWardrobeItems = async () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
