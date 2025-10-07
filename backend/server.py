@@ -233,7 +233,7 @@ async def get_wardrobe(user_id: str = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="User not found")
     return {"items": user.get("wardrobe", [])}
 
-async def gather_contextual_data(user: dict) -> dict:
+async def gather_contextual_data(user: dict, message: str = "") -> dict:
     """Gather contextual data from all services for enhanced chat experience."""
     context = {
         "weather": None,
@@ -242,8 +242,39 @@ async def gather_contextual_data(user: dict) -> dict:
         "location": None
     }
     
-    # Get user location
+    # Get user location - either from profile or extract from message
     user_city = user.get("city", "")
+    
+    # If user asks about weather for a specific city, extract it
+    if not user_city and message:
+        import re
+        # Look for city names in the message
+        city_patterns = [
+            r'weather\s+in\s+([A-Za-z\s,]+?)(?:\s|$|\?)',
+            r'weather\s+of\s+([A-Za-z\s,]+?)(?:\s|$|\?)',
+            r'weather\s+at\s+([A-Za-z\s,]+?)(?:\s|$|\?)',
+        ]
+        
+        for pattern in city_patterns:
+            match = re.search(pattern, message.lower())
+            if match:
+                extracted_city = match.group(1).strip()
+                # Common city name mappings
+                city_mappings = {
+                    'bangalore': 'Bangalore,IN',
+                    'mumbai': 'Mumbai,IN', 
+                    'delhi': 'New Delhi,IN',
+                    'chennai': 'Chennai,IN',
+                    'kolkata': 'Kolkata,IN',
+                    'pune': 'Pune,IN',
+                    'hyderabad': 'Hyderabad,IN',
+                    'new york': 'New York,NY,US',
+                    'london': 'London,UK',
+                    'paris': 'Paris,FR'
+                }
+                user_city = city_mappings.get(extracted_city.lower(), extracted_city)
+                break
+    
     if user_city:
         context["location"] = user_city
         
