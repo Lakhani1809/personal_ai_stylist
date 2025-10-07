@@ -54,14 +54,24 @@ class OutfitGenerationTester:
         if details:
             print(f"   Details: {details}")
     
+    def create_sample_base64_image(self, color="blue"):
+        """Create a simple base64 encoded image for testing"""
+        # Create a minimal 1x1 pixel PNG in base64
+        if color == "blue":
+            return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGA60e6kgAAAABJRU5ErkJggg=="
+        elif color == "red":
+            return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+        else:
+            return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGA60e6kgAAAABJRU5ErkJggg=="
+    
     async def setup_test_user(self):
-        """Create and authenticate a test user with city field"""
+        """Create and authenticate a test user for outfit testing"""
         try:
             # Register test user
             register_data = {
-                "email": f"weathertest_{int(datetime.now().timestamp())}@example.com",
+                "email": f"outfittest_{int(datetime.now().timestamp())}@example.com",
                 "password": "TestPassword123!",
-                "name": "Weather Test User"
+                "name": "Outfit Test User"
             }
             
             response = requests.post(f"{self.api_url}/auth/register", 
@@ -73,7 +83,7 @@ class OutfitGenerationTester:
                 self.user_id = data.get("user", {}).get("id")
                 self.headers["Authorization"] = f"Bearer {self.auth_token}"
                 
-                # Complete onboarding with city field (Bangalore)
+                # Complete onboarding
                 onboarding_data = {
                     "age": 28,
                     "profession": "Software Engineer",
@@ -82,441 +92,387 @@ class OutfitGenerationTester:
                     "style_inspiration": ["Minimalist", "Professional"],
                     "style_vibes": ["Clean", "Modern"],
                     "style_message": "I love clean, professional looks",
-                    "city": "Bangalore,IN"  # Key field for weather testing
+                    "city": "Bangalore,IN"
                 }
                 
                 onboard_response = requests.put(f"{self.api_url}/auth/onboarding",
                                               json=onboarding_data, headers=self.headers, timeout=10)
                 
                 if onboard_response.status_code == 200:
-                    self.log_test("User Setup with City", "PASS", 
-                                f"Created user with city: Bangalore,IN")
+                    self.log_test("User Setup for Outfit Testing", "PASS", 
+                                f"Created user: {register_data['email']}")
                     return True
                 else:
-                    self.log_test("User Setup with City", "FAIL", 
+                    self.log_test("User Setup for Outfit Testing", "FAIL", 
                                 f"Onboarding failed: {onboard_response.status_code}")
                     return False
             else:
-                self.log_test("User Setup with City", "FAIL", 
+                self.log_test("User Setup for Outfit Testing", "FAIL", 
                             f"Registration failed: {response.status_code}")
                 return False
                 
         except Exception as e:
-            self.log_test("User Setup with City", "FAIL", f"Exception: {str(e)}")
+            self.log_test("User Setup for Outfit Testing", "FAIL", f"Exception: {str(e)}")
             return False
     
-    async def test_weather_service_direct(self):
-        """Test weather service directly for Bangalore"""
+    async def add_wardrobe_item(self, item_description: str):
+        """Add a wardrobe item and analyze AI categorization"""
         try:
-            print("\n🌤️ Testing Weather Service Direct Integration...")
-            
-            # Test current weather for Bangalore
-            weather_data = await weather_service.get_current_weather("Bangalore,IN")
-            
-            if weather_data:
-                self.log_test("Weather API - Bangalore Direct", "PASS", 
-                            f"Temperature: {weather_data.get('temperature')}°F, "
-                            f"Condition: {weather_data.get('condition')}")
-                
-                # Test outfit recommendations
-                recommendations = weather_service.get_outfit_recommendations_by_weather(weather_data)
-                
-                if recommendations and recommendations.get("recommendations"):
-                    self.log_test("Weather Outfit Recommendations", "PASS",
-                                f"Generated recommendations for {weather_data.get('temperature')}°F weather")
-                    
-                    # Print sample recommendations for verification
-                    temp_advice = recommendations["recommendations"].get("temperature_advice", "")
-                    fabric_advice = recommendations["recommendations"].get("fabric_suggestions", "")
-                    print(f"   Sample advice: {temp_advice[:100]}...")
-                    print(f"   Fabric advice: {fabric_advice[:100]}...")
-                    
-                    return weather_data
-                else:
-                    self.log_test("Weather Outfit Recommendations", "FAIL", 
-                                "No recommendations generated")
-                    return weather_data
-            else:
-                self.log_test("Weather API - Bangalore Direct", "FAIL", 
-                            "No weather data returned")
-                return None
-                
-        except Exception as e:
-            self.log_test("Weather API - Bangalore Direct", "FAIL", f"Exception: {str(e)}")
-            return None
-    
-    async def test_events_service_direct(self):
-        """Test events service directly for Bangalore"""
-        try:
-            print("\n📅 Testing Events Service Direct Integration...")
-            
-            # Test events search for Bangalore
-            events_data = await events_service.search_events("Bangalore", limit=3)
-            
-            if events_data is not None:
-                if len(events_data) > 0:
-                    self.log_test("Events API - Bangalore Direct", "PASS", 
-                                f"Found {len(events_data)} events")
-                    
-                    # Test event categorization
-                    for event in events_data[:1]:  # Test first event
-                        categorized = events_service.categorize_event_for_styling(event)
-                        if categorized and categorized.get("styling"):
-                            self.log_test("Events Styling Categorization", "PASS",
-                                        f"Event categorized with formality: {categorized['styling'].get('formality_level')}")
-                        else:
-                            self.log_test("Events Styling Categorization", "FAIL",
-                                        "Failed to categorize event")
-                else:
-                    self.log_test("Events API - Bangalore Direct", "PASS", 
-                                "API working but no events found (expected)")
-                return events_data
-            else:
-                self.log_test("Events API - Bangalore Direct", "FAIL", 
-                            "Events service returned None")
-                return None
-                
-        except Exception as e:
-            self.log_test("Events API - Bangalore Direct", "FAIL", f"Exception: {str(e)}")
-            return None
-    
-    async def test_fashion_service_direct(self):
-        """Test fashion service directly"""
-        try:
-            print("\n👗 Testing Fashion Service Direct Integration...")
-            
-            # Test trending products
-            products = await fashion_service.get_trending_products(limit=10)
-            
-            if products is not None:
-                if len(products) > 0:
-                    self.log_test("Fashion API - H&M Direct", "PASS", 
-                                f"Retrieved {len(products)} trending products")
-                    
-                    # Test trend analysis
-                    trend_analysis = fashion_service.analyze_fashion_trends(products)
-                    if trend_analysis and trend_analysis.get("trending_colors"):
-                        self.log_test("Fashion Trend Analysis", "PASS",
-                                    f"Analyzed trends: {trend_analysis.get('trending_colors')[:3]}")
-                        
-                        # Test style recommendations
-                        user_prefs = {"favorite_colors": ["blue", "black"], "budget_range": "medium"}
-                        recommendations = fashion_service.get_style_recommendations_by_trend(
-                            trend_analysis, user_prefs
-                        )
-                        
-                        if recommendations and recommendations.get("styling_tips"):
-                            self.log_test("Fashion Style Recommendations", "PASS",
-                                        f"Generated {len(recommendations.get('styling_tips', []))} styling tips")
-                        else:
-                            self.log_test("Fashion Style Recommendations", "FAIL",
-                                        "No styling recommendations generated")
-                    else:
-                        self.log_test("Fashion Trend Analysis", "FAIL",
-                                    "Failed to analyze trends")
-                else:
-                    self.log_test("Fashion API - H&M Direct", "PASS", 
-                                "API working but no products found (expected)")
-                return products
-            else:
-                self.log_test("Fashion API - H&M Direct", "FAIL", 
-                            "Fashion service returned None")
-                return None
-                
-        except Exception as e:
-            self.log_test("Fashion API - H&M Direct", "FAIL", f"Exception: {str(e)}")
-            return None
-    
-    async def test_chat_weather_integration(self):
-        """Test that chat system includes weather context for users with city"""
-        try:
-            print("\n💬 Testing Chat Weather Integration...")
-            
-            if not self.auth_token:
-                self.log_test("Chat Weather Integration", "FAIL", "No auth token available")
-                return
-            
-            # Test weather-aware chat message
-            chat_data = {
-                "message": "What should I wear today for work?"
+            item_data = {
+                "image_base64": self.create_sample_base64_image()
             }
             
+            response = requests.post(f"{self.api_url}/wardrobe", 
+                                   json=item_data, headers=self.headers, timeout=15)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.log_test(f"Add Wardrobe Item ({item_description})", "PASS", 
+                            f"Added: {data.get('message', 'Item added')}")
+                return True
+            else:
+                self.log_test(f"Add Wardrobe Item ({item_description})", "FAIL", 
+                            f"Status: {response.status_code}, Response: {response.text[:200]}")
+                return False
+                
+        except Exception as e:
+            self.log_test(f"Add Wardrobe Item ({item_description})", "FAIL", f"Exception: {str(e)}")
+            return False
+    
+    async def get_wardrobe_analysis(self):
+        """Get wardrobe items and analyze categorization"""
+        try:
+            response = requests.get(f"{self.api_url}/wardrobe", headers=self.headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                items = data.get("items", [])
+                
+                # Analyze categorization
+                categories = {}
+                colors = {}
+                fabric_types = {}
+                
+                for item in items:
+                    category = item.get("category", "Unknown")
+                    color = item.get("color", "Unknown")
+                    fabric = item.get("fabric_type", "Unknown")
+                    
+                    categories[category] = categories.get(category, 0) + 1
+                    colors[color] = colors.get(color, 0) + 1
+                    fabric_types[fabric] = fabric_types.get(fabric, 0) + 1
+                
+                category_analysis = ", ".join([f"{cat}: {count}" for cat, count in categories.items()])
+                
+                self.log_test("Wardrobe Categorization Analysis", "PASS", 
+                            f"Found {len(items)} items. Categories: {category_analysis}")
+                
+                # Log detailed analysis for debugging
+                print(f"   📊 CATEGORIZATION ANALYSIS:")
+                print(f"      Categories: {dict(categories)}")
+                print(f"      Colors: {dict(colors)}")
+                print(f"      Fabrics: {dict(fabric_types)}")
+                
+                # Check for category specificity
+                broad_categories = ["Tops", "Bottoms", "Clothing"]
+                specific_categories = ["T-shirts", "Shirts", "Pants", "Jeans", "Jackets", "Dresses"]
+                
+                broad_count = sum(categories.get(cat, 0) for cat in broad_categories)
+                specific_count = sum(categories.get(cat, 0) for cat in specific_categories)
+                
+                if specific_count > broad_count:
+                    self.log_test("Category Specificity Check", "PASS", 
+                                f"AI using specific categories ({specific_count} specific vs {broad_count} broad)")
+                else:
+                    self.log_test("Category Specificity Check", "WARN", 
+                                f"AI using broad categories ({broad_count} broad vs {specific_count} specific)")
+                
+                return items
+            else:
+                self.log_test("Wardrobe Categorization Analysis", "FAIL", 
+                            f"Status: {response.status_code}")
+                return []
+                
+        except Exception as e:
+            self.log_test("Wardrobe Categorization Analysis", "FAIL", f"Exception: {str(e)}")
+            return []
+    
+    async def test_outfit_generation_insufficient_items(self):
+        """Test outfit generation with insufficient items (< 2)"""
+        try:
+            response = requests.get(f"{self.api_url}/wardrobe/outfits", 
+                                  headers=self.headers, timeout=15)
+            
+            if response.status_code == 200:
+                data = response.json()
+                outfits = data.get("outfits", [])
+                message = data.get("message", "")
+                
+                print(f"   🔍 DEBUG - Insufficient items response:")
+                print(f"      Outfits count: {len(outfits)}")
+                print(f"      Message: {message}")
+                
+                if len(outfits) == 0 and "at least 2 items" in message.lower():
+                    self.log_test("Outfit Generation (Insufficient Items)", "PASS", 
+                                f"Correctly handled insufficient items: {message}")
+                    return True
+                else:
+                    self.log_test("Outfit Generation (Insufficient Items)", "FAIL", 
+                                f"Unexpected response: {len(outfits)} outfits, message: {message}")
+                    return False
+            else:
+                self.log_test("Outfit Generation (Insufficient Items)", "FAIL", 
+                            f"Status: {response.status_code}, Response: {response.text[:200]}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Outfit Generation (Insufficient Items)", "FAIL", f"Exception: {str(e)}")
+            return False
+    
+    async def test_outfit_generation_sufficient_items(self, expected_items_count):
+        """Test outfit generation with sufficient items"""
+        try:
+            print(f"   🧪 Testing outfit generation with {expected_items_count} wardrobe items...")
+            
+            response = requests.get(f"{self.api_url}/wardrobe/outfits?force_regenerate=true", 
+                                  headers=self.headers, timeout=30)
+            
+            if response.status_code == 200:
+                data = response.json()
+                outfits = data.get("outfits", [])
+                message = data.get("message", "")
+                
+                print(f"   🔍 DEBUG - Outfit generation response:")
+                print(f"      Number of outfits: {len(outfits)}")
+                print(f"      Message: {message}")
+                print(f"      Raw response keys: {list(data.keys())}")
+                
+                if len(outfits) > 0:
+                    self.log_test(f"Outfit Generation ({expected_items_count} items)", "PASS", 
+                                f"Generated {len(outfits)} outfits successfully")
+                    
+                    # Analyze outfit details
+                    for i, outfit in enumerate(outfits[:3], 1):
+                        occasion = outfit.get("occasion", "Unknown")
+                        items_count = len(outfit.get("items", []))
+                        explanation = outfit.get("explanation", "No explanation")
+                        print(f"      👗 Outfit {i}: {occasion} ({items_count} items) - {explanation}")
+                    
+                    return True
+                else:
+                    # This is the critical issue we're investigating
+                    self.log_test(f"Outfit Generation ({expected_items_count} items)", "FAIL", 
+                                f"🚨 CRITICAL: No outfits generated despite {expected_items_count} items. Message: {message}")
+                    
+                    # Check for specific error patterns
+                    if "error" in message.lower():
+                        print(f"      🚨 ERROR DETECTED in message: {message}")
+                    
+                    return False
+            else:
+                self.log_test(f"Outfit Generation ({expected_items_count} items)", "FAIL", 
+                            f"Status: {response.status_code}, Response: {response.text[:300]}")
+                return False
+                
+        except Exception as e:
+            self.log_test(f"Outfit Generation ({expected_items_count} items)", "FAIL", f"Exception: {str(e)}")
+            return False
+    
+    async def test_openai_integration(self):
+        """Test OpenAI integration for outfit generation"""
+        try:
+            # Test chat endpoint to verify OpenAI connectivity
+            chat_data = {"message": "Hello, can you help me with outfit suggestions?"}
             response = requests.post(f"{self.api_url}/chat", 
-                                   json=chat_data, headers=self.headers, timeout=30)
+                                   json=chat_data, headers=self.headers, timeout=20)
             
             if response.status_code == 200:
                 data = response.json()
                 messages = data.get("messages", [])
-                
-                if messages:
-                    # Check if response mentions weather or temperature
-                    full_response = " ".join(messages).lower()
-                    
-                    weather_indicators = [
-                        "temperature", "weather", "°f", "degrees", "hot", "cold", 
-                        "warm", "cool", "sunny", "rainy", "fabric", "breathable"
-                    ]
-                    
-                    weather_mentioned = any(indicator in full_response for indicator in weather_indicators)
-                    
-                    if weather_mentioned:
-                        self.log_test("Chat Weather Integration", "PASS",
-                                    "Chat response includes weather-aware recommendations")
-                        print(f"   Sample response: {messages[0][:100]}...")
-                    else:
-                        self.log_test("Chat Weather Integration", "WARN",
-                                    "Chat response doesn't clearly mention weather context")
-                        print(f"   Response: {messages[0][:100]}...")
+                if messages and len(messages) > 0:
+                    self.log_test("OpenAI Integration Check", "PASS", 
+                                "OpenAI API responding correctly for chat")
+                    return True
                 else:
-                    self.log_test("Chat Weather Integration", "FAIL", "No chat messages returned")
+                    self.log_test("OpenAI Integration Check", "FAIL", 
+                                "OpenAI API not responding with expected format")
+                    return False
             else:
-                self.log_test("Chat Weather Integration", "FAIL", 
-                            f"Chat API failed: {response.status_code}")
+                self.log_test("OpenAI Integration Check", "FAIL", 
+                            f"Chat endpoint failed: {response.status_code}")
+                return False
                 
         except Exception as e:
-            self.log_test("Chat Weather Integration", "FAIL", f"Exception: {str(e)}")
+            self.log_test("OpenAI Integration Check", "FAIL", f"Exception: {str(e)}")
+            return False
     
-    async def test_contextual_data_gathering(self):
-        """Test that contextual data gathering function works properly"""
+    async def test_document_size_issue(self):
+        """Test for MongoDB document size issues that might cause outfit generation to fail"""
         try:
-            print("\n🔍 Testing Contextual Data Gathering...")
+            print(f"   🔍 Testing for document size issues...")
             
-            # Import the function directly
-            from server import gather_contextual_data
-            
-            # Create test user data with city
-            test_user = {
-                "id": "test_user",
-                "city": "Bangalore,IN",
-                "profession": "Software Engineer",
-                "body_shape": "Athletic"
-            }
-            
-            # Test contextual data gathering
-            context = await gather_contextual_data(test_user)
-            
-            if context:
-                self.log_test("Contextual Data Gathering", "PASS", 
-                            f"Gathered context with keys: {list(context.keys())}")
-                
-                # Check if weather data was gathered
-                if context.get("weather"):
-                    self.log_test("Weather Context Gathering", "PASS",
-                                f"Weather data gathered for {context.get('location')}")
-                else:
-                    self.log_test("Weather Context Gathering", "WARN",
-                                "No weather data in context (may be API limitation)")
-                
-                # Check if location was set
-                if context.get("location"):
-                    self.log_test("Location Context Setting", "PASS",
-                                f"Location set to: {context.get('location')}")
-                else:
-                    self.log_test("Location Context Setting", "FAIL",
-                                "Location not set in context")
-                
-                # Check events context
-                if context.get("events") is not None:
-                    self.log_test("Events Context Gathering", "PASS",
-                                f"Events context gathered: {len(context.get('events', []))} events")
-                else:
-                    self.log_test("Events Context Gathering", "WARN",
-                                "No events data in context")
-                
-                # Check fashion trends context
-                if context.get("fashion_trends"):
-                    self.log_test("Fashion Trends Context Gathering", "PASS",
-                                "Fashion trends context gathered")
-                else:
-                    self.log_test("Fashion Trends Context Gathering", "WARN",
-                                "No fashion trends in context")
-                
-            else:
-                self.log_test("Contextual Data Gathering", "FAIL", "No context data returned")
-                
-        except Exception as e:
-            self.log_test("Contextual Data Gathering", "FAIL", f"Exception: {str(e)}")
-    
-    async def test_city_field_onboarding(self):
-        """Test that city field is properly saved during onboarding"""
-        try:
-            print("\n🏙️ Testing City Field in Onboarding...")
-            
-            if not self.auth_token:
-                self.log_test("City Field Onboarding", "FAIL", "No auth token available")
-                return
-            
-            # Get current user profile to verify city was saved
+            # Get current user profile to check document size
             response = requests.get(f"{self.api_url}/auth/me", headers=self.headers, timeout=10)
             
             if response.status_code == 200:
-                user_data = response.json()
+                # Try to estimate document size by checking wardrobe
+                wardrobe_response = requests.get(f"{self.api_url}/wardrobe", headers=self.headers, timeout=10)
                 
-                # Check if city field exists (note: it might be in the full user document)
-                # Let's also test updating the city
-                update_data = {
-                    "city": "Mumbai,IN",
-                    "profession": "Software Engineer"
-                }
-                
-                update_response = requests.put(f"{self.api_url}/auth/onboarding",
-                                             json=update_data, headers=self.headers, timeout=10)
-                
-                if update_response.status_code == 200:
-                    updated_user = update_response.json()
+                if wardrobe_response.status_code == 200:
+                    wardrobe_data = wardrobe_response.json()
+                    items = wardrobe_data.get("items", [])
                     
-                    if updated_user.get("city") == "Mumbai,IN":
-                        self.log_test("City Field Onboarding", "PASS",
-                                    f"City field successfully updated to: {updated_user.get('city')}")
+                    # Calculate approximate size
+                    total_base64_size = 0
+                    for item in items:
+                        base64_data = item.get("image_base64", "")
+                        total_base64_size += len(base64_data)
+                    
+                    # MongoDB has a 16MB document limit
+                    size_mb = total_base64_size / (1024 * 1024)
+                    
+                    print(f"      📏 Wardrobe data size: ~{size_mb:.2f} MB")
+                    print(f"      📦 Number of items: {len(items)}")
+                    
+                    if size_mb > 15:  # Close to 16MB limit
+                        self.log_test("Document Size Check", "FAIL", 
+                                    f"🚨 CRITICAL: Wardrobe data too large ({size_mb:.2f}MB). This likely causes outfit generation to fail!")
+                        return False
+                    elif size_mb > 10:
+                        self.log_test("Document Size Check", "WARN", 
+                                    f"Wardrobe data getting large ({size_mb:.2f}MB). May cause issues soon.")
+                        return True
                     else:
-                        self.log_test("City Field Onboarding", "WARN",
-                                    "City field may not be returned in API response but could be stored")
+                        self.log_test("Document Size Check", "PASS", 
+                                    f"Wardrobe data size acceptable ({size_mb:.2f}MB)")
+                        return True
                 else:
-                    self.log_test("City Field Onboarding", "FAIL",
-                                f"Failed to update city: {update_response.status_code}")
+                    self.log_test("Document Size Check", "FAIL", 
+                                f"Could not get wardrobe data: {wardrobe_response.status_code}")
+                    return False
             else:
-                self.log_test("City Field Onboarding", "FAIL",
-                            f"Failed to get user profile: {response.status_code}")
+                self.log_test("Document Size Check", "FAIL", 
+                            f"Could not get user profile: {response.status_code}")
+                return False
                 
         except Exception as e:
-            self.log_test("City Field Onboarding", "FAIL", f"Exception: {str(e)}")
+            self.log_test("Document Size Check", "FAIL", f"Exception: {str(e)}")
+            return False
     
-    async def test_api_health_checks(self):
-        """Test API integration health checks"""
+    async def test_json_parsing_errors(self):
+        """Test for JSON parsing errors in outfit generation"""
         try:
-            print("\n🏥 Testing API Integration Health Checks...")
+            print(f"   🔍 Testing for JSON parsing errors...")
             
-            # Test OpenWeatherMap API key
-            weather_api_key = os.getenv("OPENWEATHER_API_KEY")
-            if weather_api_key:
-                self.log_test("OpenWeatherMap API Key", "PASS", "API key configured")
-                
-                # Test actual API call
-                test_url = f"https://api.openweathermap.org/data/2.5/weather?q=Bangalore,IN&appid={weather_api_key}&units=imperial"
-                try:
-                    api_response = requests.get(test_url, timeout=10)
-                    if api_response.status_code == 200:
-                        self.log_test("OpenWeatherMap API Health", "PASS", "API responding correctly")
-                    else:
-                        self.log_test("OpenWeatherMap API Health", "FAIL", 
-                                    f"API returned status: {api_response.status_code}")
-                except Exception as api_e:
-                    self.log_test("OpenWeatherMap API Health", "FAIL", f"API call failed: {str(api_e)}")
-            else:
-                self.log_test("OpenWeatherMap API Key", "FAIL", "API key not configured")
-            
-            # Test RapidAPI key for Events and Fashion
-            rapidapi_key = os.getenv("RAPIDAPI_KEY")
-            if rapidapi_key:
-                self.log_test("RapidAPI Key", "PASS", "API key configured")
-                
-                # Test Events API health (expect it might fail but should handle gracefully)
-                try:
-                    events_headers = {
-                        "X-RapidAPI-Key": rapidapi_key,
-                        "X-RapidAPI-Host": "real-time-events-search.p.rapidapi.com"
-                    }
-                    events_url = "https://real-time-events-search.p.rapidapi.com/search-events"
-                    events_response = requests.get(events_url, headers=events_headers, 
-                                                 params={"query": "Bangalore", "limit": 1}, timeout=10)
-                    
-                    if events_response.status_code == 200:
-                        self.log_test("Events API Health", "PASS", "Events API responding")
-                    else:
-                        self.log_test("Events API Health", "WARN", 
-                                    f"Events API returned: {events_response.status_code} (may be expected)")
-                except Exception as events_e:
-                    self.log_test("Events API Health", "WARN", 
-                                f"Events API failed: {str(events_e)} (graceful degradation expected)")
-                
-                # Test H&M Fashion API health
-                try:
-                    fashion_headers = {
-                        "X-RapidAPI-Key": rapidapi_key,
-                        "X-RapidAPI-Host": "hm-hennes-mauritz.p.rapidapi.com"
-                    }
-                    fashion_url = "https://hm-hennes-mauritz.p.rapidapi.com/products/list"
-                    fashion_response = requests.get(fashion_url, headers=fashion_headers,
-                                                  params={"country": "us", "lang": "en", "pagesize": 1}, timeout=10)
-                    
-                    if fashion_response.status_code == 200:
-                        self.log_test("H&M Fashion API Health", "PASS", "Fashion API responding")
-                    else:
-                        self.log_test("H&M Fashion API Health", "WARN", 
-                                    f"Fashion API returned: {fashion_response.status_code} (may be expected)")
-                except Exception as fashion_e:
-                    self.log_test("H&M Fashion API Health", "WARN", 
-                                f"Fashion API failed: {str(fashion_e)} (graceful degradation expected)")
-            else:
-                self.log_test("RapidAPI Key", "FAIL", "RapidAPI key not configured")
-                
-        except Exception as e:
-            self.log_test("API Health Checks", "FAIL", f"Exception: {str(e)}")
-    
-    async def test_enhanced_prompt_weather_awareness(self):
-        """Test that enhanced prompt includes weather awareness instructions"""
-        try:
-            print("\n📝 Testing Enhanced Prompt Weather Awareness...")
-            
-            if not self.auth_token:
-                self.log_test("Enhanced Prompt Weather Awareness", "FAIL", "No auth token available")
-                return
-            
-            # Test with a weather-specific question
-            chat_data = {
-                "message": "It's hot outside, what should I wear to stay cool?"
-            }
-            
-            response = requests.post(f"{self.api_url}/chat", 
-                                   json=chat_data, headers=self.headers, timeout=30)
+            # Try outfit generation and look for parsing issues
+            response = requests.get(f"{self.api_url}/wardrobe/outfits?force_regenerate=true", 
+                                  headers=self.headers, timeout=30)
             
             if response.status_code == 200:
-                data = response.json()
-                messages = data.get("messages", [])
-                
-                if messages:
-                    full_response = " ".join(messages).lower()
+                try:
+                    data = response.json()
+                    self.log_test("JSON Parsing Check", "PASS", 
+                                "Outfit generation API returns valid JSON")
                     
-                    # Check for weather-aware response indicators
-                    weather_awareness_indicators = [
-                        "temperature", "hot", "cool", "breathable", "lightweight", 
-                        "fabric", "cotton", "linen", "moisture", "heat"
-                    ]
-                    
-                    weather_aware = any(indicator in full_response for indicator in weather_awareness_indicators)
-                    
-                    if weather_aware:
-                        self.log_test("Enhanced Prompt Weather Awareness", "PASS",
-                                    "AI response shows weather awareness in recommendations")
-                        print(f"   Weather-aware response: {messages[0][:150]}...")
+                    # Check if the response structure is correct
+                    if "outfits" in data:
+                        outfits = data["outfits"]
+                        if isinstance(outfits, list):
+                            self.log_test("Response Structure Check", "PASS", 
+                                        f"Outfits field is properly formatted list with {len(outfits)} items")
+                        else:
+                            self.log_test("Response Structure Check", "FAIL", 
+                                        f"Outfits field is not a list: {type(outfits)}")
                     else:
-                        self.log_test("Enhanced Prompt Weather Awareness", "WARN",
-                                    "AI response may not be fully weather-aware")
-                        print(f"   Response: {messages[0][:150]}...")
-                        
-                    # Test fallback when weather data unavailable
-                    # This would require testing with a user without city, but we'll note it works
-                    self.log_test("Weather Fallback Mechanism", "PASS",
-                                "System continues functioning even when weather data unavailable")
-                else:
-                    self.log_test("Enhanced Prompt Weather Awareness", "FAIL", "No chat response received")
+                        self.log_test("Response Structure Check", "FAIL", 
+                                    "Response missing 'outfits' field")
+                    
+                    return True
+                except json.JSONDecodeError as e:
+                    self.log_test("JSON Parsing Check", "FAIL", 
+                                f"🚨 JSON parsing error: {str(e)}")
+                    return False
             else:
-                self.log_test("Enhanced Prompt Weather Awareness", "FAIL", 
-                            f"Chat API failed: {response.status_code}")
+                self.log_test("JSON Parsing Check", "FAIL", 
+                            f"API returned non-200 status: {response.status_code}")
+                return False
                 
         except Exception as e:
-            self.log_test("Enhanced Prompt Weather Awareness", "FAIL", f"Exception: {str(e)}")
+            self.log_test("JSON Parsing Check", "FAIL", f"Exception: {str(e)}")
+            return False
     
-    def print_summary(self):
-        """Print test summary"""
-        print("\n" + "="*80)
-        print("🧪 WEATHER INTEGRATION & CITY FIELD TESTING SUMMARY")
-        print("="*80)
+    async def run_comprehensive_outfit_tests(self):
+        """Run comprehensive outfit generation tests to debug 'no outfits yet' issue"""
+        print("🧪 Starting Comprehensive Outfit Generation Debugging")
+        print("=" * 70)
+        print("🎯 Goal: Identify why users are seeing 'no outfits yet'")
+        print("=" * 70)
+        
+        # Step 1: Setup
+        if not await self.setup_test_user():
+            print("❌ Failed to setup test user. Aborting tests.")
+            return False
+        
+        # Step 2: Test OpenAI integration
+        print(f"\n🤖 Testing OpenAI Integration...")
+        await self.test_openai_integration()
+        
+        # Step 3: Test with no items (should show appropriate message)
+        print(f"\n📋 Testing with empty wardrobe...")
+        await self.test_outfit_generation_insufficient_items()
+        
+        # Step 4: Add one item and test (should still show insufficient message)
+        print(f"\n📋 Testing with 1 item...")
+        await self.add_wardrobe_item("Blue Cotton T-shirt")
+        await self.test_outfit_generation_insufficient_items()
+        
+        # Step 5: Add second item and test (critical test)
+        print(f"\n📋 Testing with 2 items (minimum requirement)...")
+        await self.add_wardrobe_item("Black Denim Jeans")
+        wardrobe_items = await self.get_wardrobe_analysis()
+        
+        if len(wardrobe_items) >= 2:
+            await self.test_document_size_issue()
+            await self.test_json_parsing_errors()
+            await self.test_outfit_generation_sufficient_items(2)
+        
+        # Step 6: Test with more items
+        print(f"\n📋 Testing with 5 items...")
+        await self.add_wardrobe_item("White Button Shirt")
+        await self.add_wardrobe_item("Navy Blazer")
+        await self.add_wardrobe_item("Brown Leather Shoes")
+        
+        final_wardrobe = await self.get_wardrobe_analysis()
+        if len(final_wardrobe) >= 5:
+            await self.test_document_size_issue()
+            await self.test_outfit_generation_sufficient_items(5)
+        
+        # Step 7: Test with even more items to trigger document size issues
+        print(f"\n📋 Testing with 8+ items (potential document size issues)...")
+        await self.add_wardrobe_item("Red Summer Dress")
+        await self.add_wardrobe_item("Gray Wool Sweater")
+        await self.add_wardrobe_item("Black Formal Pants")
+        
+        large_wardrobe = await self.get_wardrobe_analysis()
+        if len(large_wardrobe) >= 8:
+            await self.test_document_size_issue()
+            await self.test_outfit_generation_sufficient_items(8)
+        
+        # Step 8: Summary and diagnosis
+        self.print_diagnostic_summary()
+        
+        return True
+    
+    def print_diagnostic_summary(self):
+        """Print comprehensive diagnostic summary focused on outfit generation issues"""
+        print("\n" + "=" * 70)
+        print("🔍 OUTFIT GENERATION DIAGNOSTIC SUMMARY")
+        print("=" * 70)
         
         total_tests = len(self.test_results)
-        passed_tests = len([t for t in self.test_results if t["status"] == "PASS"])
-        failed_tests = len([t for t in self.test_results if t["status"] == "FAIL"])
-        warned_tests = len([t for t in self.test_results if t["status"] == "WARN"])
+        passed_tests = len([r for r in self.test_results if r["status"] == "PASS"])
+        failed_tests = len([r for r in self.test_results if r["status"] == "FAIL"])
+        warned_tests = len([r for r in self.test_results if r["status"] == "WARN"])
         
         print(f"📊 Total Tests: {total_tests}")
         print(f"✅ Passed: {passed_tests}")
@@ -524,49 +480,90 @@ class OutfitGenerationTester:
         print(f"⚠️  Warnings: {warned_tests}")
         print(f"📈 Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
-        if failed_tests > 0:
-            print(f"\n❌ FAILED TESTS:")
-            for test in self.test_results:
-                if test["status"] == "FAIL":
-                    print(f"   • {test['test']}: {test['details']}")
+        # Analyze specific outfit generation issues
+        outfit_tests = [r for r in self.test_results if "Outfit Generation" in r["test"]]
+        outfit_failures = [r for r in outfit_tests if r["status"] == "FAIL"]
         
-        if warned_tests > 0:
-            print(f"\n⚠️  WARNINGS (Expected limitations):")
-            for test in self.test_results:
-                if test["status"] == "WARN":
-                    print(f"   • {test['test']}: {test['details']}")
+        print(f"\n🎯 OUTFIT GENERATION ANALYSIS:")
+        print(f"   Total outfit tests: {len(outfit_tests)}")
+        print(f"   Failed outfit tests: {len(outfit_failures)}")
         
-        print(f"\n✅ SUCCESSFUL TESTS:")
-        for test in self.test_results:
-            if test["status"] == "PASS":
-                print(f"   • {test['test']}")
+        if len(outfit_failures) > 0:
+            print(f"\n🚨 CRITICAL OUTFIT GENERATION ISSUES:")
+            for failure in outfit_failures:
+                print(f"   • {failure['test']}: {failure['details']}")
         
-        print("\n" + "="*80)
+        # Check for specific issue patterns
+        document_size_issues = [r for r in self.test_results if "Document Size" in r["test"] and r["status"] == "FAIL"]
+        json_issues = [r for r in self.test_results if "JSON" in r["test"] and r["status"] == "FAIL"]
+        openai_issues = [r for r in self.test_results if "OpenAI" in r["test"] and r["status"] == "FAIL"]
+        
+        print(f"\n🔍 ROOT CAUSE ANALYSIS:")
+        
+        if document_size_issues:
+            print(f"   🚨 DOCUMENT SIZE ISSUE DETECTED:")
+            for issue in document_size_issues:
+                print(f"      • {issue['details']}")
+            print(f"      💡 SOLUTION: Reduce image sizes or store images separately")
+        
+        if json_issues:
+            print(f"   🚨 JSON PARSING ISSUES DETECTED:")
+            for issue in json_issues:
+                print(f"      • {issue['details']}")
+            print(f"      💡 SOLUTION: Fix OpenAI response parsing logic")
+        
+        if openai_issues:
+            print(f"   🚨 OPENAI INTEGRATION ISSUES DETECTED:")
+            for issue in openai_issues:
+                print(f"      • {issue['details']}")
+            print(f"      💡 SOLUTION: Check API keys and rate limits")
+        
+        # Check categorization issues
+        categorization_issues = [r for r in self.test_results if "Category" in r["test"] and r["status"] == "WARN"]
+        if categorization_issues:
+            print(f"   ⚠️  CATEGORIZATION ISSUES:")
+            for issue in categorization_issues:
+                print(f"      • {issue['details']}")
+            print(f"      💡 SUGGESTION: Improve AI prompts for more specific categories")
+        
+        print(f"\n📋 RECOMMENDATIONS:")
+        
+        if len(outfit_failures) == 0:
+            print(f"   ✅ Outfit generation appears to be working correctly")
+        else:
+            print(f"   🔧 IMMEDIATE ACTIONS NEEDED:")
+            if document_size_issues:
+                print(f"      1. 🚨 CRITICAL: Fix MongoDB document size limit issue")
+                print(f"         - Store images in separate collection or external storage")
+                print(f"         - Compress base64 images before storing")
+            if json_issues:
+                print(f"      2. Fix JSON parsing in outfit generation endpoint")
+            if openai_issues:
+                print(f"      3. Verify OpenAI API configuration and limits")
+            
+            print(f"   🔍 FURTHER INVESTIGATION:")
+            print(f"      - Check backend logs for 'DocumentTooLarge' errors")
+            print(f"      - Monitor MongoDB document sizes")
+            print(f"      - Test with smaller/compressed images")
+        
+        print("\n" + "=" * 70)
 
 async def main():
-    """Main test execution"""
-    print("🚀 Starting Weather Integration & City Field Backend Testing...")
-    print("="*80)
+    """Main test execution for outfit generation debugging"""
+    print("🚀 Starting Outfit Generation Debugging Tests...")
+    print("🎯 Focus: Identifying why users see 'no outfits yet'")
+    print("=" * 70)
     
-    tester = BackendTester()
+    tester = OutfitGenerationTester()
     
-    # Setup test user with city
-    if not await tester.setup_test_user():
-        print("❌ Failed to setup test user. Exiting.")
-        return
-    
-    # Run all tests
-    await tester.test_weather_service_direct()
-    await tester.test_events_service_direct()
-    await tester.test_fashion_service_direct()
-    await tester.test_contextual_data_gathering()
-    await tester.test_chat_weather_integration()
-    await tester.test_city_field_onboarding()
-    await tester.test_api_health_checks()
-    await tester.test_enhanced_prompt_weather_awareness()
-    
-    # Print summary
-    tester.print_summary()
+    try:
+        await tester.run_comprehensive_outfit_tests()
+    except KeyboardInterrupt:
+        print("\n⏹️  Tests interrupted by user")
+    except Exception as e:
+        print(f"\n💥 Unexpected error during testing: {str(e)}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     asyncio.run(main())
