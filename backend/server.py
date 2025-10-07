@@ -718,26 +718,26 @@ Format: {"color_combo": 4.5, "fit": 4.0, "style": 4.2, "occasion": 4.0, "overall
                     max_tokens=400,
                     temperature=0.1
                 )
+                
+                ai_result = response.choices[0].message.content.strip()
+                ai_result = ai_result.replace('```json', '').replace('```', '').strip()
+                
+                try:
+                    import json
+                    analysis_data = json.loads(ai_result)
                     
-                    ai_result = response.choices[0].message.content.strip()
-                    ai_result = ai_result.replace('```json', '').replace('```', '').strip()
+                    def validate_score(score, default=3.5):
+                        try:
+                            return max(1.0, min(5.0, float(score)))
+                        except:
+                            return default
                     
-                    try:
-                        import json
-                        analysis_data = json.loads(ai_result)
-                        
-                        def validate_score(score, default=3.5):
-                            try:
-                                return max(1.0, min(5.0, float(score)))
-                            except:
-                                return default
-                        
-                        validation = {
-                            "id": str(uuid.uuid4()),
-                            "scores": {
-                                "color_combo": validate_score(analysis_data.get("color_combo")),
-                                "fit": validate_score(analysis_data.get("fit")),
-                                "style": validate_score(analysis_data.get("style")),
+                    validation = {
+                        "id": str(uuid.uuid4()),
+                        "scores": {
+                            "color_combo": validate_score(analysis_data.get("color_combo")),
+                            "fit": validate_score(analysis_data.get("fit")),
+                            "style": validate_score(analysis_data.get("style")),
                                 "occasion": validate_score(analysis_data.get("occasion"))
                             },
                             "overall_score": validate_score(analysis_data.get("overall_score")),
