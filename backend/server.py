@@ -705,19 +705,19 @@ Return ONLY valid JSON, no markdown.
 Format: {"color_combo": 4.5, "fit": 4.0, "style": 4.2, "occasion": 4.0, "overall_score": 4.2, "feedback": "Great color combination! The fit looks good. Consider adding a statement accessory to elevate the look."}"""
                 
                 response = openai_client.chat.completions.create(
-                        model="gpt-4o-mini",
-                        messages=[
-                            {
-                                "role": "user",
-                                "content": [
-                                    {"type": "text", "text": validation_prompt},
-                                    {"type": "image_url", "image_url": {"url": image_base64}}
-                                ]
-                            }
-                        ],
-                        max_tokens=400,
-                        temperature=0.1
-                    )
+                    model="gpt-4o-mini",
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": validation_prompt},
+                                {"type": "image_url", "image_url": {"url": image_base64}}
+                            ]
+                        }
+                    ],
+                    max_tokens=400,
+                    temperature=0.1
+                )
                     
                     ai_result = response.choices[0].message.content.strip()
                     ai_result = ai_result.replace('```json', '').replace('```', '').strip()
