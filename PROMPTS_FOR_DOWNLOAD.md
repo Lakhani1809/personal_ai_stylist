@@ -96,7 +96,7 @@ Remember: You're their PERSONAL STYLIST - be specific, be conversational, be a t
 **Model:** GPT-4o-mini (Vision)  
 **Temperature:** 0.1  
 **Max Tokens:** 400  
-**Location in Code:** `/app/backend/server.py` - Line 540 (analysis_prompt variable)
+**Location in Code:** `/app/backend/server.py` - Line ~731 (analysis_prompt variable)
 
 ```
 You are an expert fashion analyst. Analyze this clothing item image with precision and return ONLY valid JSON.
