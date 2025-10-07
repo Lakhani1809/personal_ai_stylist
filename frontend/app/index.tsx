@@ -478,6 +478,7 @@ export default function App() {
           gender: onboardingData.gender,
           age: onboardingData.age_group ? parseInt(onboardingData.age_group.split('-')[0]) : null,
           profession: onboardingData.profession,
+          city: city, // Add city for weather integration
           body_shape: onboardingData.body_shape,
           skin_tone: onboardingData.skin_tone,
           style_inspiration: onboardingData.style_inspiration,
