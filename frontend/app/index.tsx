@@ -33,10 +33,11 @@ const getBackendUrl = () => {
       return '';  // Use relative path for preview - /api/* gets proxied to :8001
     }
     
-    // Ngrok tunnel - use relative API path (gets proxied to :8001)
+    // Ngrok tunnel - use preview backend URL (ngrok only tunnels frontend)
     if (hostname.includes('ngrok.io')) {
-      console.log('🌉 NGROK MODE: Using relative API path (proxied to backend)');
-      return '';  // Use relative path for ngrok - /api/* gets proxied to :8001
+      const previewBackendUrl = 'https://stylistai.preview.emergentagent.com';
+      console.log('🌉 NGROK MODE: Using preview backend URL:', previewBackendUrl);
+      return previewBackendUrl;
     }
     
     // Production environment - use relative URL  
