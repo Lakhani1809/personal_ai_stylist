@@ -215,11 +215,32 @@ Remember: Only use item numbers that exist in the wardrobe list!
 ## HOW TO UPDATE PROMPTS:
 
 1. **Edit this file locally** with your improved prompts
-2. **For Chat Prompt:** Update line ~292 in `/app/backend/server.py` (look for `system_prompt = f"""`)
-3. **For Wardrobe Analysis:** Update line ~540 in `/app/backend/server.py` (look for `analysis_prompt = """`)
-4. **For Outfit Validation:** Update line ~675 in `/app/backend/server.py` (look for `validation_prompt = """`)
-5. **Restart backend:** Run `sudo supervisorctl restart backend`
-6. **Test the changes**
+2. **For Chat Prompt:** Update line ~466 in `/app/backend/server.py` (look for `system_prompt = f"""`)
+3. **For Wardrobe Analysis:** Update line ~731 in `/app/backend/server.py` (look for `analysis_prompt = """`)
+4. **For Outfit Validation:** Update line ~877 in `/app/backend/server.py` (look for `validation_prompt = """`)
+5. **For Outfit Generation:** Update line ~1032 in `/app/backend/server.py` (look for `outfit_prompt = f"""`)
+6. **Restart backend:** Run `sudo supervisorctl restart backend`
+7. **Test the changes**
+
+---
+
+## INTEGRATION FEATURES:
+
+### Weather Integration (NEW!)
+- OpenWeatherMap API provides real-time weather data
+- Chat system automatically includes temperature and weather conditions
+- Weather-appropriate fabric and styling suggestions
+- City extraction from user messages ("what's the weather in Bangalore")
+
+### Events Integration (NEW!)  
+- RapidAPI Events Search for local events
+- Event-based outfit recommendations (business casual, formal, etc.)
+- Automatically suggests appropriate dress codes
+
+### Fashion Trends (NEW!)
+- H&M API integration for current fashion trends
+- Trending colors and style recommendations
+- Seasonal fashion insights
 
 ---
 
@@ -228,11 +249,12 @@ Remember: Only use item numbers that exist in the wardrobe list!
 **For Chat Prompt:**
 - Keep personality consistent (Maya, friendly, emoji usage)
 - Emphasize specificity and wardrobe integration
+- Test weather integration ("what should I wear today?")
 - Test with different user profiles and wardrobe sizes
 
 **For Wardrobe Analysis:**
 - Focus on accurate color detection (most common issue)
-- Ensure category classification is precise
+- Ensure category classification is precise (T-shirts, Jeans vs Tops, Bottoms)
 - Test with various clothing items (formal, casual, accessories)
 
 **For Outfit Validation:**
@@ -240,11 +262,32 @@ Remember: Only use item numbers that exist in the wardrobe list!
 - Ensure scores are consistent and fair
 - Test with various outfit types (casual, formal, mixed)
 
+**For Outfit Generation:**
+- Test with different wardrobe sizes (2-20+ items)
+- Ensure variety in occasions covered
+- Verify item number references are correct
+
 ---
 
 ## CURRENT STATUS:
 
-✅ All three prompts are currently LIVE in the application  
+✅ All FOUR prompts are currently LIVE in the application  
 ✅ Custom model handler is DISABLED (using OpenAI Vision directly)  
-✅ Chat uses ALL onboarding data (name, gender, age, occupation, body shape, skin tone, style inspiration, style vibe, style message)  
-✅ Error handling improved for better debugging
+✅ Chat uses ALL onboarding data + weather + events + fashion trends  
+✅ Image compression implemented to prevent MongoDB document size issues  
+✅ Enhanced outfit generation guardrails (0-4+ items messaging)  
+✅ Weather integration with city extraction working  
+✅ Typing animations and auto-scroll implemented  
+✅ Rate limiting gracefully handled for external APIs  
+
+**API Status:**
+- OpenWeatherMap: ✅ Working (d097e0ae...)
+- RapidAPI Events: ⚠️ Rate limited (0660625604...)  
+- H&M Fashion Trends: ⚠️ Rate limited (same key)
+- All APIs have graceful fallback handling
+
+**Recent Updates:**
+- Added city field to onboarding for weather integration
+- Enhanced chat with contextual data (weather/events/trends)
+- Fixed MongoDB DocumentTooLarge errors with image compression
+- Improved outfit generation with better guardrails and persistence
