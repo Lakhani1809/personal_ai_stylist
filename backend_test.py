@@ -56,15 +56,34 @@ class WardrobeFixesTester:
         if details:
             print(f"   Details: {details}")
     
-    def create_sample_base64_image(self, color="blue"):
-        """Create a simple base64 encoded image for testing"""
-        # Create a minimal 1x1 pixel PNG in base64
-        if color == "blue":
-            return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGA60e6kgAAAABJRU5ErkJggg=="
-        elif color == "red":
-            return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
-        else:
-            return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAGA60e6kgAAAABJRU5ErkJggg=="
+    def create_sample_base64_image(self, size=(800, 1000), color=(100, 150, 200), quality=95):
+        """Create a realistic test image for wardrobe testing"""
+        try:
+            # Create a test image with specified size and color
+            img = Image.new('RGB', size, color)
+            
+            # Add some simple pattern to make it more realistic
+            from PIL import ImageDraw
+            draw = ImageDraw.Draw(img)
+            
+            # Add some rectangles to simulate clothing patterns
+            for i in range(0, size[0], 100):
+                for j in range(0, size[1], 100):
+                    if (i + j) % 200 == 0:
+                        draw.rectangle([i, j, i+50, j+50], fill=(color[0]+20, color[1]+20, color[2]+20))
+            
+            # Convert to base64
+            buffer = BytesIO()
+            img.save(buffer, format='JPEG', quality=quality, optimize=True)
+            img_data = buffer.getvalue()
+            
+            base64_string = base64.b64encode(img_data).decode('utf-8')
+            return f"data:image/jpeg;base64,{base64_string}"
+            
+        except Exception as e:
+            print(f"Error creating test image: {e}")
+            # Fallback to simple base64 image
+            return "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A8A"
     
     async def setup_test_user(self):
         """Create and authenticate a test user for outfit testing"""
