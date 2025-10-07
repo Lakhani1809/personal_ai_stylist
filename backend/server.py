@@ -652,10 +652,13 @@ async def clear_wardrobe(user_id: str = Depends(get_current_user)):
     try:
         print(f"Clearing wardrobe for user: {user_id}")
         
-        # Clear all items from user's wardrobe
+        # Clear all items from user's wardrobe and saved outfits
         result = await db.users.update_one(
             {"id": user_id},
-            {"$set": {"wardrobe": []}}
+            {
+                "$set": {"wardrobe": []},
+                "$unset": {"saved_outfits": "", "last_outfit_generation_count": ""}
+            }
         )
         
         print(f"Clear result: {result.modified_count} documents modified")
