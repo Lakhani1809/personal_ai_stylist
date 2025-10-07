@@ -217,6 +217,14 @@ export default function App() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   
+  // Chat scroll ref for auto-scroll
+  const chatScrollRef = useRef<ScrollView>(null);
+  
+  // Animated values for typing indicator
+  const typingAnimation1 = useRef(new Animated.Value(0)).current;
+  const typingAnimation2 = useRef(new Animated.Value(0)).current;
+  const typingAnimation3 = useRef(new Animated.Value(0)).current;
+  
   // Auth form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
