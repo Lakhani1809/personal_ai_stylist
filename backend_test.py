@@ -422,11 +422,305 @@ class WardrobeFixesTester:
             self.log_test("JSON Parsing Check", "FAIL", f"Exception: {str(e)}")
             return False
     
-    async def run_comprehensive_outfit_tests(self):
-        """Run comprehensive outfit generation tests to debug 'no outfits yet' issue"""
-        print("🧪 Starting Comprehensive Outfit Generation Debugging")
+    async def test_image_compression_fix(self):
+        """Test 1: Image Compression & Outfit Generation Fix"""
+        print("\n🧪 Testing Image Compression & Outfit Generation Fix...")
+        
+        # Clear wardrobe first
+        try:
+            response = requests.delete(f"{self.api_url}/wardrobe/clear", headers=self.headers, timeout=10)
+        except:
+            pass
+        
+        # Test with large image to trigger compression
+        large_image = self.create_sample_base64_image(size=(2000, 2500), quality=95)
+        original_size_mb = len(large_image.split(',')[1]) * 0.75 / (1024 * 1024)
+        
+        print(f"   📏 Original image size: {original_size_mb:.2f} MB")
+        
+        item_data = {"image_base64": large_image}
+        
+        try:
+            response = requests.post(f"{self.api_url}/wardrobe", json=item_data, headers=self.headers, timeout=15)
+            
+            if response.status_code == 200:
+                self.log_test("Image Compression - Large Image Upload", "PASS", 
+                            "Large image successfully uploaded and processed")
+                
+                # Check if image was compressed by getting wardrobe
+                wardrobe_response = requests.get(f"{self.api_url}/wardrobe", headers=self.headers, timeout=10)
+                if wardrobe_response.status_code == 200:
+                    wardrobe = wardrobe_response.json()
+                    items = wardrobe.get("items", [])
+                    if items:
+                        stored_image = items[-1].get("image_base64", "")
+                        compressed_size_mb = len(stored_image) * 0.75 / (1024 * 1024)
+                        compression_ratio = compressed_size_mb / original_size_mb * 100
+                        
+                        print(f"   📏 Compressed size: {compressed_size_mb:.2f} MB ({compression_ratio:.1f}% of original)")
+                        
+                        if compressed_size_mb < original_size_mb:
+                            self.log_test("Image Compression - Verification", "PASS", 
+                                        f"Image compressed from {original_size_mb:.2f}MB to {compressed_size_mb:.2f}MB")
+                        else:
+                            self.log_test("Image Compression - Verification", "FAIL", 
+                                        "No compression detected")
+                    else:
+                        self.log_test("Image Compression - Verification", "FAIL", 
+                                    "No items found in wardrobe after upload")
+            else:
+                self.log_test("Image Compression - Large Image Upload", "FAIL", 
+                            f"Upload failed: {response.status_code}, {response.text[:200]}")
+                
+        except Exception as e:
+            self.log_test("Image Compression - Large Image Upload", "FAIL", f"Exception: {str(e)}")
+    
+    async def test_outfit_generation_guardrails(self):
+        """Test 2: Enhanced Outfit Generation Guardrails"""
+        print("\n🧪 Testing Enhanced Outfit Generation Guardrails...")
+        
+        # Clear wardrobe
+        try:
+            requests.delete(f"{self.api_url}/wardrobe/clear", headers=self.headers, timeout=10)
+        except:
+            pass
+        
+        # Test 0 items
+        await self.test_guardrail_scenario(0, "Your wardrobe is empty!")
+        
+        # Test 1 item
+        await self.add_wardrobe_item("Blue T-shirt")
+        await self.test_guardrail_scenario(1, "Add more items to your wardrobe")
+        
+        # Test 2-3 items
+        await self.add_wardrobe_item("Black Jeans")
+        await self.test_guardrail_scenario(2, "You have 2 items. Add a few more")
+        
+        await self.add_wardrobe_item("White Shirt")
+        await self.test_guardrail_scenario(3, "You have 3 items. Add a few more")
+        
+        # Test 4+ items (should generate outfits)
+        await self.add_wardrobe_item("Navy Jacket")
+        await self.test_guardrail_scenario(4, None, should_generate=True)
+    
+    async def test_guardrail_scenario(self, expected_count, expected_message, should_generate=False):
+        """Test a specific guardrail scenario"""
+        try:
+            response = requests.get(f"{self.api_url}/wardrobe/outfits", headers=self.headers, timeout=15)
+            
+            if response.status_code == 200:
+                result = response.json()
+                outfits = result.get("outfits", [])
+                message = result.get("message", "")
+                
+                print(f"   📊 {expected_count} items: {len(outfits)} outfits, message: '{message}'")
+                
+                if should_generate:
+                    if len(outfits) > 0:
+                        self.log_test(f"Guardrail {expected_count} Items", "PASS", 
+                                    f"Generated {len(outfits)} outfits as expected")
+                    else:
+                        self.log_test(f"Guardrail {expected_count} Items", "FAIL", 
+                                    f"Expected outfits but got message: {message}")
+                else:
+                    if expected_message and expected_message.lower() in message.lower():
+                        self.log_test(f"Guardrail {expected_count} Items", "PASS", 
+                                    f"Correct message: {message}")
+                    else:
+                        self.log_test(f"Guardrail {expected_count} Items", "FAIL", 
+                                    f"Expected '{expected_message}' but got: {message}")
+            else:
+                self.log_test(f"Guardrail {expected_count} Items", "FAIL", 
+                            f"Status: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test(f"Guardrail {expected_count} Items", "FAIL", f"Exception: {str(e)}")
+    
+    async def test_wardrobe_category_analysis(self):
+        """Test 3: Wardrobe Category Analysis"""
+        print("\n🧪 Testing Wardrobe Category Analysis...")
+        
+        # Clear wardrobe
+        try:
+            requests.delete(f"{self.api_url}/wardrobe/clear", headers=self.headers, timeout=10)
+        except:
+            pass
+        
+        # Add test items and analyze categorization
+        test_items = [
+            {"name": "Red T-shirt", "color": (200, 50, 50)},
+            {"name": "Blue Jeans", "color": (50, 100, 150)},
+            {"name": "Black Jacket", "color": (30, 30, 30)}
+        ]
+        
+        for item in test_items:
+            test_image = self.create_sample_base64_image(color=item["color"])
+            item_data = {"image_base64": test_image}
+            
+            try:
+                response = requests.post(f"{self.api_url}/wardrobe", json=item_data, headers=self.headers, timeout=15)
+                if response.status_code == 200:
+                    print(f"   ✅ Added {item['name']}")
+                else:
+                    print(f"   ❌ Failed to add {item['name']}")
+            except Exception as e:
+                print(f"   ❌ Exception adding {item['name']}: {e}")
+        
+        # Analyze categorization
+        await self.get_wardrobe_analysis()
+    
+    async def test_mongodb_document_size_fix(self):
+        """Test 4: MongoDB DocumentTooLarge Fix"""
+        print("\n🧪 Testing MongoDB DocumentTooLarge Fix...")
+        
+        # Clear wardrobe
+        try:
+            requests.delete(f"{self.api_url}/wardrobe/clear", headers=self.headers, timeout=10)
+        except:
+            pass
+        
+        # Add multiple large items to test document size limits
+        print("   📦 Adding multiple large images to test document size limits...")
+        
+        for i in range(8):  # Add 8 large items
+            large_image = self.create_sample_base64_image(size=(1500, 2000), quality=85)
+            item_data = {"image_base64": large_image}
+            
+            try:
+                response = requests.post(f"{self.api_url}/wardrobe", json=item_data, headers=self.headers, timeout=15)
+                if response.status_code == 200:
+                    print(f"   ✅ Added large item {i+1}")
+                else:
+                    self.log_test("MongoDB Size Fix", "FAIL", 
+                                f"Failed to add item {i+1}: {response.status_code}")
+                    return
+            except Exception as e:
+                self.log_test("MongoDB Size Fix", "FAIL", 
+                            f"Exception adding item {i+1}: {str(e)}")
+                return
+        
+        print("   🧪 Testing outfit generation with large wardrobe...")
+        
+        # Test outfit generation (this previously failed due to document size)
+        try:
+            response = requests.get(f"{self.api_url}/wardrobe/outfits?force_regenerate=true", 
+                                  headers=self.headers, timeout=30)
+            
+            if response.status_code == 200:
+                result = response.json()
+                outfits = result.get("outfits", [])
+                message = result.get("message", "")
+                
+                if len(outfits) > 0:
+                    self.log_test("MongoDB Size Fix", "PASS", 
+                                f"Successfully generated {len(outfits)} outfits with large wardrobe")
+                    
+                    # Test persistence
+                    response2 = requests.get(f"{self.api_url}/wardrobe/outfits", headers=self.headers, timeout=15)
+                    if response2.status_code == 200:
+                        result2 = response2.json()
+                        outfits2 = result2.get("outfits", [])
+                        
+                        if len(outfits2) == len(outfits):
+                            self.log_test("Outfit Persistence", "PASS", 
+                                        "Outfits successfully saved and retrieved from database")
+                        else:
+                            self.log_test("Outfit Persistence", "FAIL", 
+                                        "Outfits not properly persisted")
+                else:
+                    self.log_test("MongoDB Size Fix", "FAIL", 
+                                f"No outfits generated. Message: {message}")
+            else:
+                self.log_test("MongoDB Size Fix", "FAIL", 
+                            f"Outfit generation failed: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("MongoDB Size Fix", "FAIL", 
+                        f"Exception during outfit generation: {str(e)}")
+    
+    async def test_full_flow(self):
+        """Test 5: Complete End-to-End Flow"""
+        print("\n🧪 Testing Complete End-to-End Flow...")
+        
+        # Clear wardrobe
+        try:
+            requests.delete(f"{self.api_url}/wardrobe/clear", headers=self.headers, timeout=10)
+        except:
+            pass
+        
+        # Add diverse wardrobe items
+        test_items = [
+            {"name": "White T-shirt", "color": (255, 255, 255)},
+            {"name": "Blue Jeans", "color": (50, 100, 150)},
+            {"name": "Black Jacket", "color": (30, 30, 30)},
+            {"name": "Red Dress", "color": (200, 50, 50)},
+            {"name": "Brown Shoes", "color": (139, 69, 19)},
+            {"name": "Green Shirt", "color": (50, 150, 50)}
+        ]
+        
+        added_items = 0
+        for item in test_items:
+            test_image = self.create_sample_base64_image(color=item["color"])
+            item_data = {"image_base64": test_image}
+            
+            try:
+                response = requests.post(f"{self.api_url}/wardrobe", json=item_data, headers=self.headers, timeout=15)
+                if response.status_code == 200:
+                    added_items += 1
+                    print(f"   ✅ Added {item['name']}")
+                else:
+                    print(f"   ❌ Failed to add {item['name']}: {response.status_code}")
+            except Exception as e:
+                print(f"   ❌ Exception adding {item['name']}: {e}")
+        
+        if added_items >= 4:
+            self.log_test("Full Flow - Item Addition", "PASS", 
+                        f"Successfully added {added_items} items")
+            
+            # Generate outfits
+            try:
+                response = requests.get(f"{self.api_url}/wardrobe/outfits", headers=self.headers, timeout=30)
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    outfits = result.get("outfits", [])
+                    
+                    if len(outfits) > 0:
+                        self.log_test("Full Flow - Outfit Generation", "PASS", 
+                                    f"Generated {len(outfits)} outfits")
+                        
+                        # Analyze outfit quality
+                        for i, outfit in enumerate(outfits[:3]):
+                            occasion = outfit.get("occasion", "Unknown")
+                            items = outfit.get("items", [])
+                            explanation = outfit.get("explanation", "")
+                            
+                            print(f"   👗 Outfit {i+1} ({occasion}): {len(items)} items - {explanation}")
+                            
+                            if len(items) >= 2:
+                                self.log_test(f"Full Flow - Outfit {i+1} Quality", "PASS", 
+                                            f"{occasion} outfit with {len(items)} items")
+                            else:
+                                self.log_test(f"Full Flow - Outfit {i+1} Quality", "FAIL", 
+                                            f"Insufficient items in {occasion} outfit")
+                    else:
+                        message = result.get("message", "No message")
+                        self.log_test("Full Flow - Outfit Generation", "FAIL", 
+                                    f"No outfits generated: {message}")
+                else:
+                    self.log_test("Full Flow - Outfit Generation", "FAIL", 
+                                f"Failed: {response.status_code}")
+            except Exception as e:
+                self.log_test("Full Flow - Outfit Generation", "FAIL", f"Exception: {str(e)}")
+        else:
+            self.log_test("Full Flow - Item Addition", "FAIL", 
+                        f"Only added {added_items} items, need at least 4")
+
+    async def run_wardrobe_fixes_tests(self):
+        """Run all wardrobe fixes tests"""
+        print("🧪 Starting Wardrobe Fixes Testing Suite")
         print("=" * 70)
-        print("🎯 Goal: Identify why users are seeing 'no outfits yet'")
+        print("🎯 Testing: Image compression, outfit guardrails, category analysis")
         print("=" * 70)
         
         # Step 1: Setup
@@ -434,52 +728,22 @@ class WardrobeFixesTester:
             print("❌ Failed to setup test user. Aborting tests.")
             return False
         
-        # Step 2: Test OpenAI integration
-        print(f"\n🤖 Testing OpenAI Integration...")
-        await self.test_openai_integration()
+        # Step 2: Test image compression fix
+        await self.test_image_compression_fix()
         
-        # Step 3: Test with no items (should show appropriate message)
-        print(f"\n📋 Testing with empty wardrobe...")
-        await self.test_outfit_generation_insufficient_items()
+        # Step 3: Test outfit generation guardrails
+        await self.test_outfit_generation_guardrails()
         
-        # Step 4: Add one item and test (should still show insufficient message)
-        print(f"\n📋 Testing with 1 item...")
-        await self.add_wardrobe_item("Blue Cotton T-shirt")
-        await self.test_outfit_generation_insufficient_items()
+        # Step 4: Test wardrobe category analysis
+        await self.test_wardrobe_category_analysis()
         
-        # Step 5: Add second item and test (critical test)
-        print(f"\n📋 Testing with 2 items (minimum requirement)...")
-        await self.add_wardrobe_item("Black Denim Jeans")
-        wardrobe_items = await self.get_wardrobe_analysis()
+        # Step 5: Test MongoDB document size fix
+        await self.test_mongodb_document_size_fix()
         
-        if len(wardrobe_items) >= 2:
-            await self.test_document_size_issue()
-            await self.test_json_parsing_errors()
-            await self.test_outfit_generation_sufficient_items(2)
+        # Step 6: Test complete flow
+        await self.test_full_flow()
         
-        # Step 6: Test with more items
-        print(f"\n📋 Testing with 5 items...")
-        await self.add_wardrobe_item("White Button Shirt")
-        await self.add_wardrobe_item("Navy Blazer")
-        await self.add_wardrobe_item("Brown Leather Shoes")
-        
-        final_wardrobe = await self.get_wardrobe_analysis()
-        if len(final_wardrobe) >= 5:
-            await self.test_document_size_issue()
-            await self.test_outfit_generation_sufficient_items(5)
-        
-        # Step 7: Test with even more items to trigger document size issues
-        print(f"\n📋 Testing with 8+ items (potential document size issues)...")
-        await self.add_wardrobe_item("Red Summer Dress")
-        await self.add_wardrobe_item("Gray Wool Sweater")
-        await self.add_wardrobe_item("Black Formal Pants")
-        
-        large_wardrobe = await self.get_wardrobe_analysis()
-        if len(large_wardrobe) >= 8:
-            await self.test_document_size_issue()
-            await self.test_outfit_generation_sufficient_items(8)
-        
-        # Step 8: Summary and diagnosis
+        # Step 7: Summary
         self.print_diagnostic_summary()
         
         return True
