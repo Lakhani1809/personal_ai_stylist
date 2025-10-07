@@ -834,15 +834,15 @@ class WardrobeFixesTester:
         print("\n" + "=" * 70)
 
 async def main():
-    """Main test execution for outfit generation debugging"""
-    print("🚀 Starting Outfit Generation Debugging Tests...")
-    print("🎯 Focus: Identifying why users see 'no outfits yet'")
+    """Main test execution for wardrobe fixes testing"""
+    print("🚀 Starting Wardrobe Fixes Testing...")
+    print("🎯 Focus: Testing image compression, outfit guardrails, and category analysis")
     print("=" * 70)
     
-    tester = OutfitGenerationTester()
+    tester = WardrobeFixesTester()
     
     try:
-        await tester.run_comprehensive_outfit_tests()
+        await tester.run_wardrobe_fixes_tests()
     except KeyboardInterrupt:
         print("\n⏹️  Tests interrupted by user")
     except Exception as e:
