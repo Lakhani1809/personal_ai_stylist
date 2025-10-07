@@ -16,6 +16,11 @@ from typing import List, Optional, Dict, Any
 # Import custom model handler
 from model_handlers.custom_model_handler import model_handler
 
+# Import new services for chat personalization
+from services.weather_service import weather_service
+from services.events_service import events_service
+from services.fashion_service import fashion_service
+
 load_dotenv()
 
 # Database setup
