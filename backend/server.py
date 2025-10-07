@@ -703,8 +703,8 @@ Score the following on a scale of 1.0 to 5.0:
 
 Return ONLY valid JSON, no markdown.
 Format: {"color_combo": 4.5, "fit": 4.0, "style": 4.2, "occasion": 4.0, "overall_score": 4.2, "feedback": "Great color combination! The fit looks good. Consider adding a statement accessory to elevate the look."}"""
-                    
-                    response = openai_client.chat.completions.create(
+                
+                response = openai_client.chat.completions.create(
                         model="gpt-4o-mini",
                         messages=[
                             {
