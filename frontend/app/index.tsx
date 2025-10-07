@@ -1758,20 +1758,27 @@ export default function App() {
               <ScrollView 
                 horizontal 
                 showsHorizontalScrollIndicator={false} 
-                style={styles.categoryFiltersContainer}
-                contentContainerStyle={styles.categoryFiltersContent}
+                style={{paddingVertical: 16, paddingHorizontal: 8}}
+                contentContainerStyle={{gap: 10}}
               >
                 <TouchableOpacity
-                  style={[
-                    styles.categoryFilter,
-                    selectedCategoryFilter === 'all' && styles.activeFilter
-                  ]}
+                  style={{
+                    backgroundColor: selectedCategoryFilter === 'all' ? '#000000' : 'white',
+                    borderRadius: 20,
+                    paddingVertical: 12,
+                    paddingHorizontal: 20,
+                    borderWidth: 2,
+                    borderColor: selectedCategoryFilter === 'all' ? '#000000' : '#e0e0e0',
+                    minWidth: 80,
+                    alignItems: 'center',
+                  }}
                   onPress={() => setSelectedCategoryFilter('all')}
                 >
-                  <Text style={[
-                    styles.filterText,
-                    selectedCategoryFilter === 'all' && styles.activeFilterText
-                  ]}>
+                  <Text style={{
+                    fontSize: 15,
+                    fontWeight: '600',
+                    color: selectedCategoryFilter === 'all' ? '#FFFFFF' : '#333',
+                  }}>
                     All ({wardrobe.length})
                   </Text>
                 </TouchableOpacity>
@@ -1781,16 +1788,23 @@ export default function App() {
                   return (
                     <TouchableOpacity
                       key={category}
-                      style={[
-                        styles.categoryFilter,
-                        selectedCategoryFilter === category && styles.activeFilter
-                      ]}
+                      style={{
+                        backgroundColor: selectedCategoryFilter === category ? '#000000' : 'white',
+                        borderRadius: 20,
+                        paddingVertical: 12,
+                        paddingHorizontal: 20,
+                        borderWidth: 2,
+                        borderColor: selectedCategoryFilter === category ? '#000000' : '#e0e0e0',
+                        minWidth: 80,
+                        alignItems: 'center',
+                      }}
                       onPress={() => setSelectedCategoryFilter(category)}
                     >
-                      <Text style={[
-                        styles.filterText,
-                        selectedCategoryFilter === category && styles.activeFilterText
-                      ]}>
+                      <Text style={{
+                        fontSize: 15,
+                        fontWeight: '600',
+                        color: selectedCategoryFilter === category ? '#FFFFFF' : '#333',
+                      }}>
                         {category.charAt(0).toUpperCase() + category.slice(1)} ({count})
                       </Text>
                     </TouchableOpacity>
