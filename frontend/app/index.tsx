@@ -1917,6 +1917,46 @@ export default function App() {
                     <Text style={styles.getStartedText}>{loading ? 'Adding...' : 'Add Your First Items'}</Text>
                   </TouchableOpacity>
                 </View>
+              ) : wardrobeTab === 'outfits' ? (
+                <ScrollView style={{flex: 1, padding: 16}}>
+                  {outfitsLoading ? (
+                    <View style={{padding: 40, alignItems: 'center'}}>
+                      <ActivityIndicator size="large" color="#000000" />
+                      <Text style={{marginTop: 16, fontSize: 16, color: '#666'}}>Creating perfect outfits for you...</Text>
+                    </View>
+                  ) : generatedOutfits.length === 0 ? (
+                    <View style={{padding: 40, alignItems: 'center'}}>
+                      <Ionicons name="shirt-outline" size={64} color="#ccc" />
+                      <Text style={{marginTop: 16, fontSize: 18, fontWeight: '600', color: '#333'}}>No Outfits Yet</Text>
+                      <Text style={{marginTop: 8, fontSize: 14, color: '#666', textAlign: 'center'}}>Add more items to your wardrobe to generate styled outfits!</Text>
+                    </View>
+                  ) : (
+                    generatedOutfits.map((outfit, index) => (
+                      <View key={index} style={{marginBottom: 32, backgroundColor: 'white', borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#e0e0e0'}}>
+                        <Text style={{fontSize: 18, fontWeight: '700', color: '#000', marginBottom: 12}}>{outfit.occasion}</Text>
+                        <View style={{flexDirection: 'row', gap: 12, flexWrap: 'wrap', marginBottom: 12}}>
+                          {outfit.items.map((item: any, itemIndex: number) => (
+                            <View key={itemIndex} style={{width: 100}}>
+                              <Image
+                                source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
+                                style={{width: 100, height: 120, borderRadius: 12}}
+                                resizeMode="cover"
+                              />
+                              <Text style={{fontSize: 11, color: '#666', marginTop: 4, textAlign: 'center'}} numberOfLines={2}>
+                                {item.exact_item_name || item.color + ' ' + item.category}
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                        <View style={{backgroundColor: '#f8f9fa', padding: 12, borderRadius: 8}}>
+                          <Text style={{fontSize: 13, color: '#555', fontStyle: 'italic'}}>
+                            ✨ {outfit.explanation}
+                          </Text>
+                        </View>
+                      </View>
+                    ))
+                  )}
+                </ScrollView>
               ) : (
                 <View style={styles.categorizedWardrobe}>
                   {Object.entries(getFilteredWardrobe()).map(([category, items]) => (
