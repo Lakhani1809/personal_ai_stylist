@@ -1092,13 +1092,20 @@ export default function App() {
               {/* Step 1: Name + Gender + Age + Occupation (Combined Screen) */}
               {onboardingStep === 1 && (
                 <ScrollView style={styles.combinedOnboardingStep} showsVerticalScrollIndicator={false}>
-                  <Text style={styles.welcomeTitle}>Hey there, Style Icon! ✨</Text>
-                  <Text style={styles.welcomeSubtitleCentered}>Start by telling us a bit about you.</Text>
+                  <Text style={{fontSize: 28, fontWeight: '700', color: '#333', marginBottom: 8, textAlign: 'center'}}>Hey there, Style Icon! ✨</Text>
+                  <Text style={{fontSize: 16, color: '#666', marginBottom: 40, textAlign: 'center'}}>Start by telling us a bit about you.</Text>
                   
                   {/* Name Input */}
-                  <View style={styles.formSectionSpaced}>
+                  <View style={{marginBottom: 32}}>
                     <TextInput
-                      style={styles.nameInputBox}
+                      style={{
+                        backgroundColor: 'white',
+                        borderRadius: 12,
+                        padding: 18,
+                        fontSize: 16,
+                        borderWidth: 2,
+                        borderColor: '#e0e0e0',
+                      }}
                       placeholder="What can we call you?"
                       placeholderTextColor="#999"
                       value={onboardingData.name}
@@ -1108,8 +1115,8 @@ export default function App() {
                   </View>
 
                   {/* Gender Selection */}
-                  <View style={styles.formSectionSpaced}>
-                    <Text style={{fontSize: 22, fontWeight: '700', color: '#000', marginBottom: 16}}>Gender</Text>
+                  <View style={{marginBottom: 32}}>
+                    <Text style={{fontSize: 18, fontWeight: '700', color: '#000', marginBottom: 16}}>Gender</Text>
                     <View style={{flexDirection: 'row', flexWrap: 'wrap', gap: 12}}>
                       {GENDER_OPTIONS.map((option) => (
                         <TouchableOpacity
