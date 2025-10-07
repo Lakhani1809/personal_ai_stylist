@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend Testing Suite for AI Stylist App - Weather Integration & City Field Testing
-Tests the improvements and fixes made for weather integration and city field functionality.
+Backend Testing Suite for AI Stylist App - Outfit Generation Testing
+Tests the outfit generation system to identify why users are seeing "no outfits yet"
 """
 
 import asyncio
@@ -9,16 +9,12 @@ import requests
 import json
 import os
 import sys
+import base64
 from datetime import datetime
 from typing import Dict, Any, Optional
 
 # Add backend to path for imports
 sys.path.append('/app/backend')
-
-# Import services for direct testing
-from services.weather_service import weather_service
-from services.events_service import events_service
-from services.fashion_service import fashion_service
 
 class BackendTester:
     def __init__(self):
