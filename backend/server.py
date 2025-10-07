@@ -669,24 +669,40 @@ async def validate_outfit(outfit_data: dict, user_id: str = Depends(get_current_
         # Use custom model handler for outfit validation
         validation_success = False
         try:
-            print(f"👗 Starting custom outfit validation analysis...")
+            print("👗 Starting OpenAI Vision outfit validation...")
             
-            # Use custom models first (your models)
-            validation = model_handler.analyze_outfit_validation(image_base64)
-            
-            if validation and validation.get("overall_score", 0) > 3.0:
-                validation["id"] = str(uuid.uuid4())
-                validation["image_base64"] = image_base64.split(',')[-1] if ',' in image_base64 else image_base64
-                validation_success = True
-                print(f"✅ Custom outfit validation successful!")
-                print(f"   Overall Score: {validation['overall_score']}")
-                print(f"   Feedback: {validation['feedback'][:100]}...")
-            else:
-                print("⚠️ Custom validation models not available, falling back to OpenAI...")
-                
-                # Fallback to OpenAI if custom models aren't loaded
-                if OPENAI_API_KEY and len(OPENAI_API_KEY) > 10:
-                    validation_prompt = """Analyze this outfit professionally. Return JSON with scores (1.0-5.0) for: color_combo, fit, style, occasion, overall_score, and detailed feedback."""
+            # Use OpenAI Vision with improved prompt
+            if OPENAI_API_KEY and len(OPENAI_API_KEY) > 10:
+                validation_prompt = """You are a professional fashion stylist analyzing an outfit. Provide honest, constructive feedback.
+
+Score the following on a scale of 1.0 to 5.0:
+
+1. color_combo: How well do the colors work together? (Consider color theory, contrast, harmony)
+   - 5.0: Perfect color harmony
+   - 3.0-4.0: Good color match
+   - 1.0-2.0: Clashing colors
+
+2. fit: How well does the outfit fit the person?
+   - 5.0: Perfectly tailored
+   - 3.0-4.0: Good fit
+   - 1.0-2.0: Poor fit or proportion issues
+
+3. style: How cohesive and well-styled is the overall look?
+   - 5.0: Expertly styled
+   - 3.0-4.0: Well put together
+   - 1.0-2.0: Style mismatch
+
+4. occasion: How appropriate is this outfit for typical occasions?
+   - 5.0: Versatile and appropriate
+   - 3.0-4.0: Suitable for specific occasions
+   - 1.0-2.0: Limited appropriateness
+
+5. overall_score: Average of above scores
+
+6. feedback: 2-3 sentences of constructive feedback. Be encouraging but honest. Mention what works well and 1-2 specific improvements.
+
+Return ONLY valid JSON, no markdown.
+Format: {"color_combo": 4.5, "fit": 4.0, "style": 4.2, "occasion": 4.0, "overall_score": 4.2, "feedback": "Great color combination! The fit looks good. Consider adding a statement accessory to elevate the look."}"""
                     
                     response = openai_client.chat.completions.create(
                         model="gpt-4o-mini",
