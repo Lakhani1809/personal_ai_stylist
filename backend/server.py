@@ -341,6 +341,41 @@ async def chat(message_data: dict, user_id: str = Depends(get_current_user)):
             if wardrobe_items:
                 wardrobe_context = f"\n👗 User's Current Wardrobe (reference these SPECIFIC items):\n" + "\n".join(wardrobe_items)
         
+        # Gather contextual data from all services
+        contextual_data = await gather_contextual_data(user) if user else {}
+        
+        # Build contextual information for enhanced recommendations
+        context_info = ""
+        
+        # Add weather context
+        if contextual_data.get("weather"):
+            weather_rec = contextual_data["weather"].get("recommendations", {})
+            weather_data = contextual_data["weather"].get("weather", {})
+            if weather_data:
+                context_info += f"\n🌤️ Current Weather in {weather_data.get('location', '')}:\n"
+                context_info += f"• Temperature: {weather_data.get('temperature', 'Unknown')}°F - {weather_data.get('condition', '')}\n"
+                if weather_rec.get("temperature_advice"):
+                    context_info += f"• Styling tip: {weather_rec['temperature_advice']}\n"
+        
+        # Add events context
+        if contextual_data.get("events"):
+            context_info += f"\n📅 Upcoming Local Events:\n"
+            for event in contextual_data["events"][:2]:  # Limit to 2 events
+                event_data = event.get("event", {})
+                styling = event.get("styling", {})
+                context_info += f"• {event_data.get('title', 'Event')}: {styling.get('dress_code', 'Casual attire')}\n"
+        
+        # Add fashion trends context
+        if contextual_data.get("fashion_trends"):
+            trends = contextual_data["fashion_trends"]
+            trending_colors = trends.get("trending_colors_to_try", [])
+            if trending_colors:
+                context_info += f"\n🔥 Current Fashion Trends:\n"
+                context_info += f"• Trending colors: {', '.join(trending_colors[:3])}\n"
+                styling_tips = trends.get("styling_tips", [])
+                if styling_tips:
+                    context_info += f"• Trend tip: {styling_tips[0]}\n"
+        
         # ADVANCED Personal Stylist prompt with deep personalization
         system_prompt = f"""You are Maya ✨, a personal fashion stylist - like having a stylish best friend who knows fashion inside out!
 
