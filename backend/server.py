@@ -771,20 +771,36 @@ Format: {"color_combo": 4.5, "fit": 4.0, "style": 4.2, "occasion": 4.0, "overall
         raise HTTPException(status_code=500, detail=f"Failed to validate outfit: {str(e)}")
 
 @app.get("/api/wardrobe/outfits")
-async def generate_outfits(user_id: str = Depends(get_current_user)):
+async def generate_outfits(force_regenerate: bool = False, user_id: str = Depends(get_current_user)):
     """
-    Generate styled outfits from user's wardrobe items, categorized by occasion.
-    Uses OpenAI to create fashionable combinations.
+    Get styled outfits from user's wardrobe items. 
+    Generates new outfits only if none exist or if force_regenerate=True or if new items added.
     """
     try:
-        print(f"👗 Generating outfits for user: {user_id}")
+        print(f"👗 Getting outfits for user: {user_id}")
         
-        # Get user's wardrobe
+        # Get user's wardrobe and saved outfits
         user = await db.users.find_one({"id": user_id})
         wardrobe = user.get("wardrobe", []) if user else []
+        saved_outfits = user.get("saved_outfits", []) if user else []
+        last_outfit_generation_count = user.get("last_outfit_generation_count", 0) if user else 0
         
         if len(wardrobe) < 2:
             return {"outfits": [], "message": "Add at least 2 items to your wardrobe to generate outfits!"}
+        
+        # Check if we need to regenerate outfits
+        should_regenerate = (
+            force_regenerate or 
+            len(saved_outfits) == 0 or 
+            len(wardrobe) != last_outfit_generation_count
+        )
+        
+        if not should_regenerate:
+            print(f"✅ Returning {len(saved_outfits)} saved outfits")
+            return {"outfits": saved_outfits}
+        
+        print(f"🔄 Need to regenerate outfits (wardrobe changed: {len(wardrobe)} vs {last_outfit_generation_count})")
+        print(f"   Found {len(wardrobe)} wardrobe items")
         
         print(f"   Found {len(wardrobe)} wardrobe items")
         
