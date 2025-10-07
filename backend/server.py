@@ -607,10 +607,13 @@ Example: {"exact_item_name": "White cotton crew neck t-shirt", "category": "T-sh
         
         print(f"Created item: {item['exact_item_name']}")
         
-        # Store in user's wardrobe
+        # Store in user's wardrobe and clear saved outfits (force regeneration)
         result = await db.users.update_one(
             {"id": user_id},
-            {"$push": {"wardrobe": item}}
+            {
+                "$push": {"wardrobe": item},
+                "$unset": {"saved_outfits": "", "last_outfit_generation_count": ""}
+            }
         )
         
         if result.modified_count > 0:
