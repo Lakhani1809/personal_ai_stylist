@@ -869,6 +869,7 @@ export default function App() {
           };
           
           setChatMessages(prev => [...prev, aiMessage]);
+          scrollToBottom();
         }
       } else {
         // Remove typing indicator on error and stop animation
