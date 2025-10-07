@@ -755,6 +755,131 @@ Format: {"color_combo": 4.5, "fit": 4.0, "style": 4.2, "occasion": 4.0, "overall
         # Enhanced fallback if both custom models and OpenAI failed
         if not validation_success:
             print("⚠️ Using enhanced validation fallback")
+
+
+@app.get("/api/wardrobe/outfits")
+async def generate_outfits(user_id: str = Depends(get_current_user)):
+    """
+    Generate styled outfits from user's wardrobe items, categorized by occasion.
+    Uses OpenAI to create fashionable combinations.
+    """
+    try:
+        print(f"👗 Generating outfits for user: {user_id}")
+        
+        # Get user's wardrobe
+        user = await db.users.find_one({"id": user_id})
+        wardrobe = user.get("wardrobe", []) if user else []
+        
+        if len(wardrobe) < 2:
+            return {"outfits": [], "message": "Add at least 2 items to your wardrobe to generate outfits!"}
+        
+        print(f"   Found {len(wardrobe)} wardrobe items")
+        
+        # Prepare wardrobe summary for AI
+        wardrobe_items_list = []
+        for idx, item in enumerate(wardrobe):
+            item_desc = f"{idx+1}. {item.get('color', '')} {item.get('fabric_type', '')} {item.get('exact_item_name', 'item')} ({item.get('category', 'Other')})"
+            wardrobe_items_list.append(item_desc.strip())
+        
+        wardrobe_summary = "\n".join(wardrobe_items_list)
+        
+        # Get user context for personalization
+        user_context = ""
+        if user:
+            if user.get("body_shape"):
+                user_context += f"Body Shape: {user.get('body_shape')}\n"
+            if user.get("skin_tone"):
+                user_context += f"Skin Tone: {user.get('skin_tone')}\n"
+            if user.get("style_vibe"):
+                user_context += f"Style Preference: {user.get('style_vibe')}\n"
+        
+        # OpenAI prompt for outfit generation
+        outfit_prompt = f"""You are an expert fashion stylist creating outfits from a user's wardrobe.
+
+USER PROFILE:
+{user_context if user_context else "No profile info available"}
+
+AVAILABLE WARDROBE ITEMS:
+{wardrobe_summary}
+
+TASK: Create 6-8 complete outfits using ONLY the items listed above. Each outfit should be appropriate for a specific occasion.
+
+OCCASIONS TO COVER:
+- Casual/Everyday
+- Work/Business Casual
+- Date Night
+- Party/Night Out
+- Formal
+- Weekend/Relaxed
+- Sporty/Active (if appropriate items available)
+
+RULES:
+1. Use ONLY items from the wardrobe list above (reference by number)
+2. Each outfit must have 2-4 items that work well together
+3. Consider color coordination, style harmony, and occasion appropriateness
+4. Provide a brief (10-15 words) explanation of why each outfit works
+
+FORMAT: Return ONLY valid JSON array, no markdown:
+[
+  {{
+    "occasion": "Casual",
+    "items": [1, 3, 5],
+    "explanation": "Relaxed yet put-together look perfect for everyday wear"
+  }},
+  {{
+    "occasion": "Date Night",
+    "items": [2, 4],
+    "explanation": "Elegant combination that's both comfortable and stylish"
+  }}
+]
+
+Remember: Only use item numbers that exist in the wardrobe list!"""
+
+        # Call OpenAI
+        if not OPENAI_API_KEY or len(OPENAI_API_KEY) < 10:
+            return {"outfits": [], "message": "OpenAI API key not configured"}
+        
+        response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a professional fashion stylist creating outfit combinations."},
+                {"role": "user", "content": outfit_prompt}
+            ],
+            max_tokens=1000,
+            temperature=0.7
+        )
+        
+        ai_result = response.choices[0].message.content.strip()
+        ai_result = ai_result.replace('```json', '').replace('```', '').strip()
+        
+        import json
+        outfit_combinations = json.loads(ai_result)
+        
+        print(f"✅ Generated {len(outfit_combinations)} outfits")
+        
+        # Map item numbers back to actual items
+        formatted_outfits = []
+        for outfit in outfit_combinations:
+            outfit_items = []
+            for item_num in outfit.get("items", []):
+                if 0 < item_num <= len(wardrobe):
+                    outfit_items.append(wardrobe[item_num - 1])
+            
+            if len(outfit_items) >= 2:  # Only include outfits with at least 2 items
+                formatted_outfits.append({
+                    "occasion": outfit.get("occasion", "Casual"),
+                    "items": outfit_items,
+                    "explanation": outfit.get("explanation", "A great outfit combination!")
+                })
+        
+        return {"outfits": formatted_outfits}
+        
+    except Exception as e:
+        print(f"❌ Outfit generation error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return {"outfits": [], "message": f"Error generating outfits: {str(e)}"}
+
             validation = {
                 "id": str(uuid.uuid4()),
                 "scores": {
