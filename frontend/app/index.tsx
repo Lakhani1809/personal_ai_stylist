@@ -623,6 +623,7 @@ export default function App() {
           if (response.ok) {
             const result = await response.json();
             loadWardrobe(); // Refresh wardrobe
+            setGeneratedOutfits([]); // Clear outfits cache to force regeneration
             
             // Show success message
             const itemCount = result.items_added || 1;
