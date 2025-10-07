@@ -847,7 +847,8 @@ export default function App() {
       const data = await response.json();
 
       if (response.ok) {
-        // Remove typing indicator
+        // Remove typing indicator and stop animation
+        stopTypingAnimation();
         setChatMessages(prev => prev.filter(msg => !msg.id.startsWith('typing-') && !msg.id.startsWith('loading-')));
         
         // Handle chunked messages - add them sequentially with delays
