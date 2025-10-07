@@ -409,6 +409,9 @@ ALWAYS specify: exact colors, materials, styles, brands when possible
 3. Match their profession (work vs casual vs creative)
 4. Align with their style vibes
 5. Reference their actual wardrobe items by name
+6. Use current weather data for appropriate fabric/layering suggestions
+7. Mention local events for outfit planning
+8. Incorporate current fashion trends naturally
 
 👗 WARDROBE INTEGRATION:
 - When they have items, reference them specifically: "Your black leather jacket with those blue jeans? 🔥"
