@@ -738,16 +738,16 @@ Format: {"color_combo": 4.5, "fit": 4.0, "style": 4.2, "occasion": 4.0, "overall
                             "color_combo": validate_score(analysis_data.get("color_combo")),
                             "fit": validate_score(analysis_data.get("fit")),
                             "style": validate_score(analysis_data.get("style")),
-                                "occasion": validate_score(analysis_data.get("occasion"))
-                            },
-                            "overall_score": validate_score(analysis_data.get("overall_score")),
-                            "feedback": analysis_data.get("feedback", "Great styling choice!"),
-                            "image_base64": image_base64.split(',')[-1] if ',' in image_base64 else image_base64
-                        }
-                        validation_success = True
-                        print(f"✅ OpenAI validation fallback successful!")
-                    except:
-                        print(f"❌ OpenAI validation fallback failed")
+                            "occasion": validate_score(analysis_data.get("occasion"))
+                        },
+                        "overall_score": validate_score(analysis_data.get("overall_score")),
+                        "feedback": analysis_data.get("feedback", "Great styling choice!"),
+                        "image_base64": image_base64.split(',')[-1] if ',' in image_base64 else image_base64
+                    }
+                    validation_success = True
+                    print(f"✅ OpenAI validation fallback successful!")
+                except:
+                    print(f"❌ OpenAI validation fallback failed")
                         
         except Exception as ai_error:
             print(f"❌ Outfit validation error: {str(ai_error)}")
