@@ -986,8 +986,13 @@ async def generate_outfits(force_regenerate: bool = False, user_id: str = Depend
         saved_outfits = user.get("saved_outfits", []) if user else []
         last_outfit_generation_count = user.get("last_outfit_generation_count", 0) if user else 0
         
-        if len(wardrobe) < 2:
-            return {"outfits": [], "message": "Add at least 2 items to your wardrobe to generate outfits!"}
+        # Enhanced guardrails for outfit generation
+        if len(wardrobe) == 0:
+            return {"outfits": [], "message": "Your wardrobe is empty! Add some clothing items to start creating outfits."}
+        elif len(wardrobe) == 1:
+            return {"outfits": [], "message": "Add more items to your wardrobe. You need at least 2 pieces to create outfits!"}
+        elif len(wardrobe) < 4:
+            return {"outfits": [], "message": f"You have {len(wardrobe)} items. Add a few more pieces for better outfit combinations!"}
         
         # Check if we need to regenerate outfits
         should_regenerate = (
