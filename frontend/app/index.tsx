@@ -544,6 +544,9 @@ export default function App() {
   };
 
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
+  const [wardrobeTab, setWardrobeTab] = useState<'items' | 'outfits'>('items');
+  const [generatedOutfits, setGeneratedOutfits] = useState<any[]>([]);
+  const [outfitsLoading, setOutfitsLoading] = useState(false);
 
   const addWardrobeItems = async () => {
     try {
