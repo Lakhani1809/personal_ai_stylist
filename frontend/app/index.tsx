@@ -878,7 +878,8 @@ export default function App() {
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      // Remove typing indicator on network error
+      // Remove typing indicator on network error and stop animation
+      stopTypingAnimation();
       setChatMessages(prev => prev.filter(msg => !msg.id.startsWith('typing-') && !msg.id.startsWith('loading-')));
       Alert.alert('Network Error', 'Please check your internet connection and try again');
     } finally {
