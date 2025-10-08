@@ -2266,6 +2266,86 @@ export default function App() {
           </View>
         </Modal>
 
+        {/* Profile Settings Modal */}
+        <Modal
+          visible={showProfileSettings}
+          animationType="slide"
+          transparent={false}
+          onRequestClose={() => setShowProfileSettings(false)}
+        >
+          <View style={styles.profileSettingsContainer}>
+            <View style={styles.profileSettingsHeader}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => setShowProfileSettings(false)}
+              >
+                <Text style={styles.backButtonText}>← Back</Text>
+              </TouchableOpacity>
+              <Text style={styles.profileSettingsTitle}>Profile Settings</Text>
+            </View>
+            
+            <ScrollView style={styles.profileSettingsContent}>
+              <View style={styles.profileSection}>
+                <Text style={styles.sectionTitle}>Personal Information</Text>
+                
+                <View style={styles.profileItem}>
+                  <Text style={styles.profileLabel}>Name</Text>
+                  <Text style={styles.profileValue}>{user?.name || 'Not set'}</Text>
+                </View>
+                
+                <View style={styles.profileItem}>
+                  <Text style={styles.profileLabel}>Gender</Text>
+                  <Text style={styles.profileValue}>{user?.gender || 'Not set'}</Text>
+                </View>
+                
+                <View style={styles.profileItem}>
+                  <Text style={styles.profileLabel}>Age</Text>
+                  <Text style={styles.profileValue}>{user?.age || 'Not set'}</Text>
+                </View>
+                
+                <View style={styles.profileItem}>
+                  <Text style={styles.profileLabel}>Profession</Text>
+                  <Text style={styles.profileValue}>{user?.profession || 'Not set'}</Text>
+                </View>
+                
+                <View style={styles.profileItem}>
+                  <Text style={styles.profileLabel}>City</Text>
+                  <Text style={styles.profileValue}>{user?.city || 'Not set'}</Text>
+                </View>
+              </View>
+              
+              <View style={styles.profileSection}>
+                <Text style={styles.sectionTitle}>Style Preferences</Text>
+                
+                <View style={styles.profileItem}>
+                  <Text style={styles.profileLabel}>Body Shape</Text>
+                  <Text style={styles.profileValue}>{user?.body_shape || 'Not set'}</Text>
+                </View>
+                
+                <View style={styles.profileItem}>
+                  <Text style={styles.profileLabel}>Skin Tone</Text>
+                  <Text style={styles.profileValue}>{user?.skin_tone || 'Not set'}</Text>
+                </View>
+                
+                <View style={styles.profileItem}>
+                  <Text style={styles.profileLabel}>Style Vibe</Text>
+                  <Text style={styles.profileValue}>{user?.style_vibe || 'Not set'}</Text>
+                </View>
+              </View>
+              
+              <TouchableOpacity
+                style={styles.signOutButtonProfile}
+                onPress={() => {
+                  setShowProfileSettings(false);
+                  handleSignOut();
+                }}
+              >
+                <Text style={styles.signOutButtonText}>Sign Out</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </Modal>
+
         {currentTab === 'chat' && (
           <KeyboardAvoidingView 
             style={styles.chatContainer}
