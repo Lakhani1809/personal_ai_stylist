@@ -220,6 +220,12 @@ export default function App() {
   const [weeklyEvents, setWeeklyEvents] = useState<{[key: string]: any[]}>({});
   const [weeklyOutfits, setWeeklyOutfits] = useState<{[key: string]: any}>({});
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  
+  // Event management state
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedEventDate, setSelectedEventDate] = useState('');
+  const [eventForm, setEventForm] = useState({ title: '', time: '', type: 'other' });
+  const [editingEventIndex, setEditingEventIndex] = useState(-1);
 
   // Initialize with some demo data to match the screenshot
   useEffect(() => {
