@@ -220,6 +220,7 @@ export default function App() {
   const [weeklyEvents, setWeeklyEvents] = useState<{[key: string]: any[]}>({});
   const [weeklyOutfits, setWeeklyOutfits] = useState<{[key: string]: any}>({});
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
   
   // Event management state
   const [showEventModal, setShowEventModal] = useState(false);
