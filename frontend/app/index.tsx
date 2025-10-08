@@ -1935,19 +1935,7 @@ export default function App() {
               </TouchableOpacity>
             </View>
 
-            {/* Day Headers */}
-            <View style={styles.dayHeaders}>
-              {getWeekDates(selectedWeek).map((date, index) => (
-                <View key={index} style={styles.dayHeader}>
-                  <Text style={[
-                    styles.dayHeaderText,
-                    index === 0 || index === 6 ? styles.weekendText : null
-                  ]}>
-                    {getShortDayName(date)}
-                  </Text>
-                </View>
-              ))}
-            </View>
+            {/* Removed Day Headers - showing days directly in cards */}
 
             {/* Day Cards */}
             <ScrollView style={styles.plannerScrollView} showsVerticalScrollIndicator={false}>
