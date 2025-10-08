@@ -220,6 +220,17 @@ export default function App() {
   const [weeklyEvents, setWeeklyEvents] = useState<{[key: string]: any[]}>({});
   const [weeklyOutfits, setWeeklyOutfits] = useState<{[key: string]: any}>({});
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  // Initialize with some demo data to match the screenshot
+  useEffect(() => {
+    const today = new Date();
+    const monday = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+    const mondayKey = formatDate(monday);
+    
+    setWeeklyEvents({
+      [mondayKey]: [{ title: 'College', time: '9:00 AM', type: 'education' }]
+    });
+  }, []);
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   
