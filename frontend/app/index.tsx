@@ -1806,14 +1806,6 @@ export default function App() {
           <Ionicons name="calendar-outline" size={24} color={currentTab === 'planner' ? '#007AFF' : '#666'} />
           <Text style={[styles.tabText, currentTab === 'planner' && styles.activeTabText]}>Calender</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.tab, currentTab === 'profile' && styles.activeTab]}
-          onPress={() => setCurrentTab('profile')}
-        >
-          <Ionicons name="person-outline" size={24} color={currentTab === 'profile' ? '#007AFF' : '#666'} />
-          <Text style={[styles.tabText, currentTab === 'profile' && styles.activeTabText]}>Profile</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Content */}
