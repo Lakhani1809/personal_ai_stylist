@@ -1972,10 +1972,39 @@ export default function App() {
                         <Text style={styles.dayName}>{getDayName(date)}</Text>
                       </View>
                       
-                      {/* Event text */}
-                      <Text style={styles.eventText}>
-                        {dayEvents.length > 0 ? dayEvents[0].title : 'No event'}
-                      </Text>
+                      {/* Events list */}
+                      <View style={styles.eventsContainer}>
+                        {dayEvents.length > 0 ? (
+                          dayEvents.map((event, eventIndex) => (
+                            <TouchableOpacity 
+                              key={eventIndex}
+                              style={styles.eventItem}
+                              onPress={() => editEvent(dateKey, eventIndex)}
+                              onLongPress={() => deleteEvent(dateKey, eventIndex)}
+                            >
+                              <Text style={styles.eventTitle}>{event.title}</Text>
+                              {event.time && <Text style={styles.eventTime}>{event.time}</Text>}
+                            </TouchableOpacity>
+                          ))
+                        ) : (
+                          <TouchableOpacity 
+                            style={styles.noEventContainer}
+                            onPress={() => openAddEventModal(dateKey)}
+                          >
+                            <Text style={styles.noEventText}>No event</Text>
+                            <Text style={styles.addEventHint}>Tap to add event</Text>
+                          </TouchableOpacity>
+                        )}
+                        
+                        {dayEvents.length > 0 && (
+                          <TouchableOpacity 
+                            style={styles.addMoreEventButton}
+                            onPress={() => openAddEventModal(dateKey)}
+                          >
+                            <Text style={styles.addMoreEventText}>+ Add event</Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
 
                       {/* Outfit section */}
                       <TouchableOpacity 
