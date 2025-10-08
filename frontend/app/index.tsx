@@ -4093,13 +4093,16 @@ const styles = StyleSheet.create({
   },
   loadingWardrobe: {
     alignItems: 'center',
+    justifyContent: 'center',
     paddingTop: 64,
     paddingHorizontal: 24,
+    minHeight: 200,
   },
   loadingWardrobeText: {
     fontSize: 16,
     color: '#666',
     marginTop: 16,
+    textAlign: 'center',
   },
   emptyIconContainer: {
     width: 100,
