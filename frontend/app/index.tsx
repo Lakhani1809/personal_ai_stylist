@@ -297,6 +297,22 @@ export default function App() {
     }
   }, [chatMessages.length]);
 
+  // Chat session management
+  const initializeChatSession = () => {
+    // Always show greeting on initial login or when no chat history exists
+    if (chatMessages.length === 0 && user) {
+      const greetingMessage: ChatMessage = {
+        id: 'greeting-' + Date.now(),
+        user_id: user.id,
+        message: `Hi ${user.name}, I am Maya ✨`,
+        is_user: false,
+        timestamp: new Date().toISOString(),
+        isTyping: false,
+      };
+      setChatMessages([greetingMessage]);
+    }
+  };
+
   useEffect(() => {
     checkAuthStatus();
   }, []);
