@@ -1807,6 +1807,130 @@ export default function App() {
 
       {/* Content */}
       <View style={styles.content}>
+        {currentTab === 'planner' && (
+          <View style={styles.container}>
+            {/* Week Header */}
+            <View style={styles.weekHeader}>
+              <TouchableOpacity 
+                style={styles.weekArrow}
+                onPress={() => setSelectedWeek(selectedWeek - 1)}
+              >
+                <Text style={styles.arrowText}>{'<'}</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.weekSelector}>
+                <Text style={styles.weekText}>Week {Math.abs(selectedWeek) + 1}</Text>
+                <Text style={styles.weekDropdownIcon}>▼</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.weekArrow}
+                onPress={() => setSelectedWeek(selectedWeek + 1)}
+              >
+                <Text style={styles.arrowText}>{'>'}</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Day Headers */}
+            <View style={styles.dayHeaders}>
+              {getWeekDates(selectedWeek).map((date, index) => (
+                <View key={index} style={styles.dayHeader}>
+                  <Text style={[
+                    styles.dayHeaderText,
+                    index === 0 || index === 6 ? styles.weekendText : null
+                  ]}>
+                    {getShortDayName(date)}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Day Cards */}
+            <ScrollView style={styles.plannerScrollView} showsVerticalScrollIndicator={false}>
+              <View style={styles.dayCardsContainer}>
+                {getWeekDates(selectedWeek).map((date, index) => {
+                  const dateKey = formatDate(date);
+                  const dayEvents = weeklyEvents[dateKey] || [];
+                  const dayOutfit = weeklyOutfits[dateKey];
+                  const isWeekend = index === 0 || index === 6;
+                  
+                  return (
+                    <View key={dateKey} style={styles.dayCard}>
+                      {/* Event indicator */}
+                      <View style={styles.eventIndicator}>
+                        <View style={[
+                          styles.eventDot, 
+                          dayEvents.length > 0 ? styles.activeEventDot : styles.inactiveEventDot
+                        ]} />
+                        <Text style={styles.dayName}>{getDayName(date)}</Text>
+                      </View>
+                      
+                      {/* Event text */}
+                      <Text style={styles.eventText}>
+                        {dayEvents.length > 0 ? dayEvents[0].title : 'No event'}
+                      </Text>
+
+                      {/* Outfit section */}
+                      <TouchableOpacity 
+                        style={styles.outfitSection}
+                        onPress={() => {
+                          // Handle outfit planning
+                          if (!dayOutfit) {
+                            Alert.alert(
+                              'Plan Your Outfit',
+                              'How would you like to create your outfit?',
+                              [
+                                {
+                                  text: 'AI Stylist Mode',
+                                  onPress: () => {
+                                    setCurrentTab('chat');
+                                    const eventText = dayEvents.length > 0 ? ` for ${dayEvents[0].title}` : '';
+                                    setChatInput(`Hi! Can you help me plan an outfit for ${getDayName(date)}${eventText}? Consider the weather and my style preferences.`);
+                                  }
+                                },
+                                {
+                                  text: 'Manual Mode',
+                                  onPress: () => {
+                                    // TODO: Implement manual outfit creation
+                                    Alert.alert('Coming Soon', 'Manual outfit creation will be available soon!');
+                                  }
+                                },
+                                { text: 'Cancel', style: 'cancel' }
+                              ]
+                            );
+                          }
+                        }}
+                      >
+                        {dayOutfit ? (
+                          <View style={styles.outfitDisplay}>
+                            {/* Display outfit items as images */}
+                            <View style={styles.outfitItems}>
+                              {dayOutfit.items && dayOutfit.items.slice(0, 3).map((item: any, idx: number) => (
+                                <Image 
+                                  key={idx}
+                                  source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
+                                  style={styles.outfitItemImage}
+                                />
+                              ))}
+                            </View>
+                          </View>
+                        ) : (
+                          <View style={styles.noOutfitPlanned}>
+                            <Text style={styles.noOutfitText}>No outfit planned yet 😴</Text>
+                            <Text style={styles.planPromptText}>
+                              Tap the card to plan your look for the day
+                            </Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+              </View>
+            </ScrollView>
+          </View>
+        )}
+
         {currentTab === 'chat' && (
           <KeyboardAvoidingView 
             style={styles.chatContainer}
