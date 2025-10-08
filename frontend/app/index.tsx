@@ -214,6 +214,12 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState('chat');
+  
+  // Planner state
+  const [selectedWeek, setSelectedWeek] = useState(0); // 0 = current week
+  const [weeklyEvents, setWeeklyEvents] = useState<{[key: string]: any[]}>({});
+  const [weeklyOutfits, setWeeklyOutfits] = useState<{[key: string]: any}>({});
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   
