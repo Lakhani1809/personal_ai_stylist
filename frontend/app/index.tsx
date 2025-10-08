@@ -2154,6 +2154,73 @@ export default function App() {
           </View>
         </Modal>
 
+        {/* Outfit Planning Modal */}
+        <Modal
+          visible={showOutfitModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowOutfitModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.outfitModalContainer}>
+              <Text style={styles.modalTitle}>Plan Your Outfit</Text>
+              <Text style={styles.outfitModalSubtitle}>
+                How would you like to create your look for {selectedOutfitDateName}?
+              </Text>
+              
+              <View style={styles.outfitOptionCard}>
+                <TouchableOpacity
+                  style={styles.outfitOptionButton}
+                  onPress={() => {
+                    console.log('🤖 AI Stylist mode selected');
+                    setShowOutfitModal(false);
+                    setCurrentTab('chat');
+                    
+                    // Get events for context
+                    const dayEvents = weeklyEvents[selectedOutfitDate] || [];
+                    const eventText = dayEvents.length > 0 ? ` for ${dayEvents[0].title}` : '';
+                    setChatInput(`Hi! Can you help me plan an outfit for ${selectedOutfitDateName}${eventText}? Consider the weather and my style preferences.`);
+                  }}
+                >
+                  <View style={styles.outfitOptionIcon}>
+                    <Text style={styles.outfitOptionIconText}>🤖</Text>
+                  </View>
+                  <Text style={styles.outfitOptionTitle}>AI Stylist Mode</Text>
+                  <Text style={styles.outfitOptionDescription}>
+                    Let Maya suggest the perfect outfit based on your style, weather, and events
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.outfitOptionCard}>
+                <TouchableOpacity
+                  style={styles.outfitOptionButton}
+                  onPress={() => {
+                    console.log('✋ Manual mode selected');
+                    setShowOutfitModal(false);
+                    Alert.alert('Coming Soon', 'Manual outfit creation will be available soon!');
+                  }}
+                >
+                  <View style={styles.outfitOptionIcon}>
+                    <Text style={styles.outfitOptionIconText}>✋</Text>
+                  </View>
+                  <Text style={styles.outfitOptionTitle}>Manual Mode</Text>
+                  <Text style={styles.outfitOptionDescription}>
+                    Browse your wardrobe and create your own outfit combination
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              
+              <TouchableOpacity
+                style={styles.outfitModalCancelButton}
+                onPress={() => setShowOutfitModal(false)}
+              >
+                <Text style={styles.outfitModalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
         {currentTab === 'chat' && (
           <KeyboardAvoidingView 
             style={styles.chatContainer}
