@@ -190,6 +190,10 @@ async def health():
     except Exception:
         return {"status": "healthy", "database": "disconnected"}
 
+@app.get("/api/health")
+async def api_health():
+    return {"status": "healthy", "message": "Backend API is working!"}
+
 # Authentication endpoints
 @app.post("/api/auth/register")
 async def register(user: UserRegister):
