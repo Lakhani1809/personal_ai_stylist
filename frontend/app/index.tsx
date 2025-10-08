@@ -600,6 +600,10 @@ export default function App() {
     setShowOnboarding(false);
   };
 
+  const handleSignOut = async () => {
+    await logout();
+  };
+
   const loadWardrobe = async () => {
     // Only load wardrobe if user is authenticated
     if (!token) {
