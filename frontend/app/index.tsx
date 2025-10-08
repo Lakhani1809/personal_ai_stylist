@@ -227,15 +227,10 @@ export default function App() {
   const [eventForm, setEventForm] = useState({ title: '', time: '', type: 'other' });
   const [editingEventIndex, setEditingEventIndex] = useState(-1);
 
-  // Initialize with some demo data to match the screenshot
+  // Initialize with empty events - let users add their own
   useEffect(() => {
-    const today = new Date();
-    const monday = new Date(today.setDate(today.getDate() - today.getDay() + 1));
-    const mondayKey = formatDate(monday);
-    
-    setWeeklyEvents({
-      [mondayKey]: [{ title: 'College', time: '9:00 AM', type: 'education' }]
-    });
+    // Start with empty weekly events
+    setWeeklyEvents({});
   }, []);
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
