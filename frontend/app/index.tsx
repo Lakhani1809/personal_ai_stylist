@@ -36,7 +36,7 @@ const getBackendUrl = () => {
     
     // Ngrok tunnel - use preview backend URL (ngrok only tunnels frontend)
     if (hostname.includes('ngrok.io')) {
-      const previewBackendUrl = 'https://ai-wardrobe-buddy.preview.emergentagent.com';
+      const previewBackendUrl = process.env.EXPO_PUBLIC_BACKEND_URL || 'https://smart-closet.preview.emergentagent.com';
       console.log('🌉 NGROK MODE: Using preview backend URL:', previewBackendUrl);
       return previewBackendUrl;
     }
