@@ -392,6 +392,22 @@ export default function App() {
     return shortDays[date.getDay()];
   };
 
+  const getWeekDateRange = (weekOffset: number = 0) => {
+    const weekDates = getWeekDates(weekOffset);
+    const startDate = weekDates[1]; // Monday (index 1)
+    const endDate = weekDates[0]; // Sunday (index 0) of next week
+    const actualEndDate = new Date(startDate);
+    actualEndDate.setDate(startDate.getDate() + 6); // Add 6 days to get Sunday
+    
+    const formatDateRange = (date: Date) => {
+      const day = date.getDate();
+      const month = date.toLocaleDateString('en-US', { month: 'short' });
+      return `${day} ${month}`;
+    };
+    
+    return `${formatDateRange(startDate)} to ${formatDateRange(actualEndDate)}`;
+  };
+
   const clearChatSession = () => {
     setChatMessages([]);
     setChatSessionId(Date.now().toString());
