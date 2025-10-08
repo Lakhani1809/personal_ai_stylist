@@ -3239,6 +3239,146 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontWeight: '600',
   },
+  
+  // Planner styles
+  weekHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  weekArrow: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  arrowText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  weekSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 20,
+    gap: 8,
+  },
+  weekText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  weekDropdownIcon: {
+    fontSize: 12,
+    color: '#666',
+  },
+  dayHeaders: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  dayHeader: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  dayHeaderText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  weekendText: {
+    color: '#007AFF',
+  },
+  plannerScrollView: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  dayCardsContainer: {
+    padding: 16,
+    gap: 12,
+  },
+  dayCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  eventIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 8,
+  },
+  eventDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  activeEventDot: {
+    backgroundColor: '#007AFF',
+  },
+  inactiveEventDot: {
+    backgroundColor: '#e0e0e0',
+  },
+  dayName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  eventText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 12,
+  },
+  outfitSection: {
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    paddingTop: 12,
+  },
+  outfitDisplay: {
+    alignItems: 'center',
+  },
+  outfitItems: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  outfitItemImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    backgroundColor: '#f5f5f5',
+  },
+  noOutfitPlanned: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  noOutfitText: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 4,
+  },
+  planPromptText: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+  },
   content: {
     flex: 1,
   },
