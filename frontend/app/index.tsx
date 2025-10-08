@@ -2033,43 +2033,13 @@ export default function App() {
                           console.log('🎯 Outfit section clicked for date:', dateKey);
                           // Handle outfit planning
                           if (!dayOutfit) {
-                            console.log('📅 No outfit planned, showing options');
-                            if (Platform.OS === 'web') {
-                              // Web-friendly confirmation
-                              const choice = window.confirm('Plan Your Outfit\n\nChoose how to create your outfit:\n- OK for AI Stylist Mode\n- Cancel to dismiss');
-                              if (choice) {
-                                console.log('🤖 AI Stylist mode selected');
-                                setCurrentTab('chat');
-                                const eventText = dayEvents.length > 0 ? ` for ${dayEvents[0].title}` : '';
-                                setChatInput(`Hi! Can you help me plan an outfit for ${getDayName(date)}${eventText}? Consider the weather and my style preferences.`);
-                              }
-                            } else {
-                              Alert.alert(
-                                'Plan Your Outfit',
-                                'How would you like to create your outfit?',
-                                [
-                                  {
-                                    text: 'AI Stylist Mode',
-                                    onPress: () => {
-                                      console.log('🤖 AI Stylist mode selected');
-                                      setCurrentTab('chat');
-                                      const eventText = dayEvents.length > 0 ? ` for ${dayEvents[0].title}` : '';
-                                      setChatInput(`Hi! Can you help me plan an outfit for ${getDayName(date)}${eventText}? Consider the weather and my style preferences.`);
-                                    }
-                                  },
-                                  {
-                                    text: 'Manual Mode',
-                                    onPress: () => {
-                                      console.log('✋ Manual mode selected');
-                                      Alert.alert('Coming Soon', 'Manual outfit creation will be available soon!');
-                                    }
-                                  },
-                                  { text: 'Cancel', style: 'cancel' }
-                                ]
-                              );
-                            }
+                            console.log('📅 No outfit planned, showing in-app modal');
+                            setSelectedOutfitDate(dateKey);
+                            setSelectedOutfitDateName(getDayName(date));
+                            setShowOutfitModal(true);
                           } else {
                             console.log('👔 Outfit already planned, could edit here');
+                            // TODO: Show outfit editing options
                           }
                         }}
                       >
