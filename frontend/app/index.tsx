@@ -2527,7 +2527,12 @@ export default function App() {
             )}
             
             <ScrollView contentContainerStyle={styles.wardrobeGrid}>
-              {wardrobe.length === 0 && !loading ? (
+              {loading ? (
+                <View style={styles.loadingWardrobe}>
+                  <ActivityIndicator size="large" color="#007AFF" />
+                  <Text style={styles.loadingWardrobeText}>Loading your wardrobe</Text>
+                </View>
+              ) : wardrobe.length === 0 ? (
                 <View style={styles.emptyWardrobe}>
                   <View style={styles.emptyIconContainer}>
                     <Ionicons name="shirt-outline" size={64} color="#007AFF" />
