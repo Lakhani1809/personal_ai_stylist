@@ -2355,6 +2355,195 @@ export default function App() {
           </View>
         </Modal>
 
+        {/* Manual Outfit Builder Modal */}
+        <Modal
+          visible={showManualOutfitBuilder}
+          animationType="slide"
+          transparent={false}
+          onRequestClose={() => setShowManualOutfitBuilder(false)}
+        >
+          <View style={styles.manualBuilderContainer}>
+            <View style={styles.manualBuilderHeader}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => setShowManualOutfitBuilder(false)}
+              >
+                <Text style={styles.backButtonText}>← Back</Text>
+              </TouchableOpacity>
+              <Text style={styles.manualBuilderTitle}>Build Your Look</Text>
+              <TouchableOpacity
+                style={styles.addPhotoButton}
+                onPress={addWardrobeItems}
+              >
+                <Text style={styles.addPhotoButtonText}>+ Photo</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.manualBuilderContent}>
+              {/* Category: Top Wear */}
+              <View style={styles.categorySection}>
+                <Text style={styles.categoryTitle}>Top Wear</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View style={styles.itemsRow}>
+                    {wardrobe.filter(item => 
+                      ['T-shirts', 'Shirts', 'Tops', 'Blouses'].includes(item.category)
+                    ).map((item, index) => (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={[
+                          styles.wardrobeItemCard,
+                          selectedOutfit.top?.id === item.id && styles.selectedItem
+                        ]}
+                        onPress={() => setSelectedOutfit(prev => ({...prev, top: item}))}
+                      >
+                        <Image
+                          source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
+                          style={styles.wardrobeItemImage}
+                          resizeMode="cover"
+                        />
+                        <Text style={styles.wardrobeItemText} numberOfLines={1}>
+                          {item.exact_item_name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </ScrollView>
+              </View>
+
+              {/* Category: Bottom Wear */}
+              <View style={styles.categorySection}>
+                <Text style={styles.categoryTitle}>Bottom Wear</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View style={styles.itemsRow}>
+                    {wardrobe.filter(item => 
+                      ['Pants', 'Jeans', 'Bottoms', 'Skirts', 'Shorts'].includes(item.category)
+                    ).map((item, index) => (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={[
+                          styles.wardrobeItemCard,
+                          selectedOutfit.bottom?.id === item.id && styles.selectedItem
+                        ]}
+                        onPress={() => setSelectedOutfit(prev => ({...prev, bottom: item}))}
+                      >
+                        <Image
+                          source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
+                          style={styles.wardrobeItemImage}
+                          resizeMode="cover"
+                        />
+                        <Text style={styles.wardrobeItemText} numberOfLines={1}>
+                          {item.exact_item_name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </ScrollView>
+              </View>
+
+              {/* Category: Layering */}
+              <View style={styles.categorySection}>
+                <Text style={styles.categoryTitle}>Layering</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View style={styles.itemsRow}>
+                    {wardrobe.filter(item => 
+                      ['Jackets', 'Blazers', 'Sweaters', 'Cardigans', 'Coats'].includes(item.category)
+                    ).map((item, index) => (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={[
+                          styles.wardrobeItemCard,
+                          selectedOutfit.layering?.id === item.id && styles.selectedItem
+                        ]}
+                        onPress={() => setSelectedOutfit(prev => ({...prev, layering: item}))}
+                      >
+                        <Image
+                          source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
+                          style={styles.wardrobeItemImage}
+                          resizeMode="cover"
+                        />
+                        <Text style={styles.wardrobeItemText} numberOfLines={1}>
+                          {item.exact_item_name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </ScrollView>
+              </View>
+
+              {/* Category: Shoes */}
+              <View style={styles.categorySection}>
+                <Text style={styles.categoryTitle}>Shoes</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View style={styles.itemsRow}>
+                    {wardrobe.filter(item => 
+                      ['Shoes', 'Sneakers', 'Boots', 'Sandals', 'Heels'].includes(item.category)
+                    ).map((item, index) => (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={[
+                          styles.wardrobeItemCard,
+                          selectedOutfit.shoes?.id === item.id && styles.selectedItem
+                        ]}
+                        onPress={() => setSelectedOutfit(prev => ({...prev, shoes: item}))}
+                      >
+                        <Image
+                          source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
+                          style={styles.wardrobeItemImage}
+                          resizeMode="cover"
+                        />
+                        <Text style={styles.wardrobeItemText} numberOfLines={1}>
+                          {item.exact_item_name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </ScrollView>
+              </View>
+
+              {/* Selected Outfit Preview */}
+              <View style={styles.outfitPreviewSection}>
+                <Text style={styles.categoryTitle}>Your Selected Outfit</Text>
+                <View style={styles.outfitPreview}>
+                  {Object.entries(selectedOutfit).map(([category, item]) => (
+                    <View key={category} style={styles.previewCategory}>
+                      <Text style={styles.previewCategoryText}>
+                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                      </Text>
+                      {item ? (
+                        <Image
+                          source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
+                          style={styles.previewImage}
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <View style={styles.previewPlaceholder}>
+                          <Text style={styles.previewPlaceholderText}>Not selected</Text>
+                        </View>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.saveOutfitButton,
+                  !selectedOutfit.top && !selectedOutfit.bottom && styles.saveOutfitButtonDisabled
+                ]}
+                onPress={() => {
+                  // Save outfit functionality
+                  setShowManualOutfitBuilder(false);
+                  Alert.alert('Outfit Saved', 'Your manual outfit has been created!');
+                  setSelectedOutfit({ top: null, bottom: null, layering: null, shoes: null });
+                }}
+                disabled={!selectedOutfit.top && !selectedOutfit.bottom}
+              >
+                <Text style={styles.saveOutfitButtonText}>Save Outfit</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </Modal>
+
         {currentTab === 'chat' && (
           <KeyboardAvoidingView 
             style={styles.chatContainer}
