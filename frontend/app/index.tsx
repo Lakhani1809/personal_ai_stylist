@@ -3043,8 +3043,45 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  logoutButton: {
+  profileButton: {
     padding: 8,
+  },
+  profileIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#007AFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileIconText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  profileMenu: {
+    position: 'absolute',
+    top: 50,
+    right: 16,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    minWidth: 150,
+    zIndex: 1000,
+  },
+  profileMenuItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  profileMenuText: {
+    fontSize: 16,
+    color: '#333',
   },
   tabBar: {
     flexDirection: 'row',
