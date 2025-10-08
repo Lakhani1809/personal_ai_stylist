@@ -777,6 +777,8 @@ export default function App() {
       return;
     }
     
+    setLoading(true); // Show loading screen
+    
     try {
       const response = await fetch(`${BACKEND_URL}/api/wardrobe`, {
         headers: {
@@ -799,6 +801,8 @@ export default function App() {
       }
     } catch (error) {
       console.error('Error loading wardrobe:', error);
+    } finally {
+      setLoading(false); // Hide loading screen
     }
   };
 
