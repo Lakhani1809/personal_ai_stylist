@@ -283,6 +283,20 @@ export default function App() {
   // Validation states
   const [lastValidation, setLastValidation] = useState<OutfitValidation | null>(null);
 
+  // Auto-scroll to latest message when switching to chat
+  useEffect(() => {
+    if (currentTab === 'chat' && chatMessages.length > 0) {
+      scrollToBottom();
+    }
+  }, [currentTab]);
+
+  // Auto-scroll when new messages are added
+  useEffect(() => {
+    if (chatMessages.length > 0) {
+      scrollToBottom();
+    }
+  }, [chatMessages.length]);
+
   useEffect(() => {
     checkAuthStatus();
   }, []);
