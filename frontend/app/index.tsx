@@ -2067,6 +2067,87 @@ export default function App() {
           </View>
         )}
 
+        {/* Event Modal */}
+        <Modal
+          visible={showEventModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={resetEventForm}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.eventModalContainer}>
+              <Text style={styles.modalTitle}>
+                {editingEventIndex >= 0 ? 'Edit Event' : 'Add Event'}
+              </Text>
+              
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Event Title</Text>
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="e.g., College, Meeting, Gym"
+                  value={eventForm.title}
+                  onChangeText={(text) => setEventForm(prev => ({ ...prev, title: text }))}
+                />
+              </View>
+              
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Time (Optional)</Text>
+                <TextInput
+                  style={styles.formInput}
+                  placeholder="e.g., 9:00 AM, 2:30 PM"
+                  value={eventForm.time}
+                  onChangeText={(text) => setEventForm(prev => ({ ...prev, time: text }))}
+                />
+              </View>
+              
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Event Type</Text>
+                <View style={styles.eventTypeContainer}>
+                  {['work', 'personal', 'education', 'social', 'health', 'other'].map((type) => (
+                    <TouchableOpacity
+                      key={type}
+                      style={[
+                        styles.eventTypeButton,
+                        eventForm.type === type && styles.eventTypeButtonActive
+                      ]}
+                      onPress={() => setEventForm(prev => ({ ...prev, type }))}
+                    >
+                      <Text style={[
+                        styles.eventTypeText,
+                        eventForm.type === type && styles.eventTypeTextActive
+                      ]}>
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+              
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={styles.modalCancelButton}
+                  onPress={resetEventForm}
+                >
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={[
+                    styles.modalSaveButton,
+                    !eventForm.title.trim() && styles.modalSaveButtonDisabled
+                  ]}
+                  onPress={editingEventIndex >= 0 ? updateEvent : addEvent}
+                  disabled={!eventForm.title.trim()}
+                >
+                  <Text style={styles.modalSaveText}>
+                    {editingEventIndex >= 0 ? 'Update' : 'Add'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
         {currentTab === 'chat' && (
           <KeyboardAvoidingView 
             style={styles.chatContainer}
