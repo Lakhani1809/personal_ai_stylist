@@ -2241,7 +2241,7 @@ export default function App() {
                   onPress={() => {
                     console.log('✋ Manual mode selected');
                     setShowOutfitModal(false);
-                    Alert.alert('Coming Soon', 'Manual outfit creation will be available soon!');
+                    setShowManualOutfitBuilder(true);
                   }}
                 >
                   <View style={styles.outfitOptionIcon}>
