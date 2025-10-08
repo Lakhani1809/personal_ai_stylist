@@ -1725,10 +1725,41 @@ export default function App() {
       
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>AI Stylist</Text>
-        <TouchableOpacity onPress={logout} style={styles.logoutButton}>
-          <Ionicons name="log-out-outline" size={24} color="#666" />
+        <Text style={styles.headerTitle}>MyMiro</Text>
+        <TouchableOpacity 
+          style={styles.profileButton} 
+          onPress={() => setShowProfileMenu(!showProfileMenu)}
+        >
+          <View style={styles.profileIcon}>
+            <Text style={styles.profileIconText}>
+              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+            </Text>
+          </View>
         </TouchableOpacity>
+        
+        {/* Profile Menu */}
+        {showProfileMenu && (
+          <View style={styles.profileMenu}>
+            <TouchableOpacity 
+              style={styles.profileMenuItem}
+              onPress={() => {
+                setShowProfileMenu(false);
+                // Add profile settings functionality here later
+              }}
+            >
+              <Text style={styles.profileMenuText}>Profile Settings</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.profileMenuItem}
+              onPress={() => {
+                setShowProfileMenu(false);
+                handleSignOut();
+              }}
+            >
+              <Text style={styles.profileMenuText}>Sign Out</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {/* Tab Navigation */}
