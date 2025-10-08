@@ -75,6 +75,11 @@ def compress_base64_image(base64_string: str, quality: int = 30, max_width: int 
 
 load_dotenv()
 
+# Simple health check endpoint for debugging
+@app.get("/api/health")
+async def health_check():
+    return {"status": "healthy", "message": "Backend API is working!"}
+
 # Database setup
 mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 db_name = os.environ.get('DB_NAME', 'ai_stylist')
