@@ -353,7 +353,7 @@ export default function App() {
     if (user && chatMessages.length === 0) {
       initializeChatSession();
     }
-  }, [user, chatMessages.length]);
+  }, [user]);
 
   // Load wardrobe when user and token are available
   useEffect(() => {
