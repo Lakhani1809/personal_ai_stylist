@@ -353,6 +353,34 @@ export default function App() {
     }, 100);
   };
 
+  // Planner utility functions
+  const getWeekDates = (weekOffset: number = 0) => {
+    const today = new Date();
+    const currentWeek = new Date(today.setDate(today.getDate() - today.getDay() + weekOffset * 7));
+    const weekDates = [];
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(currentWeek);
+      date.setDate(currentWeek.getDate() + i);
+      weekDates.push(date);
+    }
+    return weekDates;
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+  };
+
+  const getDayName = (date: Date) => {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return days[date.getDay()];
+  };
+
+  const getShortDayName = (date: Date) => {
+    const shortDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    return shortDays[date.getDay()];
+  };
+
   const clearChatSession = () => {
     setChatMessages([]);
     setChatSessionId(Date.now().toString());
