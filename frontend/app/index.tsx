@@ -1838,7 +1838,7 @@ export default function App() {
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.weekSelector}>
-                <Text style={styles.weekText}>Week {Math.abs(selectedWeek) + 1}</Text>
+                <Text style={styles.weekText}>{getWeekDateRange(selectedWeek)}</Text>
                 <Text style={styles.weekDropdownIcon}>▼</Text>
               </TouchableOpacity>
               
