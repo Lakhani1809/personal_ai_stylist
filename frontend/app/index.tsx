@@ -1959,14 +1959,32 @@ export default function App() {
                   const isWeekend = index === 0 || index === 6;
                   
                   return (
-                    <View key={dateKey} style={styles.dayCard}>
-                      {/* Event indicator */}
-                      <View style={styles.eventIndicator}>
+                    <View key={dateKey} style={[
+                      styles.dayCard,
+                      isToday(date) && styles.todayCard
+                    ]}>
+                      {/* Day name and date */}
+                      <View style={styles.dayHeader}>
+                        <View style={styles.dayInfo}>
+                          <Text style={[
+                            styles.dayName,
+                            isToday(date) && styles.todayText
+                          ]}>
+                            {getDayName(date)}
+                          </Text>
+                          <Text style={[
+                            styles.dayDate,
+                            isToday(date) && styles.todayDate
+                          ]}>
+                            {formatCardDate(date)}
+                          </Text>
+                        </View>
+                        
+                        {/* Event indicator */}
                         <View style={[
                           styles.eventDot, 
                           dayEvents.length > 0 ? styles.activeEventDot : styles.inactiveEventDot
                         ]} />
-                        <Text style={styles.dayName}>{getDayName(date)}</Text>
                       </View>
                       
                       {/* Events list */}
