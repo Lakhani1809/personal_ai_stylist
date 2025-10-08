@@ -227,6 +227,11 @@ export default function App() {
   const [eventForm, setEventForm] = useState({ title: '', time: '', type: 'other' });
   const [editingEventIndex, setEditingEventIndex] = useState(-1);
 
+  // Outfit planning state
+  const [showOutfitModal, setShowOutfitModal] = useState(false);
+  const [selectedOutfitDate, setSelectedOutfitDate] = useState('');
+  const [selectedOutfitDateName, setSelectedOutfitDateName] = useState('');
+
   // Initialize with empty events - let users add their own
   useEffect(() => {
     // Start with empty weekly events
