@@ -1915,7 +1915,7 @@ export default function App() {
               style={styles.profileMenuItem}
               onPress={() => {
                 setShowProfileMenu(false);
-                // Add profile settings functionality here later
+                setShowProfileSettings(true);
               }}
             >
               <Text style={styles.profileMenuText}>Profile Settings</Text>
