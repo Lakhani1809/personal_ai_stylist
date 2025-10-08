@@ -232,6 +232,9 @@ export default function App() {
   const [showOutfitModal, setShowOutfitModal] = useState(false);
   const [selectedOutfitDate, setSelectedOutfitDate] = useState('');
   const [selectedOutfitDateName, setSelectedOutfitDateName] = useState('');
+  
+  // Profile settings state
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
 
   // Initialize with empty events - let users add their own
   useEffect(() => {
