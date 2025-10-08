@@ -233,9 +233,6 @@ export default function App() {
   const [selectedOutfitDate, setSelectedOutfitDate] = useState('');
   const [selectedOutfitDateName, setSelectedOutfitDateName] = useState('');
   
-  // Profile settings state
-  const [showProfileSettings, setShowProfileSettings] = useState(false);
-
   // Initialize with empty events - let users add their own
   useEffect(() => {
     // Start with empty weekly events
