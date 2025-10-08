@@ -3419,6 +3419,57 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 12,
   },
+  eventsContainer: {
+    marginBottom: 12,
+  },
+  eventItem: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 4,
+    borderLeftWidth: 3,
+    borderLeftColor: '#007AFF',
+  },
+  eventTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  eventTime: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+  noEventContainer: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
+    padding: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderStyle: 'dashed',
+  },
+  noEventText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  addEventHint: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  addMoreEventButton: {
+    backgroundColor: '#007AFF',
+    borderRadius: 6,
+    padding: 6,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  addMoreEventText: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: '600',
+  },
   outfitSection: {
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
