@@ -395,6 +395,18 @@ export default function App() {
     return shortDays[date.getDay()];
   };
 
+  // Real-time date functions
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  const formatCardDate = (date: Date) => {
+    const day = date.getDate();
+    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    return `${day} ${month}`;
+  };
+
   const getWeekDateRange = (weekOffset: number = 0) => {
     const weekDates = getWeekDates(weekOffset);
     const startDate = weekDates[1]; // Monday (index 1)
