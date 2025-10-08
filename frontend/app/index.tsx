@@ -373,12 +373,14 @@ export default function App() {
   // Planner utility functions
   const getWeekDates = (weekOffset: number = 0) => {
     const today = new Date();
-    const currentWeek = new Date(today.setDate(today.getDate() - today.getDay() + weekOffset * 7));
-    const weekDates = [];
+    // Get the start of the current week (Sunday)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay() + (weekOffset * 7));
     
+    const weekDates = [];
     for (let i = 0; i < 7; i++) {
-      const date = new Date(currentWeek);
-      date.setDate(currentWeek.getDate() + i);
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + i);
       weekDates.push(date);
     }
     return weekDates;
