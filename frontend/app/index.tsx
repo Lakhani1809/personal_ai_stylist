@@ -430,6 +430,88 @@ export default function App() {
     return `${formatDateRange(startDate)} to ${formatDateRange(actualEndDate)}`;
   };
 
+  // Event management functions
+  const addEvent = () => {
+    if (!eventForm.title.trim() || !selectedEventDate) return;
+    
+    const newEvent = {
+      title: eventForm.title,
+      time: eventForm.time || '9:00 AM',
+      type: eventForm.type
+    };
+    
+    setWeeklyEvents(prev => ({
+      ...prev,
+      [selectedEventDate]: [...(prev[selectedEventDate] || []), newEvent]
+    }));
+    
+    resetEventForm();
+  };
+
+  const editEvent = (dateKey: string, eventIndex: number) => {
+    const event = weeklyEvents[dateKey][eventIndex];
+    setEventForm({
+      title: event.title,
+      time: event.time,
+      type: event.type
+    });
+    setSelectedEventDate(dateKey);
+    setEditingEventIndex(eventIndex);
+    setShowEventModal(true);
+  };
+
+  const updateEvent = () => {
+    if (!eventForm.title.trim() || editingEventIndex === -1) return;
+    
+    const updatedEvent = {
+      title: eventForm.title,
+      time: eventForm.time || '9:00 AM',
+      type: eventForm.type
+    };
+    
+    setWeeklyEvents(prev => {
+      const events = [...(prev[selectedEventDate] || [])];
+      events[editingEventIndex] = updatedEvent;
+      return { ...prev, [selectedEventDate]: events };
+    });
+    
+    resetEventForm();
+  };
+
+  const deleteEvent = (dateKey: string, eventIndex: number) => {
+    Alert.alert(
+      'Delete Event',
+      'Are you sure you want to delete this event?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            setWeeklyEvents(prev => {
+              const events = [...(prev[dateKey] || [])];
+              events.splice(eventIndex, 1);
+              return { ...prev, [dateKey]: events };
+            });
+          }
+        }
+      ]
+    );
+  };
+
+  const resetEventForm = () => {
+    setEventForm({ title: '', time: '', type: 'other' });
+    setSelectedEventDate('');
+    setEditingEventIndex(-1);
+    setShowEventModal(false);
+  };
+
+  const openAddEventModal = (dateKey: string) => {
+    setSelectedEventDate(dateKey);
+    setEditingEventIndex(-1);
+    setShowEventModal(true);
+  };
+
   const clearChatSession = () => {
     setChatMessages([]);
     setChatSessionId(Date.now().toString());
