@@ -348,6 +348,13 @@ export default function App() {
     }
   }, [currentTab]);
 
+  // Initialize chat session with greeting when user is available
+  useEffect(() => {
+    if (user && chatMessages.length === 0) {
+      initializeChatSession();
+    }
+  }, [user, chatMessages.length]);
+
   // Load wardrobe when user and token are available
   useEffect(() => {
     if (user && token && currentTab === 'wardrobe') {
