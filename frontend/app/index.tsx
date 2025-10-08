@@ -1789,6 +1789,14 @@ export default function App() {
         </TouchableOpacity>
         
         <TouchableOpacity
+          style={[styles.tab, currentTab === 'planner' && styles.activeTab]}
+          onPress={() => setCurrentTab('planner')}
+        >
+          <Ionicons name="calendar-outline" size={24} color={currentTab === 'planner' ? '#007AFF' : '#666'} />
+          <Text style={[styles.tabText, currentTab === 'planner' && styles.activeTabText]}>Calender</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
           style={[styles.tab, currentTab === 'profile' && styles.activeTab]}
           onPress={() => setCurrentTab('profile')}
         >
