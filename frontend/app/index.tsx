@@ -3526,6 +3526,33 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
   },
+  todayCard: {
+    borderColor: '#007AFF',
+    borderWidth: 2,
+    backgroundColor: '#f0f8ff',
+  },
+  dayHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  dayInfo: {
+    flex: 1,
+  },
+  dayDate: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+  todayText: {
+    color: '#007AFF',
+    fontWeight: '700',
+  },
+  todayDate: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
   eventText: {
     fontSize: 14,
     color: '#666',
