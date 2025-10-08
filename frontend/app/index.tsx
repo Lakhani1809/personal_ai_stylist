@@ -2431,71 +2431,7 @@ export default function App() {
           </ScrollView>
         )}
 
-        {currentTab === 'profile' && (
-          <ScrollView style={styles.profileContainer}>
-            <View style={styles.profileHeader}>
-              <View style={styles.profileAvatar}>
-                <Ionicons name="person" size={48} color="#007AFF" />
-              </View>
-              <Text style={styles.profileName}>{user.name}</Text>
-              <Text style={styles.profileEmail}>{user.email}</Text>
-            </View>
-            
-            <View style={styles.profileSection}>
-              <Text style={styles.sectionTitle}>Style Profile</Text>
-              
-              <View style={styles.profileRow}>
-                <Ionicons name="location-outline" size={20} color="#666" />
-                <Text style={styles.profileLabel}>City</Text>
-                <Text style={styles.profileValue}>{user.city || 'Not specified'}</Text>
-              </View>
-              
-              <View style={styles.profileRow}>
-                <Ionicons name="person-outline" size={20} color="#666" />
-                <Text style={styles.profileLabel}>Age</Text>
-                <Text style={styles.profileValue}>{user.age || 'Not specified'}</Text>
-              </View>
-              
-              <View style={styles.profileRow}>
-                <Ionicons name="briefcase-outline" size={20} color="#666" />
-                <Text style={styles.profileLabel}>Profession</Text>
-                <Text style={styles.profileValue}>{user.profession || 'Not specified'}</Text>
-              </View>
-              
-              <View style={styles.profileRow}>
-                <Ionicons name="color-palette-outline" size={20} color="#666" />
-                <Text style={styles.profileLabel}>Style Vibes</Text>
-                <Text style={styles.profileValue}>{user.style_vibes?.join(', ') || 'Not specified'}</Text>
-              </View>
-            </View>
-            
-            <View style={styles.profileSection}>
-              <Text style={styles.sectionTitle}>Statistics</Text>
-              
-              <View style={styles.statsGrid}>
-                <View style={styles.statCard}>
-                  <Text style={styles.statNumber}>{wardrobe.length}</Text>
-                  <Text style={styles.statLabel}>Wardrobe Items</Text>
-                </View>
-                
-                <View style={styles.statCard}>
-                  <Text style={styles.statNumber}>{Math.floor(chatMessages.length / 2)}</Text>
-                  <Text style={styles.statLabel}>Style Conversations</Text>
-                </View>
-              </View>
-            </View>
-            
-            {user.onboarding_completed && (
-              <TouchableOpacity
-                style={styles.editProfileButton}
-                onPress={() => setShowOnboarding(true)}
-              >
-                <Ionicons name="create-outline" size={20} color="#007AFF" />
-                <Text style={styles.editProfileText}>Edit Style Profile</Text>
-              </TouchableOpacity>
-            )}
-          </ScrollView>
-        )}
+        {/* Profile tab removed - only keeping chat, wardrobe, validate, and calendar tabs */}
       </View>
     </SafeAreaView>
   );
