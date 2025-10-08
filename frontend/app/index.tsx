@@ -4091,6 +4091,16 @@ const styles = StyleSheet.create({
     paddingTop: 64,
     paddingHorizontal: 24,
   },
+  loadingWardrobe: {
+    alignItems: 'center',
+    paddingTop: 64,
+    paddingHorizontal: 24,
+  },
+  loadingWardrobeText: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 16,
+  },
   emptyIconContainer: {
     width: 100,
     height: 100,
