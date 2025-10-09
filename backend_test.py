@@ -41,54 +41,49 @@ class BackendTester:
         })
     
     def setup_test_user(self):
-        """Create and authenticate a test user"""
+        """Create and authenticate test user"""
         try:
-            # Generate unique test user
-            timestamp = int(datetime.now().timestamp())
-            test_email = f"planner_test_{timestamp}@example.com"
-            test_password = "TestPassword123!"
-            
-            # Register user
+            # Register test user
             register_data = {
-                "email": test_email,
-                "password": test_password,
-                "name": "Planner Test User"
+                "email": f"testuser_{int(time.time())}@example.com",
+                "password": "testpass123",
+                "name": "Test User"
             }
             
             response = requests.post(f"{API_BASE}/auth/register", json=register_data)
-            
             if response.status_code == 200:
                 data = response.json()
-                self.access_token = data.get("access_token")
-                self.user_id = data.get("user", {}).get("id")
+                self.access_token = data["access_token"]
+                self.user_id = data["user"]["id"]
+                self.log_result("User Registration", True, f"Created user {self.user_id}")
                 
-                # Complete onboarding to have a full user profile
+                # Complete onboarding with city for weather integration
                 onboarding_data = {
                     "age": 28,
                     "profession": "Software Engineer",
-                    "body_shape": "Hourglass",
+                    "body_shape": "Athletic",
                     "skin_tone": "Medium",
-                    "style_inspiration": ["Minimalist", "Professional"],
-                    "style_vibes": ["Clean", "Modern"],
-                    "style_message": "I love clean, professional looks",
-                    "city": "New York,NY,US"
+                    "style_inspiration": ["Minimalist", "Modern"],
+                    "style_vibes": ["Professional", "Casual"],
+                    "style_message": "I like clean, simple styles",
+                    "city": "Bangalore,IN"
                 }
                 
                 headers = {"Authorization": f"Bearer {self.access_token}"}
                 onboard_response = requests.put(f"{API_BASE}/auth/onboarding", json=onboarding_data, headers=headers)
                 
                 if onboard_response.status_code == 200:
-                    self.log_result("User Setup", True, f"Test user created and onboarded: {test_email}")
+                    self.log_result("User Onboarding", True, "Completed onboarding with city field")
                     return True
                 else:
-                    self.log_result("User Setup", False, f"Onboarding failed: {onboard_response.status_code}")
+                    self.log_result("User Onboarding", False, f"Status: {onboard_response.status_code}")
                     return False
             else:
-                self.log_result("User Setup", False, f"Registration failed: {response.status_code} - {response.text}")
+                self.log_result("User Registration", False, f"Status: {response.status_code}")
                 return False
                 
         except Exception as e:
-            self.log_result("User Setup", False, f"Setup error: {str(e)}")
+            self.log_result("User Setup", False, f"Exception: {str(e)}")
             return False
     
     def add_test_wardrobe_items(self):
