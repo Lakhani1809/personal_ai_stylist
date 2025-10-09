@@ -86,37 +86,23 @@ class BackendTester:
             self.log_result("User Setup", False, f"Exception: {str(e)}")
             return False
     
-    def add_test_wardrobe_items(self):
-        """Add some test wardrobe items for outfit planning"""
+    def create_sample_base64_image(self, size=(800, 600), color="blue"):
+        """Create a sample base64 image for testing"""
         try:
-            headers = {"Authorization": f"Bearer {self.access_token}"}
+            from PIL import Image
+            import io
             
-            # Sample base64 image (small test image)
-            test_image_b64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+            # Create a simple colored image
+            img = Image.new('RGB', size, color)
+            buffer = io.BytesIO()
+            img.save(buffer, format='JPEG', quality=85)
+            img_data = buffer.getvalue()
             
-            test_items = [
-                {"image_base64": f"data:image/png;base64,{test_image_b64}", "category": "top"},
-                {"image_base64": f"data:image/png;base64,{test_image_b64}", "category": "bottom"},
-                {"image_base64": f"data:image/png;base64,{test_image_b64}", "category": "shoes"},
-                {"image_base64": f"data:image/png;base64,{test_image_b64}", "category": "layering"}
-            ]
-            
-            added_items = []
-            for item in test_items:
-                response = requests.post(f"{API_BASE}/wardrobe", json=item, headers=headers)
-                if response.status_code == 200:
-                    added_items.append(response.json())
-            
-            if len(added_items) >= 3:
-                self.log_result("Wardrobe Setup", True, f"Added {len(added_items)} test wardrobe items")
-                return True
-            else:
-                self.log_result("Wardrobe Setup", False, f"Only added {len(added_items)} items")
-                return False
-                
+            return base64.b64encode(img_data).decode('utf-8')
         except Exception as e:
-            self.log_result("Wardrobe Setup", False, f"Wardrobe setup error: {str(e)}")
-            return False
+            print(f"Error creating sample image: {e}")
+            # Return a minimal base64 image if PIL fails
+            return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
     
     def test_planner_authentication(self):
         """Test that planner endpoints require authentication"""
