@@ -994,6 +994,67 @@ export default function App() {
     }
   };
 
+  // Save planned outfit to backend
+  const savePlannedOutfit = async () => {
+    if (!token || (!selectedOutfit.top && !selectedOutfit.bottom)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // Prepare outfit items data
+      const items: { [key: string]: string | null } = {
+        top: selectedOutfit.top?.id || null,
+        bottom: selectedOutfit.bottom?.id || null,
+        layering: selectedOutfit.layering?.id || null,
+        shoes: selectedOutfit.shoes?.id || null
+      };
+
+      const plannedOutfitData = {
+        date: selectedOutfitDate, // Use the selected date from planner
+        occasion: outfitOccasion || 'Casual',
+        event_name: outfitEvent || null,
+        items: items
+      };
+
+      console.log('💾 Saving planned outfit:', plannedOutfitData);
+
+      const response = await fetch(`${BACKEND_URL}/api/planner/outfit`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(plannedOutfitData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert('Success! 🎉', 'Your outfit has been planned successfully!');
+        console.log('✅ Planned outfit saved:', data);
+        
+        // Clear the selected outfit and close modal
+        setSelectedOutfit({ top: null, bottom: null, layering: null, shoes: null });
+        setOutfitEvent('');
+        setOutfitOccasion('');
+        setShowManualOutfitBuilder(false);
+        
+        // TODO: Refresh planner data here when we implement it
+        
+      } else {
+        console.error('❌ Failed to save planned outfit:', data);
+        Alert.alert('Error', data.detail || 'Failed to save planned outfit');
+      }
+    } catch (error) {
+      console.error('Error saving planned outfit:', error);
+      Alert.alert('Error', 'Failed to save planned outfit. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Group wardrobe items by category
   const getGroupedWardrobe = () => {
     const grouped: { [key: string]: WardrobeItem[] } = {};
