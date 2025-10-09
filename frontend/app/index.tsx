@@ -255,6 +255,10 @@ export default function App() {
   const [outfitOccasion, setOutfitOccasion] = useState('');
   const [outfitEvent, setOutfitEvent] = useState('');
   
+  // Outfit viewing state
+  const [showOutfitDetailsModal, setShowOutfitDetailsModal] = useState(false);
+  const [selectedOutfitDetails, setSelectedOutfitDetails] = useState<any>(null);
+  
   // Initialize with empty events - let users add their own
   useEffect(() => {
     // Start with empty weekly events
