@@ -1213,9 +1213,8 @@ async def get_planned_outfits(
 
 # Delete planned outfit
 @app.delete("/api/planner/outfit/{date}")
-async def delete_planned_outfit(date: str, current_user: dict = Depends(get_current_user)):
+async def delete_planned_outfit(date: str, user_id: str = Depends(get_current_user)):
     try:
-        user_id = current_user["user_id"]
         
         result = await db.planned_outfits.delete_one({"user_id": user_id, "date": date})
         
