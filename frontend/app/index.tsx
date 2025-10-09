@@ -5866,4 +5866,102 @@ const styles = StyleSheet.create({
     color: '#664D03',
     fontWeight: '500',
   },
+  
+  // Week Picker Modal Styles
+  weekPickerContainer: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 0,
+    margin: 20,
+    marginTop: 100,
+    maxHeight: '70%',
+  },
+  weekPickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
+  },
+  weekPickerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  weekPickerContent: {
+    flex: 1,
+  },
+  weekNavigator: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  weekNavButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#f0f8ff',
+  },
+  weekNavText: {
+    fontSize: 14,
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  weeksList: {
+    flex: 1,
+    maxHeight: 300,
+  },
+  weekOption: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  selectedWeekOption: {
+    backgroundColor: '#f0f8ff',
+  },
+  weekOptionText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  selectedWeekOptionText: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  weekPickerActions: {
+    flexDirection: 'row',
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#e9ecef',
+    gap: 12,
+  },
+  weekPickerCancel: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    backgroundColor: '#f8f9fa',
+    alignItems: 'center',
+  },
+  weekPickerCancelText: {
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '600',
+  },
+  weekPickerConfirm: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    backgroundColor: '#007AFF',
+    alignItems: 'center',
+  },
+  weekPickerConfirmText: {
+    fontSize: 16,
+    color: 'white',
+    fontWeight: '600',
+  },
 });
