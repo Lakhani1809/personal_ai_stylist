@@ -2336,6 +2336,10 @@ export default function App() {
                     if (wardrobe.length === 0) {
                       loadWardrobe();
                     }
+                    // Reset outfit form when opening
+                    setOutfitEvent('');
+                    setOutfitOccasion('');
+                    setSelectedOutfit({ top: null, bottom: null, layering: null, shoes: null });
                   }}
                 >
                   <View style={styles.outfitOptionIcon}>
