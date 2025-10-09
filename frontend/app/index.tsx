@@ -411,6 +411,14 @@ export default function App() {
     }
   }, [user, token, currentTab]);
 
+  // Load planned outfits when planner tab is opened or week changes
+  useEffect(() => {
+    if (user && token && currentTab === 'planner') {
+      loadWardrobe(); // Ensure wardrobe is loaded first
+      loadPlannedOutfits();
+    }
+  }, [user, token, currentTab, selectedWeek]);
+
   // Typing indicator animation functions
   const startTypingAnimation = () => {
     const animateIn = (animation: Animated.Value, delay: number) => {
