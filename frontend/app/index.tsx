@@ -1056,6 +1056,78 @@ export default function App() {
     }
   };
 
+  // Load planned outfits for current week
+  const loadPlannedOutfits = async () => {
+    if (!token) {
+      return;
+    }
+
+    try {
+      // Get date range for current week
+      const weekDates = getWeekDates(selectedWeek);
+      const startDate = formatDate(weekDates[0]);
+      const endDate = formatDate(weekDates[6]);
+
+      console.log(`📅 Loading planned outfits from ${startDate} to ${endDate}`);
+
+      const response = await fetch(
+        `${BACKEND_URL}/api/planner/outfits?start_date=${startDate}&end_date=${endDate}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📋 Planned outfits loaded:', data.planned_outfits);
+
+        // Convert planned outfits array to weeklyOutfits object
+        const outfitsMap: { [key: string]: any } = {};
+        
+        for (const plannedOutfit of data.planned_outfits) {
+          // Convert wardrobe item IDs to actual items with image data
+          const outfitItems = [];
+          
+          if (plannedOutfit.items.top) {
+            const topItem = wardrobe.find(item => item.id === plannedOutfit.items.top);
+            if (topItem) outfitItems.push(topItem);
+          }
+          
+          if (plannedOutfit.items.bottom) {
+            const bottomItem = wardrobe.find(item => item.id === plannedOutfit.items.bottom);
+            if (bottomItem) outfitItems.push(bottomItem);
+          }
+          
+          if (plannedOutfit.items.layering) {
+            const layeringItem = wardrobe.find(item => item.id === plannedOutfit.items.layering);
+            if (layeringItem) outfitItems.push(layeringItem);
+          }
+          
+          if (plannedOutfit.items.shoes) {
+            const shoesItem = wardrobe.find(item => item.id === plannedOutfit.items.shoes);
+            if (shoesItem) outfitItems.push(shoesItem);
+          }
+
+          outfitsMap[plannedOutfit.date] = {
+            ...plannedOutfit,
+            items: outfitItems
+          };
+        }
+
+        setWeeklyOutfits(outfitsMap);
+        console.log('✅ Weekly outfits updated:', outfitsMap);
+
+      } else {
+        console.error('❌ Failed to load planned outfits:', response.status);
+      }
+    } catch (error) {
+      console.error('Error loading planned outfits:', error);
+    }
+  };
+
   // Group wardrobe items by category
   const getGroupedWardrobe = () => {
     const grouped: { [key: string]: WardrobeItem[] } = {};
