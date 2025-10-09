@@ -6081,4 +6081,137 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
   },
+  
+  // Event Selection Styles
+  eventSection: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  eventGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 16,
+  },
+  eventButton: {
+    width: '23%',
+    aspectRatio: 1,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+    padding: 8,
+  },
+  eventButtonActive: {
+    backgroundColor: '#f0f8ff',
+    borderColor: '#007AFF',
+  },
+  eventIcon: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  eventButtonText: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  eventButtonTextActive: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  timeSection: {
+    marginTop: 8,
+  },
+  timeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  timeButtonText: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '600',
+  },
+  
+  // Time Picker Modal Styles
+  timePickerContainer: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 0,
+    margin: 20,
+    marginTop: 120,
+    maxHeight: '60%',
+  },
+  timePickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
+  },
+  timePickerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  timePickerCancel: {
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
+  },
+  timePickerConfirm: {
+    fontSize: 16,
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  timePickerContent: {
+    flexDirection: 'row',
+    height: 200,
+  },
+  timePicker: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  timeLabel: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '600',
+    padding: 16,
+  },
+  timeScrollView: {
+    flex: 1,
+    width: '100%',
+  },
+  timeOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  selectedTimeOption: {
+    backgroundColor: '#f0f8ff',
+  },
+  timeOptionText: {
+    fontSize: 18,
+    color: '#333',
+  },
+  selectedTimeOptionText: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
 });
