@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for AI Stylist App - Manual Outfit Builder Focus
-Testing the new planner endpoints for manual outfit building functionality.
+Backend Testing Suite for AI Stylist App
+Focus: Manual Outfit Builder UI improvements and outfit generation fixes
+Testing DocumentTooLarge fixes, image compression, and new event formats
 """
 
 import requests
 import json
+import base64
 import os
 from datetime import datetime, timedelta
+import time
 import uuid
 
 # Get backend URL from environment
@@ -15,6 +18,7 @@ BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://smart-stylist-1
 API_BASE = f"{BACKEND_URL}/api"
 
 print(f"🔗 Testing backend at: {API_BASE}")
+print(f"🎯 Focus: Outfit generation fixes and manual builder improvements")
 
 class BackendTester:
     def __init__(self):
