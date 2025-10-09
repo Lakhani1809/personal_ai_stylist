@@ -2671,12 +2671,7 @@ export default function App() {
                   styles.saveOutfitButton,
                   !selectedOutfit.top && !selectedOutfit.bottom && styles.saveOutfitButtonDisabled
                 ]}
-                onPress={() => {
-                  // Save outfit functionality
-                  setShowManualOutfitBuilder(false);
-                  Alert.alert('Outfit Saved', 'Your manual outfit has been created!');
-                  setSelectedOutfit({ top: null, bottom: null, layering: null, shoes: null });
-                }}
+                onPress={savePlannedOutfit}
                 disabled={!selectedOutfit.top && !selectedOutfit.bottom}
               >
                 <Text style={styles.saveOutfitButtonText}>Save Outfit</Text>
