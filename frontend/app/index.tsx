@@ -2032,7 +2032,11 @@ export default function App() {
             {/* Removed Day Headers - showing days directly in cards */}
 
             {/* Day Cards */}
-            <ScrollView style={styles.plannerScrollView} showsVerticalScrollIndicator={false}>
+            <ScrollView 
+              ref={plannerScrollRef}
+              style={styles.plannerScrollView} 
+              showsVerticalScrollIndicator={false}
+            >
               <View style={styles.dayCardsContainer}>
                 {getWeekDates(selectedWeek).map((date, index) => {
                   const dateKey = formatDate(date);
