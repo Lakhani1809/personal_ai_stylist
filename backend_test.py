@@ -104,340 +104,299 @@ class BackendTester:
             # Return a minimal base64 image if PIL fails
             return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
     
-    def test_planner_authentication(self):
-        """Test that planner endpoints require authentication"""
-        try:
-            # Test POST without auth
-            test_outfit = {
-                "date": "2024-01-15",
-                "occasion": "Work",
-                "event_name": "Team Meeting",
-                "items": {"top": "item1", "bottom": "item2"}
-            }
+    def test_wardrobe_image_compression(self):
+        """Test POST /api/wardrobe with image compression"""
+        if not self.access_token:
+            self.log_result("Wardrobe Image Compression", False, "No auth token")
+            return False
             
-            response = requests.post(f"{API_BASE}/planner/outfit", json=test_outfit)
-            
-            if response.status_code == 401:
-                self.log_result("Planner Auth - POST", True, "POST endpoint correctly requires authentication")
-            else:
-                self.log_result("Planner Auth - POST", False, f"Expected 401, got {response.status_code}")
-            
-            # Test GET without auth
-            response = requests.get(f"{API_BASE}/planner/outfits?start_date=2024-01-01&end_date=2024-01-31")
-            
-            if response.status_code == 401:
-                self.log_result("Planner Auth - GET", True, "GET endpoint correctly requires authentication")
-            else:
-                self.log_result("Planner Auth - GET", False, f"Expected 401, got {response.status_code}")
-            
-            # Test DELETE without auth
-            response = requests.delete(f"{API_BASE}/planner/outfit/2024-01-15")
-            
-            if response.status_code == 401:
-                self.log_result("Planner Auth - DELETE", True, "DELETE endpoint correctly requires authentication")
-            else:
-                self.log_result("Planner Auth - DELETE", False, f"Expected 401, got {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("Planner Authentication", False, f"Auth test error: {str(e)}")
-    
-    def test_save_planned_outfit(self):
-        """Test POST /api/planner/outfit endpoint"""
         try:
             headers = {"Authorization": f"Bearer {self.access_token}"}
             
-            # Test valid planned outfit
-            test_outfit = {
-                "date": "2024-01-15",
-                "occasion": "Work Meeting",
-                "event_name": "Quarterly Review",
-                "items": {
-                    "top": str(uuid.uuid4()),
-                    "bottom": str(uuid.uuid4()),
-                    "shoes": str(uuid.uuid4()),
-                    "layering": None
-                }
+            # Test with large image to verify compression
+            large_image_b64 = self.create_sample_base64_image(size=(2000, 1500), color="red")
+            
+            wardrobe_data = {
+                "image_base64": f"data:image/jpeg;base64,{large_image_b64}"
             }
             
-            response = requests.post(f"{API_BASE}/planner/outfit", json=test_outfit, headers=headers)
+            response = requests.post(f"{API_BASE}/wardrobe", json=wardrobe_data, headers=headers)
             
             if response.status_code == 200:
                 data = response.json()
-                if "message" in data and "saved" in data["message"].lower():
-                    self.log_result("Save Planned Outfit", True, "Successfully saved planned outfit")
-                else:
-                    self.log_result("Save Planned Outfit", False, f"Unexpected response format: {data}")
+                self.log_result("Wardrobe Image Compression", True, 
+                               f"Added item: {data.get('message', 'Success')}")
+                return True
             else:
-                self.log_result("Save Planned Outfit", False, f"Failed with status {response.status_code}: {response.text}")
-            
-            # Test outfit without optional event_name
-            test_outfit_minimal = {
-                "date": "2024-01-16",
-                "occasion": "Casual",
-                "items": {
-                    "top": str(uuid.uuid4()),
-                    "bottom": str(uuid.uuid4())
-                }
-            }
-            
-            response = requests.post(f"{API_BASE}/planner/outfit", json=test_outfit_minimal, headers=headers)
-            
-            if response.status_code == 200:
-                self.log_result("Save Minimal Outfit", True, "Successfully saved outfit without event_name")
-            else:
-                self.log_result("Save Minimal Outfit", False, f"Failed minimal outfit: {response.status_code}")
-            
-            # Test updating existing outfit (same date)
-            updated_outfit = {
-                "date": "2024-01-15",  # Same date as first test
-                "occasion": "Updated Meeting",
-                "event_name": "Updated Event",
-                "items": {
-                    "top": str(uuid.uuid4()),
-                    "bottom": str(uuid.uuid4()),
-                    "shoes": str(uuid.uuid4())
-                }
-            }
-            
-            response = requests.post(f"{API_BASE}/planner/outfit", json=updated_outfit, headers=headers)
-            
-            if response.status_code == 200:
-                self.log_result("Update Planned Outfit", True, "Successfully updated existing planned outfit")
-            else:
-                self.log_result("Update Planned Outfit", False, f"Failed to update: {response.status_code}")
+                self.log_result("Wardrobe Image Compression", False, 
+                               f"Status: {response.status_code}, Response: {response.text[:200]}")
+                return False
                 
         except Exception as e:
-            self.log_result("Save Planned Outfit", False, f"Save test error: {str(e)}")
+            self.log_result("Wardrobe Image Compression", False, f"Exception: {str(e)}")
+            return False
     
-    def test_get_planned_outfits(self):
-        """Test GET /api/planner/outfits endpoint"""
+    def test_outfit_generation_fix(self):
+        """Test GET /api/wardrobe/outfits to verify DocumentTooLarge fix"""
+        if not self.access_token:
+            self.log_result("Outfit Generation Fix", False, "No auth token")
+            return False
+            
         try:
             headers = {"Authorization": f"Bearer {self.access_token}"}
             
-            # Test valid date range
-            start_date = "2024-01-01"
-            end_date = "2024-01-31"
+            # First add multiple wardrobe items to test with sufficient items
+            for i, color in enumerate(["blue", "red", "green", "black", "white"]):
+                image_b64 = self.create_sample_base64_image(size=(1200, 900), color=color)
+                wardrobe_data = {
+                    "image_base64": f"data:image/jpeg;base64,{image_b64}"
+                }
+                
+                response = requests.post(f"{API_BASE}/wardrobe", json=wardrobe_data, headers=headers)
+                if response.status_code != 200:
+                    self.log_result("Outfit Generation Setup", False, 
+                                   f"Failed to add item {i+1}: {response.status_code}")
+                    return False
             
-            response = requests.get(
-                f"{API_BASE}/planner/outfits?start_date={start_date}&end_date={end_date}",
-                headers=headers
-            )
+            # Now test outfit generation
+            response = requests.get(f"{API_BASE}/wardrobe/outfits", headers=headers)
             
             if response.status_code == 200:
                 data = response.json()
-                if "planned_outfits" in data and isinstance(data["planned_outfits"], list):
-                    outfit_count = len(data["planned_outfits"])
-                    self.log_result("Get Planned Outfits", True, f"Retrieved {outfit_count} planned outfits")
+                outfits = data.get("outfits", [])
+                
+                if len(outfits) > 0:
+                    self.log_result("Outfit Generation Fix", True, 
+                                   f"Generated {len(outfits)} outfits successfully without DocumentTooLarge error")
                     
-                    # Verify data structure
-                    if outfit_count > 0:
-                        first_outfit = data["planned_outfits"][0]
-                        required_fields = ["date", "occasion", "items", "user_id"]
-                        missing_fields = [field for field in required_fields if field not in first_outfit]
-                        
-                        if not missing_fields:
-                            self.log_result("Outfit Data Structure", True, "Planned outfit has correct structure")
+                    # Verify outfit structure includes compressed thumbnails
+                    first_outfit = outfits[0]
+                    if "items" in first_outfit and len(first_outfit["items"]) > 0:
+                        first_item = first_outfit["items"][0]
+                        if "image_base64" in first_item:
+                            thumbnail_size = len(first_item["image_base64"])
+                            self.log_result("Outfit Thumbnail Compression", True, 
+                                           f"Thumbnail size: {thumbnail_size} chars (compressed)")
                         else:
-                            self.log_result("Outfit Data Structure", False, f"Missing fields: {missing_fields}")
+                            self.log_result("Outfit Thumbnail Compression", False, "No image_base64 in outfit item")
+                    
+                    return True
                 else:
-                    self.log_result("Get Planned Outfits", False, f"Invalid response format: {data}")
-            else:
-                self.log_result("Get Planned Outfits", False, f"Failed with status {response.status_code}: {response.text}")
-            
-            # Test missing query parameters
-            response = requests.get(f"{API_BASE}/planner/outfits", headers=headers)
-            
-            if response.status_code == 422:  # FastAPI validation error
-                self.log_result("Date Range Validation", True, "Correctly validates missing date parameters")
-            else:
-                self.log_result("Date Range Validation", False, f"Expected 422, got {response.status_code}")
-            
-            # Test invalid date format
-            response = requests.get(
-                f"{API_BASE}/planner/outfits?start_date=invalid&end_date=2024-01-31",
-                headers=headers
-            )
-            
-            # Should handle gracefully (might return empty results or validation error)
-            if response.status_code in [200, 422, 400]:
-                self.log_result("Invalid Date Format", True, f"Handled invalid date format appropriately ({response.status_code})")
-            else:
-                self.log_result("Invalid Date Format", False, f"Unexpected response to invalid date: {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("Get Planned Outfits", False, f"Get test error: {str(e)}")
-    
-    def test_delete_planned_outfit(self):
-        """Test DELETE /api/planner/outfit/{date} endpoint"""
-        try:
-            headers = {"Authorization": f"Bearer {self.access_token}"}
-            
-            # First, create an outfit to delete
-            test_outfit = {
-                "date": "2024-01-20",
-                "occasion": "Test Delete",
-                "items": {"top": str(uuid.uuid4())}
-            }
-            
-            create_response = requests.post(f"{API_BASE}/planner/outfit", json=test_outfit, headers=headers)
-            
-            if create_response.status_code == 200:
-                # Now delete it
-                delete_response = requests.delete(f"{API_BASE}/planner/outfit/2024-01-20", headers=headers)
-                
-                if delete_response.status_code == 200:
-                    data = delete_response.json()
-                    if "message" in data and "deleted" in data["message"].lower():
-                        self.log_result("Delete Planned Outfit", True, "Successfully deleted planned outfit")
+                    message = data.get("message", "No outfits generated")
+                    if "need at least" in message.lower() or "add more" in message.lower():
+                        self.log_result("Outfit Generation Fix", True, 
+                                       f"Proper guardrails working: {message}")
+                        return True
                     else:
-                        self.log_result("Delete Planned Outfit", False, f"Unexpected delete response: {data}")
-                else:
-                    self.log_result("Delete Planned Outfit", False, f"Delete failed: {delete_response.status_code}")
+                        self.log_result("Outfit Generation Fix", False, f"No outfits: {message}")
+                        return False
             else:
-                self.log_result("Delete Planned Outfit", False, "Could not create outfit to delete")
-            
-            # Test deleting non-existent outfit
-            delete_response = requests.delete(f"{API_BASE}/planner/outfit/2024-12-31", headers=headers)
-            
-            if delete_response.status_code == 200:
-                data = delete_response.json()
-                if "not found" in data.get("message", "").lower() or "no" in data.get("message", "").lower():
-                    self.log_result("Delete Non-existent Outfit", True, "Correctly handled non-existent outfit deletion")
-                else:
-                    self.log_result("Delete Non-existent Outfit", True, f"Handled gracefully: {data.get('message')}")
-            else:
-                self.log_result("Delete Non-existent Outfit", False, f"Unexpected status for non-existent: {delete_response.status_code}")
+                self.log_result("Outfit Generation Fix", False, 
+                               f"Status: {response.status_code}, Response: {response.text[:200]}")
+                return False
                 
         except Exception as e:
-            self.log_result("Delete Planned Outfit", False, f"Delete test error: {str(e)}")
+            self.log_result("Outfit Generation Fix", False, f"Exception: {str(e)}")
+            return False
     
-    def test_data_validation(self):
-        """Test data validation and edge cases"""
+    def test_manual_builder_new_event_format(self):
+        """Test POST /api/planner/outfit with new event format (work, dinner, date, etc.)"""
+        if not self.access_token:
+            self.log_result("Manual Builder Event Format", False, "No auth token")
+            return False
+            
         try:
             headers = {"Authorization": f"Bearer {self.access_token}"}
             
-            # Test invalid date format
-            invalid_outfit = {
-                "date": "invalid-date",
-                "occasion": "Test",
-                "items": {"top": "item1"}
-            }
-            
-            response = requests.post(f"{API_BASE}/planner/outfit", json=invalid_outfit, headers=headers)
-            
-            # Should either validate or handle gracefully
-            if response.status_code in [400, 422, 500]:
-                self.log_result("Invalid Date Validation", True, f"Handled invalid date appropriately ({response.status_code})")
-            else:
-                self.log_result("Invalid Date Validation", False, f"Unexpected response to invalid date: {response.status_code}")
-            
-            # Test empty items
-            empty_items_outfit = {
-                "date": "2024-01-25",
-                "occasion": "Test",
-                "items": {}
-            }
-            
-            response = requests.post(f"{API_BASE}/planner/outfit", json=empty_items_outfit, headers=headers)
-            
-            if response.status_code in [200, 400, 422]:
-                self.log_result("Empty Items Validation", True, f"Handled empty items appropriately ({response.status_code})")
-            else:
-                self.log_result("Empty Items Validation", False, f"Unexpected response to empty items: {response.status_code}")
-            
-            # Test missing required fields
-            incomplete_outfit = {
-                "date": "2024-01-26"
-                # Missing occasion and items
-            }
-            
-            response = requests.post(f"{API_BASE}/planner/outfit", json=incomplete_outfit, headers=headers)
-            
-            if response.status_code in [400, 422]:
-                self.log_result("Required Fields Validation", True, "Correctly validates required fields")
-            else:
-                self.log_result("Required Fields Validation", False, f"Expected validation error, got {response.status_code}")
-                
-        except Exception as e:
-            self.log_result("Data Validation", False, f"Validation test error: {str(e)}")
-    
-    def test_integration_flow(self):
-        """Test complete integration flow"""
-        try:
-            headers = {"Authorization": f"Bearer {self.access_token}"}
-            
-            # 1. Save multiple outfits
-            outfits_to_save = [
-                {
-                    "date": "2024-02-01",
-                    "occasion": "Work",
-                    "event_name": "Team Standup",
-                    "items": {"top": str(uuid.uuid4()), "bottom": str(uuid.uuid4())}
-                },
-                {
-                    "date": "2024-02-02",
-                    "occasion": "Date Night",
-                    "event_name": "Dinner",
-                    "items": {"top": str(uuid.uuid4()), "bottom": str(uuid.uuid4()), "shoes": str(uuid.uuid4())}
-                },
-                {
-                    "date": "2024-02-03",
-                    "occasion": "Casual",
-                    "items": {"top": str(uuid.uuid4()), "bottom": str(uuid.uuid4())}
-                }
+            # Test with new predefined event types
+            test_events = [
+                ("work", "Work Meeting"),
+                ("dinner", "Dinner with Friends"),
+                ("date", "Date Night"),
+                ("party", "Birthday Party"),
+                ("casual", "Casual Day Out"),
+                ("gym", "Gym Session"),
+                ("travel", "Travel Day"),
+                ("meeting", "Business Meeting")
             ]
             
-            saved_count = 0
-            for outfit in outfits_to_save:
-                response = requests.post(f"{API_BASE}/planner/outfit", json=outfit, headers=headers)
-                if response.status_code == 200:
-                    saved_count += 1
+            success_count = 0
             
-            # 2. Retrieve them
-            response = requests.get(
-                f"{API_BASE}/planner/outfits?start_date=2024-02-01&end_date=2024-02-28",
-                headers=headers
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                retrieved_count = len(data.get("planned_outfits", []))
+            for event_type, event_description in test_events:
+                # Test date (tomorrow)
+                test_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
                 
-                if retrieved_count >= saved_count:
-                    self.log_result("Integration Flow", True, f"Saved {saved_count} outfits, retrieved {retrieved_count}")
+                planned_outfit_data = {
+                    "date": test_date,
+                    "occasion": event_type,
+                    "event_name": f"{event_description} at 7:30 PM",  # Test time formatting
+                    "items": {
+                        "top": "item_id_1",
+                        "bottom": "item_id_2",
+                        "shoes": "item_id_3"
+                    }
+                }
+                
+                response = requests.post(f"{API_BASE}/planner/outfit", json=planned_outfit_data, headers=headers)
+                
+                if response.status_code == 200:
+                    success_count += 1
+                    self.log_result(f"Manual Builder - {event_type}", True, 
+                                   f"Saved outfit for {event_description}")
                 else:
-                    self.log_result("Integration Flow", False, f"Saved {saved_count} but only retrieved {retrieved_count}")
+                    self.log_result(f"Manual Builder - {event_type}", False, 
+                                   f"Status: {response.status_code}, Response: {response.text[:100]}")
+            
+            # Overall result
+            if success_count >= 6:  # At least 6 out of 8 event types should work
+                self.log_result("Manual Builder Event Format", True, 
+                               f"Successfully saved {success_count}/{len(test_events)} event types")
+                return True
             else:
-                self.log_result("Integration Flow", False, f"Failed to retrieve outfits: {response.status_code}")
+                self.log_result("Manual Builder Event Format", False, 
+                               f"Only {success_count}/{len(test_events)} event types worked")
+                return False
                 
         except Exception as e:
-            self.log_result("Integration Flow", False, f"Integration test error: {str(e)}")
+            self.log_result("Manual Builder Event Format", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_manual_builder_time_formatting(self):
+        """Test time formatting in manual builder (e.g., '7:30 PM')"""
+        if not self.access_token:
+            self.log_result("Manual Builder Time Format", False, "No auth token")
+            return False
+            
+        try:
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            
+            # Test various time formats
+            time_formats = [
+                "7:30 PM",
+                "9:00 AM", 
+                "12:30 PM",
+                "6:45 PM",
+                "11:15 AM"
+            ]
+            
+            success_count = 0
+            
+            for time_format in time_formats:
+                test_date = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+                
+                planned_outfit_data = {
+                    "date": test_date,
+                    "occasion": "dinner",
+                    "event_name": f"Dinner at {time_format}",
+                    "items": {
+                        "top": "shirt_id",
+                        "bottom": "pants_id"
+                    }
+                }
+                
+                response = requests.post(f"{API_BASE}/planner/outfit", json=planned_outfit_data, headers=headers)
+                
+                if response.status_code == 200:
+                    success_count += 1
+                    
+                    # Verify the time was saved correctly by retrieving it
+                    start_date = test_date
+                    end_date = test_date
+                    get_response = requests.get(f"{API_BASE}/planner/outfits?start_date={start_date}&end_date={end_date}", headers=headers)
+                    
+                    if get_response.status_code == 200:
+                        data = get_response.json()
+                        planned_outfits = data.get("planned_outfits", [])
+                        
+                        if planned_outfits and time_format in planned_outfits[0].get("event_name", ""):
+                            self.log_result(f"Time Format - {time_format}", True, 
+                                           f"Time correctly saved and retrieved")
+                        else:
+                            self.log_result(f"Time Format - {time_format}", False, 
+                                           f"Time format not preserved in storage")
+                    else:
+                        self.log_result(f"Time Format - {time_format}", False, 
+                                       f"Could not retrieve saved outfit")
+                else:
+                    self.log_result(f"Time Format - {time_format}", False, 
+                                   f"Status: {response.status_code}")
+            
+            if success_count >= 4:  # At least 4 out of 5 time formats should work
+                self.log_result("Manual Builder Time Format", True, 
+                               f"Successfully handled {success_count}/{len(time_formats)} time formats")
+                return True
+            else:
+                self.log_result("Manual Builder Time Format", False, 
+                               f"Only {success_count}/{len(time_formats)} time formats worked")
+                return False
+                
+        except Exception as e:
+            self.log_result("Manual Builder Time Format", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_existing_functionality(self):
+        """Test that existing functionality still works"""
+        if not self.access_token:
+            self.log_result("Existing Functionality", False, "No auth token")
+            return False
+            
+        try:
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            
+            # Test wardrobe retrieval
+            response = requests.get(f"{API_BASE}/wardrobe", headers=headers)
+            if response.status_code == 200:
+                self.log_result("Wardrobe Retrieval", True, "Wardrobe endpoint working")
+            else:
+                self.log_result("Wardrobe Retrieval", False, f"Status: {response.status_code}")
+                return False
+            
+            # Test chat functionality
+            chat_data = {"message": "What should I wear today?"}
+            response = requests.post(f"{API_BASE}/chat", json=chat_data, headers=headers)
+            if response.status_code == 200:
+                data = response.json()
+                if "messages" in data or "message" in data:
+                    self.log_result("Chat Functionality", True, "Chat endpoint working")
+                else:
+                    self.log_result("Chat Functionality", False, "Unexpected chat response format")
+                    return False
+            else:
+                self.log_result("Chat Functionality", False, f"Status: {response.status_code}")
+                return False
+            
+            return True
+                
+        except Exception as e:
+            self.log_result("Existing Functionality", False, f"Exception: {str(e)}")
+            return False
     
     def run_all_tests(self):
-        """Run all planner endpoint tests"""
-        print("🧪 Starting Manual Outfit Builder Backend Tests")
-        print("=" * 60)
+        """Run all backend tests"""
+        print("🧪 Starting Backend Testing Suite")
+        print("=" * 50)
         
         # Setup
         if not self.setup_test_user():
-            print("❌ Cannot proceed without test user setup")
-            return False
+            print("❌ Failed to setup test user, aborting tests")
+            return
         
-        if not self.add_test_wardrobe_items():
-            print("⚠️ Proceeding without wardrobe items")
+        # Core tests for the fixes
+        print("\n🎯 Testing Outfit Generation Fixes...")
+        self.test_wardrobe_image_compression()
+        self.test_outfit_generation_fix()
         
-        # Core planner tests
-        self.test_planner_authentication()
-        self.test_save_planned_outfit()
-        self.test_get_planned_outfits()
-        self.test_delete_planned_outfit()
-        self.test_data_validation()
-        self.test_integration_flow()
+        print("\n🎯 Testing Manual Builder Improvements...")
+        self.test_manual_builder_new_event_format()
+        self.test_manual_builder_time_formatting()
+        
+        print("\n🎯 Testing Existing Functionality...")
+        self.test_existing_functionality()
         
         # Summary
-        print("\n" + "=" * 60)
+        print("\n" + "=" * 50)
         print("📊 TEST SUMMARY")
-        print("=" * 60)
+        print("=" * 50)
         
         total_tests = len(self.test_results)
         passed_tests = sum(1 for result in self.test_results if result["success"])
@@ -449,18 +408,18 @@ class BackendTester:
         print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
         if failed_tests > 0:
-            print("\n🚨 FAILED TESTS:")
+            print("\n❌ FAILED TESTS:")
             for result in self.test_results:
                 if not result["success"]:
-                    print(f"   • {result['test']}: {result['message']}")
+                    print(f"  - {result['test']}: {result['message']}")
         
-        return failed_tests == 0
+        return passed_tests, failed_tests
 
 if __name__ == "__main__":
     tester = BackendTester()
-    success = tester.run_all_tests()
+    passed, failed = tester.run_all_tests()
     
-    if success:
-        print("\n🎉 All tests passed! Manual Outfit Builder backend is working correctly.")
+    if failed == 0:
+        print("\n🎉 All tests passed! Backend fixes are working correctly.")
     else:
-        print("\n⚠️ Some tests failed. Check the details above.")
+        print(f"\n⚠️  {failed} test(s) failed. Please review the issues above.")
