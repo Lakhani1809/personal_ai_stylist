@@ -221,6 +221,17 @@ export default function App() {
   const [weeklyOutfits, setWeeklyOutfits] = useState<{[key: string]: any}>({});
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileEdits, setProfileEdits] = useState({
+    name: '',
+    gender: '',
+    age: '',
+    profession: '',
+    city: '',
+    body_shape: '',
+    skin_tone: '',
+    style_vibe: '',
+  });
   
   // Event management state
   const [showEventModal, setShowEventModal] = useState(false);
