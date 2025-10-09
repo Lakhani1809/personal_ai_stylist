@@ -1065,6 +1065,9 @@ export default function App() {
         setSelectedOutfit({ top: null, bottom: null, layering: null, shoes: null });
         setOutfitEvent('');
         setOutfitOccasion('');
+        setSelectedHour(12);
+        setSelectedMinute(0);
+        setSelectedAmPm('PM');
         setShowManualOutfitBuilder(false);
         
         // Refresh planner data
