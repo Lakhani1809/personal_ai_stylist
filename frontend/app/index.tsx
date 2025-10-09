@@ -2188,7 +2188,13 @@ export default function App() {
                 <Text style={styles.arrowText}>{'<'}</Text>
               </TouchableOpacity>
               
-              <TouchableOpacity style={styles.weekSelector}>
+              <TouchableOpacity 
+                style={styles.weekSelector}
+                onPress={() => {
+                  setTempSelectedWeek(selectedWeek);
+                  setShowDatePicker(true);
+                }}
+              >
                 <Text style={styles.weekText}>{getWeekDateRange(selectedWeek)}</Text>
                 <Text style={styles.weekDropdownIcon}>▼</Text>
               </TouchableOpacity>
