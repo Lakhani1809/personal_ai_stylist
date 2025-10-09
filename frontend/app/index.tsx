@@ -2243,22 +2243,7 @@ export default function App() {
                       </View>
 
                       {/* Outfit section */}
-                      <TouchableOpacity 
-                        style={styles.outfitSection}
-                        onPress={() => {
-                          console.log('🎯 Outfit section clicked for date:', dateKey);
-                          // Handle outfit planning
-                          if (!dayOutfit) {
-                            console.log('📅 No outfit planned, showing in-app modal');
-                            setSelectedOutfitDate(dateKey);
-                            setSelectedOutfitDateName(getDayName(date));
-                            setShowOutfitModal(true);
-                          } else {
-                            console.log('👔 Outfit already planned, could edit here');
-                            // TODO: Show outfit editing options
-                          }
-                        }}
-                      >
+                      <View style={styles.outfitSection}>
                         {dayOutfit ? (
                           <View style={styles.outfitDisplay}>
                             {/* Display outfit items as images */}
@@ -2270,17 +2255,55 @@ export default function App() {
                                   style={styles.outfitItemImage}
                                 />
                               ))}
+                              {dayOutfit.items && dayOutfit.items.length > 3 && (
+                                <View style={styles.moreItemsIndicator}>
+                                  <Text style={styles.moreItemsText}>+{dayOutfit.items.length - 3}</Text>
+                                </View>
+                              )}
+                            </View>
+                            {/* View button */}
+                            <View style={styles.outfitActions}>
+                              <TouchableOpacity 
+                                style={styles.viewOutfitButton}
+                                onPress={() => {
+                                  console.log('👔 View outfit details for:', dateKey);
+                                  setSelectedOutfitDetails(dayOutfit);
+                                  setShowOutfitDetailsModal(true);
+                                }}
+                              >
+                                <Text style={styles.viewOutfitButtonText}>View</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity 
+                                style={styles.editOutfitButton}
+                                onPress={() => {
+                                  console.log('✏️ Edit outfit for:', dateKey);
+                                  // Set selected date for editing
+                                  setSelectedOutfitDate(dateKey);
+                                  setSelectedOutfitDateName(getDayName(date));
+                                  setShowOutfitModal(true);
+                                }}
+                              >
+                                <Text style={styles.editOutfitButtonText}>Edit</Text>
+                              </TouchableOpacity>
                             </View>
                           </View>
                         ) : (
-                          <View style={styles.noOutfitPlanned}>
+                          <TouchableOpacity 
+                            style={styles.noOutfitPlanned}
+                            onPress={() => {
+                              console.log('📅 No outfit planned, showing in-app modal');
+                              setSelectedOutfitDate(dateKey);
+                              setSelectedOutfitDateName(getDayName(date));
+                              setShowOutfitModal(true);
+                            }}
+                          >
                             <Text style={styles.noOutfitText}>No outfit planned yet 😴</Text>
                             <Text style={styles.planPromptText}>
                               Tap the card to plan your look for the day
                             </Text>
-                          </View>
+                          </TouchableOpacity>
                         )}
-                      </TouchableOpacity>
+                      </View>
                     </View>
                   );
                 })}
