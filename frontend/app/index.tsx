@@ -255,6 +255,12 @@ export default function App() {
   const [outfitOccasion, setOutfitOccasion] = useState('');
   const [outfitEvent, setOutfitEvent] = useState('');
   
+  // Time picker state for manual builder
+  const [selectedHour, setSelectedHour] = useState(12);
+  const [selectedMinute, setSelectedMinute] = useState(0);
+  const [selectedAmPm, setSelectedAmPm] = useState('PM');
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  
   // Outfit viewing state
   const [showOutfitDetailsModal, setShowOutfitDetailsModal] = useState(false);
   const [selectedOutfitDetails, setSelectedOutfitDetails] = useState<any>(null);
