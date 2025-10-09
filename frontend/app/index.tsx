@@ -2398,6 +2398,44 @@ export default function App() {
             </View>
             
             <ScrollView style={styles.manualBuilderContent}>
+              {/* Occasion and Event Section */}
+              <View style={styles.occasionSection}>
+                <Text style={styles.sectionHeaderText}>Event Details</Text>
+                
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Event Name</Text>
+                  <TextInput
+                    style={styles.occasionInput}
+                    placeholder="e.g., Team Meeting, Date Night, Gym"
+                    value={outfitEvent}
+                    onChangeText={setOutfitEvent}
+                  />
+                </View>
+                
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Occasion Type</Text>
+                  <View style={styles.occasionButtons}>
+                    {['Casual', 'Work', 'Formal', 'Party', 'Sports', 'Date'].map((occasion) => (
+                      <TouchableOpacity
+                        key={occasion}
+                        style={[
+                          styles.occasionButton,
+                          outfitOccasion === occasion && styles.occasionButtonActive
+                        ]}
+                        onPress={() => setOutfitOccasion(occasion)}
+                      >
+                        <Text style={[
+                          styles.occasionButtonText,
+                          outfitOccasion === occasion && styles.occasionButtonTextActive
+                        ]}>
+                          {occasion}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              </View>
+
               {/* Category: Top Wear */}
               <View style={styles.categorySection}>
                 <Text style={styles.categoryTitle}>Top Wear</Text>
