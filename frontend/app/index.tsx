@@ -1041,7 +1041,8 @@ export default function App() {
         setOutfitOccasion('');
         setShowManualOutfitBuilder(false);
         
-        // TODO: Refresh planner data here when we implement it
+        // Refresh planner data
+        loadPlannedOutfits();
         
       } else {
         console.error('❌ Failed to save planned outfit:', data);
