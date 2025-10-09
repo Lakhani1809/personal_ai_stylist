@@ -1158,9 +1158,8 @@ class PlannedOutfit(BaseModel):
 
 # Save planned outfit
 @app.post("/api/planner/outfit")
-async def save_planned_outfit(planned_outfit: PlannedOutfit, current_user: dict = Depends(get_current_user)):
+async def save_planned_outfit(planned_outfit: PlannedOutfit, user_id: str = Depends(get_current_user)):
     try:
-        user_id = current_user["user_id"]
         
         # Create planned outfit document
         planned_outfit_doc = {
