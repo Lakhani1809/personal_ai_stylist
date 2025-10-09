@@ -10,28 +10,17 @@ import os
 from datetime import datetime, timedelta
 import uuid
 
-class WardrobeFixesTester:
+# Get backend URL from environment
+BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://smart-stylist-15.preview.emergentagent.com')
+API_BASE = f"{BACKEND_URL}/api"
+
+print(f"🔗 Testing backend at: {API_BASE}")
+
+class BackendTester:
     def __init__(self):
-        # Get backend URL from frontend env
-        with open('/app/frontend/.env', 'r') as f:
-            env_content = f.read()
-            for line in env_content.split('\n'):
-                if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
-                    self.base_url = line.split('=')[1].strip()
-                    break
-        
-        if not hasattr(self, 'base_url'):
-            self.base_url = "https://smart-stylist-15.preview.emergentagent.com"
-        
-        self.api_url = f"{self.base_url}/api"
-        self.headers = {"Content-Type": "application/json"}
-        self.test_results = []
-        self.auth_token = None
+        self.access_token = None
         self.user_id = None
-        
-        print(f"🔧 Outfit Generation Tester initialized")
-        print(f"   API URL: {self.api_url}")
-        print(f"🎯 Focus: Testing outfit generation system to debug 'no outfits yet' issue")
+        self.test_results = []
         
     def log_test(self, test_name: str, status: str, details: str = ""):
         """Log test results"""
