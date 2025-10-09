@@ -1934,7 +1934,7 @@ export default function App() {
         <Text style={styles.headerTitle}>MyMiro</Text>
         <TouchableOpacity 
           style={styles.profileButton} 
-          onPress={() => setShowProfileMenu(!showProfileMenu)}
+          onPress={() => setShowProfileSettings(true)}
         >
           <View style={styles.profileIcon}>
             <Text style={styles.profileIconText}>
@@ -1942,30 +1942,6 @@ export default function App() {
             </Text>
           </View>
         </TouchableOpacity>
-        
-        {/* Profile Menu */}
-        {showProfileMenu && (
-          <View style={styles.profileMenu}>
-            <TouchableOpacity 
-              style={styles.profileMenuItem}
-              onPress={() => {
-                setShowProfileMenu(false);
-                setShowProfileSettings(true);
-              }}
-            >
-              <Text style={styles.profileMenuText}>Profile Settings</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.profileMenuItem}
-              onPress={() => {
-                setShowProfileMenu(false);
-                handleSignOut();
-              }}
-            >
-              <Text style={styles.profileMenuText}>Sign Out</Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
 
       {/* Tab Navigation */}
