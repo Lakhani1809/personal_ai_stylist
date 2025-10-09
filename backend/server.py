@@ -1150,13 +1150,23 @@ Remember: Only use item numbers that exist in the wardrobe list!"""
         
         print(f"✅ Generated {len(outfit_combinations)} outfits")
         
-        # Map item numbers back to actual items
+        # Map item numbers back to actual items (store minimal data to avoid size issues)
         formatted_outfits = []
         for outfit in outfit_combinations:
             outfit_items = []
             for item_num in outfit.get("items", []):
                 if 0 < item_num <= len(wardrobe):
-                    outfit_items.append(wardrobe[item_num - 1])
+                    item = wardrobe[item_num - 1]
+                    # Store only essential data, not the full base64 image
+                    outfit_items.append({
+                        "id": item.get("id"),
+                        "exact_item_name": item.get("exact_item_name", "Item"),
+                        "category": item.get("category", "Item"),
+                        "color": item.get("color", ""),
+                        "style": item.get("style", ""),
+                        # Store compressed thumbnail for outfit display
+                        "image_base64": compress_image(item.get("image_base64", ""), quality=15, max_size=(200, 200))
+                    })
             
             if len(outfit_items) >= 2:  # Only include outfits with at least 2 items
                 formatted_outfits.append({
