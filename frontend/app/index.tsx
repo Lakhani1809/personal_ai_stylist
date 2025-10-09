@@ -1033,10 +1033,14 @@ export default function App() {
         shoes: selectedOutfit.shoes?.id || null
       };
 
+      // Create event name from selected event and time
+      const eventTime = `${selectedHour}:${selectedMinute.toString().padStart(2, '0')} ${selectedAmPm}`;
+      const eventName = outfitEvent ? `${outfitEvent.charAt(0).toUpperCase() + outfitEvent.slice(1)} at ${eventTime}` : null;
+
       const plannedOutfitData = {
         date: selectedOutfitDate, // Use the selected date from planner
-        occasion: outfitOccasion || 'Casual',
-        event_name: outfitEvent || null,
+        occasion: outfitEvent || 'casual', // Use the selected event as occasion
+        event_name: eventName,
         items: items
       };
 
