@@ -1190,10 +1190,9 @@ async def save_planned_outfit(planned_outfit: PlannedOutfit, user_id: str = Depe
 async def get_planned_outfits(
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
-    current_user: dict = Depends(get_current_user)
+    user_id: str = Depends(get_current_user)
 ):
     try:
-        user_id = current_user["user_id"]
         
         # Query planned outfits within date range
         planned_outfits_cursor = db.planned_outfits.find({
