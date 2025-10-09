@@ -2792,6 +2792,104 @@ export default function App() {
           </View>
         </Modal>
 
+        {/* Outfit Details Modal */}
+        <Modal
+          visible={showOutfitDetailsModal}
+          animationType="slide"
+          transparent={false}
+          onRequestClose={() => setShowOutfitDetailsModal(false)}
+        >
+          <View style={styles.outfitDetailsContainer}>
+            <View style={styles.outfitDetailsHeader}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => setShowOutfitDetailsModal(false)}
+              >
+                <Text style={styles.backButtonText}>← Back</Text>
+              </TouchableOpacity>
+              <Text style={styles.outfitDetailsTitle}>Outfit Details</Text>
+              <View style={styles.backButton} />
+            </View>
+            
+            {selectedOutfitDetails && (
+              <ScrollView style={styles.outfitDetailsContent}>
+                {/* Event Information */}
+                <View style={styles.outfitDetailsSection}>
+                  <Text style={styles.sectionHeaderText}>Event Information</Text>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Date:</Text>
+                    <Text style={styles.infoValue}>{selectedOutfitDetails.date}</Text>
+                  </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Occasion:</Text>
+                    <Text style={styles.infoValue}>{selectedOutfitDetails.occasion}</Text>
+                  </View>
+                  {selectedOutfitDetails.event_name && (
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Event:</Text>
+                      <Text style={styles.infoValue}>{selectedOutfitDetails.event_name}</Text>
+                    </View>
+                  )}
+                </View>
+
+                {/* Outfit Items */}
+                <View style={styles.outfitDetailsSection}>
+                  <Text style={styles.sectionHeaderText}>Outfit Items</Text>
+                  <View style={styles.outfitItemsGrid}>
+                    {selectedOutfitDetails.items && selectedOutfitDetails.items.map((item: any, index: number) => (
+                      <View key={index} style={styles.outfitItemDetailCard}>
+                        <Image
+                          source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
+                          style={styles.outfitItemDetailImage}
+                          resizeMode="cover"
+                        />
+                        <Text style={styles.outfitItemDetailText} numberOfLines={2}>
+                          {item.exact_item_name || 'Wardrobe Item'}
+                        </Text>
+                        <Text style={styles.outfitItemCategory}>
+                          {item.category || 'Item'}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Delete Outfit Button */}
+                <TouchableOpacity
+                  style={styles.deleteOutfitButton}
+                  onPress={async () => {
+                    try {
+                      const response = await fetch(
+                        `${BACKEND_URL}/api/planner/outfit/${selectedOutfitDetails.date}`,
+                        {
+                          method: 'DELETE',
+                          headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                          },
+                        }
+                      );
+
+                      if (response.ok) {
+                        Alert.alert('Success', 'Outfit deleted successfully!');
+                        setShowOutfitDetailsModal(false);
+                        loadPlannedOutfits(); // Refresh the calendar
+                      } else {
+                        Alert.alert('Error', 'Failed to delete outfit');
+                      }
+                    } catch (error) {
+                      console.error('Error deleting outfit:', error);
+                      Alert.alert('Error', 'Failed to delete outfit');
+                    }
+                  }}
+                >
+                  <Text style={styles.deleteOutfitButtonText}>Delete Outfit</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            )}
+          </View>
+        </Modal>
+
         {currentTab === 'chat' && (
           <KeyboardAvoidingView 
             style={styles.chatContainer}
