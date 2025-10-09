@@ -29,7 +29,7 @@ class WardrobeFixesTester:
                     break
         
         if not hasattr(self, 'base_url'):
-            self.base_url = "https://ai-wardrobe-buddy.preview.emergentagent.com"
+            self.base_url = "https://smart-stylist-15.preview.emergentagent.com"
         
         self.api_url = f"{self.base_url}/api"
         self.headers = {"Content-Type": "application/json"}

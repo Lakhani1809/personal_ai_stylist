@@ -18,7 +18,7 @@ def create_large_base64_image(size_kb=100):
     return f"data:image/png;base64,{large_data}"
 
 def test_document_size_limit():
-    api_url = 'https://ai-wardrobe-buddy.preview.emergentagent.com/api'
+    api_url = 'https://smart-stylist-15.preview.emergentagent.com/api'
     
     # Register a new user
     register_data = {

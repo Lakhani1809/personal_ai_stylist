@@ -11,7 +11,7 @@ from io import BytesIO
 import time
 
 # Backend URL
-API_BASE = "https://ai-wardrobe-buddy.preview.emergentagent.com/api"
+API_BASE = "https://smart-stylist-15.preview.emergentagent.com/api"
 
 def create_test_image(size=(1500, 2000), quality=85):
     """Create a large test image"""
