@@ -1,22 +1,14 @@
 #!/usr/bin/env python3
 """
-Backend Testing Suite for AI Stylist App - Wardrobe Fixes Testing
-Tests the fixes for wardrobe issues: image compression, outfit generation guardrails, and category analysis
+Backend API Testing for AI Stylist App - Manual Outfit Builder Focus
+Testing the new planner endpoints for manual outfit building functionality.
 """
 
-import asyncio
 import requests
 import json
 import os
-import sys
-import base64
-from datetime import datetime
-from typing import Dict, Any, Optional
-from PIL import Image
-from io import BytesIO
-
-# Add backend to path for imports
-sys.path.append('/app/backend')
+from datetime import datetime, timedelta
+import uuid
 
 class WardrobeFixesTester:
     def __init__(self):
