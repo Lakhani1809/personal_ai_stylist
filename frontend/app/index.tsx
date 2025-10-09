@@ -1140,6 +1140,39 @@ export default function App() {
     }
   };
 
+  // Check for outfit repetition warnings
+  const checkOutfitRepetition = (selectedItems: any) => {
+    // Get all planned outfits from weeklyOutfits
+    const allOutfits = Object.values(weeklyOutfits);
+    
+    // Check if any outfit has the same top and bottom combination
+    const currentTopId = selectedItems.top?.id;
+    const currentBottomId = selectedItems.bottom?.id;
+    
+    if (!currentTopId || !currentBottomId) return null;
+    
+    for (const outfit of allOutfits) {
+      if (outfit && outfit.items) {
+        const outfitTopId = outfit.items.find((item: any) => 
+          ['T-shirts', 'Shirts', 'Tops', 'Blouses'].includes(item.category)
+        )?.id;
+        
+        const outfitBottomId = outfit.items.find((item: any) => 
+          ['Pants', 'Jeans', 'Bottoms', 'Skirts', 'Shorts'].includes(item.category)
+        )?.id;
+        
+        if (outfitTopId === currentTopId && outfitBottomId === currentBottomId) {
+          return {
+            date: outfit.date,
+            message: `You wore this combination on ${outfit.date}. Consider mixing it up! 👗`
+          };
+        }
+      }
+    }
+    
+    return null;
+  };
+
   // Group wardrobe items by category
   const getGroupedWardrobe = () => {
     const grouped: { [key: string]: WardrobeItem[] } = {};
