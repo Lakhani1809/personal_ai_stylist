@@ -24,6 +24,44 @@ from services.weather_service import weather_service
 from services.events_service import events_service
 from services.fashion_service import fashion_service
 
+# Image compression function
+def compress_image(image_base64: str, quality: int = 30, max_size: tuple = (800, 800)) -> str:
+    """
+    Compress a base64 image to reduce file size
+    """
+    try:
+        # Convert base64 to image
+        image_data = base64.b64decode(image_base64)
+        image = Image.open(BytesIO(image_data))
+        
+        # Convert to RGB if necessary (for JPEG conversion)
+        if image.mode in ('RGBA', 'LA', 'P'):
+            # Create white background for transparency
+            background = Image.new('RGB', image.size, (255, 255, 255))
+            if image.mode == 'P':
+                image = image.convert('RGBA')
+            background.paste(image, mask=image.split()[-1] if image.mode == 'RGBA' else None)
+            image = background
+        
+        # Resize image if it's too large
+        image.thumbnail(max_size, Image.Resampling.LANCZOS)
+        
+        # Compress and convert back to base64
+        buffer = BytesIO()
+        image.save(buffer, format='JPEG', quality=quality, optimize=True)
+        compressed_data = buffer.getvalue()
+        compressed_base64 = base64.b64encode(compressed_data).decode('utf-8')
+        
+        print(f"📸 Image compressed: {len(image_base64)} -> {len(compressed_base64)} bytes ({len(compressed_base64)/len(image_base64)*100:.1f}%)")
+        
+        return compressed_base64
+        
+    except Exception as e:
+        print(f"❌ Image compression error: {str(e)}")
+        # If compression fails, return original but truncated to prevent issues
+        max_length = 100000  # Limit to 100KB of base64
+        return image_base64[:max_length]
+
 def compress_base64_image(base64_string: str, quality: int = 30, max_width: int = 800) -> str:
     """
     Compress a base64 encoded image to reduce storage size.
