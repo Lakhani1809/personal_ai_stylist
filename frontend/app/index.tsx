@@ -303,6 +303,29 @@ export default function App() {
     }
   }, [currentTab]);
 
+  // Auto-scroll to current day when switching to planner
+  useEffect(() => {
+    if (currentTab === 'planner') {
+      scrollToCurrentDay();
+    }
+  }, [currentTab]);
+
+  // Function to scroll to current day
+  const scrollToCurrentDay = () => {
+    setTimeout(() => {
+      const weekDates = getWeekDates(selectedWeek);
+      const todayIndex = weekDates.findIndex(date => isToday(date));
+      
+      if (todayIndex >= 0 && plannerScrollRef.current) {
+        // Calculate scroll position to center current day
+        const cardHeight = 200; // Approximate height of each day card
+        const scrollPosition = todayIndex * cardHeight;
+        plannerScrollRef.current.scrollTo({ y: scrollPosition, animated: true });
+        console.log(`📅 Auto-scrolled to today (index ${todayIndex})`);
+      }
+    }, 300); // Wait for planner to render
+  };
+
   // Auto-scroll when new messages are added
   useEffect(() => {
     if (chatMessages.length > 0) {
