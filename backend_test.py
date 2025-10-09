@@ -22,818 +22,460 @@ class BackendTester:
         self.user_id = None
         self.test_results = []
         
-    def log_test(self, test_name: str, status: str, details: str = ""):
-        """Log test results"""
-        result = {
-            "test": test_name,
-            "status": status,
-            "details": details,
-            "timestamp": datetime.now().isoformat()
-        }
-        self.test_results.append(result)
-        
-        status_emoji = "✅" if status == "PASS" else "❌" if status == "FAIL" else "⚠️"
-        print(f"{status_emoji} {test_name}: {status}")
+    def log_result(self, test_name, success, message, details=None):
+        """Log test result"""
+        status = "✅ PASS" if success else "❌ FAIL"
+        print(f"{status} {test_name}: {message}")
         if details:
             print(f"   Details: {details}")
+        
+        self.test_results.append({
+            "test": test_name,
+            "success": success,
+            "message": message,
+            "details": details
+        })
     
-    def create_sample_base64_image(self, size=(800, 1000), color=(100, 150, 200), quality=95):
-        """Create a realistic test image for wardrobe testing"""
+    def setup_test_user(self):
+        """Create and authenticate a test user"""
         try:
-            # Create a test image with specified size and color
-            img = Image.new('RGB', size, color)
+            # Generate unique test user
+            timestamp = int(datetime.now().timestamp())
+            test_email = f"planner_test_{timestamp}@example.com"
+            test_password = "TestPassword123!"
             
-            # Add some simple pattern to make it more realistic
-            from PIL import ImageDraw
-            draw = ImageDraw.Draw(img)
-            
-            # Add some rectangles to simulate clothing patterns
-            for i in range(0, size[0], 100):
-                for j in range(0, size[1], 100):
-                    if (i + j) % 200 == 0:
-                        draw.rectangle([i, j, i+50, j+50], fill=(color[0]+20, color[1]+20, color[2]+20))
-            
-            # Convert to base64
-            buffer = BytesIO()
-            img.save(buffer, format='JPEG', quality=quality, optimize=True)
-            img_data = buffer.getvalue()
-            
-            base64_string = base64.b64encode(img_data).decode('utf-8')
-            return f"data:image/jpeg;base64,{base64_string}"
-            
-        except Exception as e:
-            print(f"Error creating test image: {e}")
-            # Fallback to simple base64 image
-            return "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A8A"
-    
-    async def setup_test_user(self):
-        """Create and authenticate a test user for outfit testing"""
-        try:
-            # Register test user
+            # Register user
             register_data = {
-                "email": f"outfittest_{int(datetime.now().timestamp())}@example.com",
-                "password": "TestPassword123!",
-                "name": "Outfit Test User"
+                "email": test_email,
+                "password": test_password,
+                "name": "Planner Test User"
             }
             
-            response = requests.post(f"{self.api_url}/auth/register", 
-                                   json=register_data, headers=self.headers, timeout=10)
+            response = requests.post(f"{API_BASE}/auth/register", json=register_data)
             
             if response.status_code == 200:
                 data = response.json()
-                self.auth_token = data.get("access_token")
+                self.access_token = data.get("access_token")
                 self.user_id = data.get("user", {}).get("id")
-                self.headers["Authorization"] = f"Bearer {self.auth_token}"
                 
-                # Complete onboarding
+                # Complete onboarding to have a full user profile
                 onboarding_data = {
                     "age": 28,
                     "profession": "Software Engineer",
-                    "body_shape": "Athletic",
+                    "body_shape": "Hourglass",
                     "skin_tone": "Medium",
                     "style_inspiration": ["Minimalist", "Professional"],
                     "style_vibes": ["Clean", "Modern"],
                     "style_message": "I love clean, professional looks",
-                    "city": "Bangalore,IN"
+                    "city": "New York,NY,US"
                 }
                 
-                onboard_response = requests.put(f"{self.api_url}/auth/onboarding",
-                                              json=onboarding_data, headers=self.headers, timeout=10)
+                headers = {"Authorization": f"Bearer {self.access_token}"}
+                onboard_response = requests.put(f"{API_BASE}/auth/onboarding", json=onboarding_data, headers=headers)
                 
                 if onboard_response.status_code == 200:
-                    self.log_test("User Setup for Outfit Testing", "PASS", 
-                                f"Created user: {register_data['email']}")
+                    self.log_result("User Setup", True, f"Test user created and onboarded: {test_email}")
                     return True
                 else:
-                    self.log_test("User Setup for Outfit Testing", "FAIL", 
-                                f"Onboarding failed: {onboard_response.status_code}")
+                    self.log_result("User Setup", False, f"Onboarding failed: {onboard_response.status_code}")
                     return False
             else:
-                self.log_test("User Setup for Outfit Testing", "FAIL", 
-                            f"Registration failed: {response.status_code}")
+                self.log_result("User Setup", False, f"Registration failed: {response.status_code} - {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("User Setup for Outfit Testing", "FAIL", f"Exception: {str(e)}")
+            self.log_result("User Setup", False, f"Setup error: {str(e)}")
             return False
     
-    async def add_wardrobe_item(self, item_description: str):
-        """Add a wardrobe item and analyze AI categorization"""
+    def add_test_wardrobe_items(self):
+        """Add some test wardrobe items for outfit planning"""
         try:
-            item_data = {
-                "image_base64": self.create_sample_base64_image()
-            }
+            headers = {"Authorization": f"Bearer {self.access_token}"}
             
-            response = requests.post(f"{self.api_url}/wardrobe", 
-                                   json=item_data, headers=self.headers, timeout=15)
+            # Sample base64 image (small test image)
+            test_image_b64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
             
-            if response.status_code == 200:
-                data = response.json()
-                self.log_test(f"Add Wardrobe Item ({item_description})", "PASS", 
-                            f"Added: {data.get('message', 'Item added')}")
+            test_items = [
+                {"image_base64": f"data:image/png;base64,{test_image_b64}", "category": "top"},
+                {"image_base64": f"data:image/png;base64,{test_image_b64}", "category": "bottom"},
+                {"image_base64": f"data:image/png;base64,{test_image_b64}", "category": "shoes"},
+                {"image_base64": f"data:image/png;base64,{test_image_b64}", "category": "layering"}
+            ]
+            
+            added_items = []
+            for item in test_items:
+                response = requests.post(f"{API_BASE}/wardrobe", json=item, headers=headers)
+                if response.status_code == 200:
+                    added_items.append(response.json())
+            
+            if len(added_items) >= 3:
+                self.log_result("Wardrobe Setup", True, f"Added {len(added_items)} test wardrobe items")
                 return True
             else:
-                self.log_test(f"Add Wardrobe Item ({item_description})", "FAIL", 
-                            f"Status: {response.status_code}, Response: {response.text[:200]}")
+                self.log_result("Wardrobe Setup", False, f"Only added {len(added_items)} items")
                 return False
                 
         except Exception as e:
-            self.log_test(f"Add Wardrobe Item ({item_description})", "FAIL", f"Exception: {str(e)}")
+            self.log_result("Wardrobe Setup", False, f"Wardrobe setup error: {str(e)}")
             return False
     
-    async def get_wardrobe_analysis(self):
-        """Get wardrobe items and analyze categorization"""
+    def test_planner_authentication(self):
+        """Test that planner endpoints require authentication"""
         try:
-            response = requests.get(f"{self.api_url}/wardrobe", headers=self.headers, timeout=10)
+            # Test POST without auth
+            test_outfit = {
+                "date": "2024-01-15",
+                "occasion": "Work",
+                "event_name": "Team Meeting",
+                "items": {"top": "item1", "bottom": "item2"}
+            }
+            
+            response = requests.post(f"{API_BASE}/planner/outfit", json=test_outfit)
+            
+            if response.status_code == 401:
+                self.log_result("Planner Auth - POST", True, "POST endpoint correctly requires authentication")
+            else:
+                self.log_result("Planner Auth - POST", False, f"Expected 401, got {response.status_code}")
+            
+            # Test GET without auth
+            response = requests.get(f"{API_BASE}/planner/outfits?start_date=2024-01-01&end_date=2024-01-31")
+            
+            if response.status_code == 401:
+                self.log_result("Planner Auth - GET", True, "GET endpoint correctly requires authentication")
+            else:
+                self.log_result("Planner Auth - GET", False, f"Expected 401, got {response.status_code}")
+            
+            # Test DELETE without auth
+            response = requests.delete(f"{API_BASE}/planner/outfit/2024-01-15")
+            
+            if response.status_code == 401:
+                self.log_result("Planner Auth - DELETE", True, "DELETE endpoint correctly requires authentication")
+            else:
+                self.log_result("Planner Auth - DELETE", False, f"Expected 401, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("Planner Authentication", False, f"Auth test error: {str(e)}")
+    
+    def test_save_planned_outfit(self):
+        """Test POST /api/planner/outfit endpoint"""
+        try:
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            
+            # Test valid planned outfit
+            test_outfit = {
+                "date": "2024-01-15",
+                "occasion": "Work Meeting",
+                "event_name": "Quarterly Review",
+                "items": {
+                    "top": str(uuid.uuid4()),
+                    "bottom": str(uuid.uuid4()),
+                    "shoes": str(uuid.uuid4()),
+                    "layering": None
+                }
+            }
+            
+            response = requests.post(f"{API_BASE}/planner/outfit", json=test_outfit, headers=headers)
             
             if response.status_code == 200:
                 data = response.json()
-                items = data.get("items", [])
-                
-                # Analyze categorization
-                categories = {}
-                colors = {}
-                fabric_types = {}
-                
-                for item in items:
-                    category = item.get("category", "Unknown")
-                    color = item.get("color", "Unknown")
-                    fabric = item.get("fabric_type", "Unknown")
-                    
-                    categories[category] = categories.get(category, 0) + 1
-                    colors[color] = colors.get(color, 0) + 1
-                    fabric_types[fabric] = fabric_types.get(fabric, 0) + 1
-                
-                category_analysis = ", ".join([f"{cat}: {count}" for cat, count in categories.items()])
-                
-                self.log_test("Wardrobe Categorization Analysis", "PASS", 
-                            f"Found {len(items)} items. Categories: {category_analysis}")
-                
-                # Log detailed analysis for debugging
-                print(f"   📊 CATEGORIZATION ANALYSIS:")
-                print(f"      Categories: {dict(categories)}")
-                print(f"      Colors: {dict(colors)}")
-                print(f"      Fabrics: {dict(fabric_types)}")
-                
-                # Check for category specificity
-                broad_categories = ["Tops", "Bottoms", "Clothing"]
-                specific_categories = ["T-shirts", "Shirts", "Pants", "Jeans", "Jackets", "Dresses"]
-                
-                broad_count = sum(categories.get(cat, 0) for cat in broad_categories)
-                specific_count = sum(categories.get(cat, 0) for cat in specific_categories)
-                
-                if specific_count > broad_count:
-                    self.log_test("Category Specificity Check", "PASS", 
-                                f"AI using specific categories ({specific_count} specific vs {broad_count} broad)")
+                if "message" in data and "saved" in data["message"].lower():
+                    self.log_result("Save Planned Outfit", True, "Successfully saved planned outfit")
                 else:
-                    self.log_test("Category Specificity Check", "WARN", 
-                                f"AI using broad categories ({broad_count} broad vs {specific_count} specific)")
-                
-                return items
+                    self.log_result("Save Planned Outfit", False, f"Unexpected response format: {data}")
             else:
-                self.log_test("Wardrobe Categorization Analysis", "FAIL", 
-                            f"Status: {response.status_code}")
-                return []
+                self.log_result("Save Planned Outfit", False, f"Failed with status {response.status_code}: {response.text}")
+            
+            # Test outfit without optional event_name
+            test_outfit_minimal = {
+                "date": "2024-01-16",
+                "occasion": "Casual",
+                "items": {
+                    "top": str(uuid.uuid4()),
+                    "bottom": str(uuid.uuid4())
+                }
+            }
+            
+            response = requests.post(f"{API_BASE}/planner/outfit", json=test_outfit_minimal, headers=headers)
+            
+            if response.status_code == 200:
+                self.log_result("Save Minimal Outfit", True, "Successfully saved outfit without event_name")
+            else:
+                self.log_result("Save Minimal Outfit", False, f"Failed minimal outfit: {response.status_code}")
+            
+            # Test updating existing outfit (same date)
+            updated_outfit = {
+                "date": "2024-01-15",  # Same date as first test
+                "occasion": "Updated Meeting",
+                "event_name": "Updated Event",
+                "items": {
+                    "top": str(uuid.uuid4()),
+                    "bottom": str(uuid.uuid4()),
+                    "shoes": str(uuid.uuid4())
+                }
+            }
+            
+            response = requests.post(f"{API_BASE}/planner/outfit", json=updated_outfit, headers=headers)
+            
+            if response.status_code == 200:
+                self.log_result("Update Planned Outfit", True, "Successfully updated existing planned outfit")
+            else:
+                self.log_result("Update Planned Outfit", False, f"Failed to update: {response.status_code}")
                 
         except Exception as e:
-            self.log_test("Wardrobe Categorization Analysis", "FAIL", f"Exception: {str(e)}")
-            return []
+            self.log_result("Save Planned Outfit", False, f"Save test error: {str(e)}")
     
-    async def test_outfit_generation_insufficient_items(self):
-        """Test outfit generation with insufficient items (< 2)"""
+    def test_get_planned_outfits(self):
+        """Test GET /api/planner/outfits endpoint"""
         try:
-            response = requests.get(f"{self.api_url}/wardrobe/outfits", 
-                                  headers=self.headers, timeout=15)
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            
+            # Test valid date range
+            start_date = "2024-01-01"
+            end_date = "2024-01-31"
+            
+            response = requests.get(
+                f"{API_BASE}/planner/outfits?start_date={start_date}&end_date={end_date}",
+                headers=headers
+            )
             
             if response.status_code == 200:
                 data = response.json()
-                outfits = data.get("outfits", [])
-                message = data.get("message", "")
-                
-                print(f"   🔍 DEBUG - Insufficient items response:")
-                print(f"      Outfits count: {len(outfits)}")
-                print(f"      Message: {message}")
-                
-                if len(outfits) == 0 and "at least 2 items" in message.lower():
-                    self.log_test("Outfit Generation (Insufficient Items)", "PASS", 
-                                f"Correctly handled insufficient items: {message}")
-                    return True
-                else:
-                    self.log_test("Outfit Generation (Insufficient Items)", "FAIL", 
-                                f"Unexpected response: {len(outfits)} outfits, message: {message}")
-                    return False
-            else:
-                self.log_test("Outfit Generation (Insufficient Items)", "FAIL", 
-                            f"Status: {response.status_code}, Response: {response.text[:200]}")
-                return False
-                
-        except Exception as e:
-            self.log_test("Outfit Generation (Insufficient Items)", "FAIL", f"Exception: {str(e)}")
-            return False
-    
-    async def test_outfit_generation_sufficient_items(self, expected_items_count):
-        """Test outfit generation with sufficient items"""
-        try:
-            print(f"   🧪 Testing outfit generation with {expected_items_count} wardrobe items...")
-            
-            response = requests.get(f"{self.api_url}/wardrobe/outfits?force_regenerate=true", 
-                                  headers=self.headers, timeout=30)
-            
-            if response.status_code == 200:
-                data = response.json()
-                outfits = data.get("outfits", [])
-                message = data.get("message", "")
-                
-                print(f"   🔍 DEBUG - Outfit generation response:")
-                print(f"      Number of outfits: {len(outfits)}")
-                print(f"      Message: {message}")
-                print(f"      Raw response keys: {list(data.keys())}")
-                
-                if len(outfits) > 0:
-                    self.log_test(f"Outfit Generation ({expected_items_count} items)", "PASS", 
-                                f"Generated {len(outfits)} outfits successfully")
+                if "planned_outfits" in data and isinstance(data["planned_outfits"], list):
+                    outfit_count = len(data["planned_outfits"])
+                    self.log_result("Get Planned Outfits", True, f"Retrieved {outfit_count} planned outfits")
                     
-                    # Analyze outfit details
-                    for i, outfit in enumerate(outfits[:3], 1):
-                        occasion = outfit.get("occasion", "Unknown")
-                        items_count = len(outfit.get("items", []))
-                        explanation = outfit.get("explanation", "No explanation")
-                        print(f"      👗 Outfit {i}: {occasion} ({items_count} items) - {explanation}")
-                    
-                    return True
-                else:
-                    # This is the critical issue we're investigating
-                    self.log_test(f"Outfit Generation ({expected_items_count} items)", "FAIL", 
-                                f"🚨 CRITICAL: No outfits generated despite {expected_items_count} items. Message: {message}")
-                    
-                    # Check for specific error patterns
-                    if "error" in message.lower():
-                        print(f"      🚨 ERROR DETECTED in message: {message}")
-                    
-                    return False
-            else:
-                self.log_test(f"Outfit Generation ({expected_items_count} items)", "FAIL", 
-                            f"Status: {response.status_code}, Response: {response.text[:300]}")
-                return False
-                
-        except Exception as e:
-            self.log_test(f"Outfit Generation ({expected_items_count} items)", "FAIL", f"Exception: {str(e)}")
-            return False
-    
-    async def test_openai_integration(self):
-        """Test OpenAI integration for outfit generation"""
-        try:
-            # Test chat endpoint to verify OpenAI connectivity
-            chat_data = {"message": "Hello, can you help me with outfit suggestions?"}
-            response = requests.post(f"{self.api_url}/chat", 
-                                   json=chat_data, headers=self.headers, timeout=20)
-            
-            if response.status_code == 200:
-                data = response.json()
-                messages = data.get("messages", [])
-                if messages and len(messages) > 0:
-                    self.log_test("OpenAI Integration Check", "PASS", 
-                                "OpenAI API responding correctly for chat")
-                    return True
-                else:
-                    self.log_test("OpenAI Integration Check", "FAIL", 
-                                "OpenAI API not responding with expected format")
-                    return False
-            else:
-                self.log_test("OpenAI Integration Check", "FAIL", 
-                            f"Chat endpoint failed: {response.status_code}")
-                return False
-                
-        except Exception as e:
-            self.log_test("OpenAI Integration Check", "FAIL", f"Exception: {str(e)}")
-            return False
-    
-    async def test_document_size_issue(self):
-        """Test for MongoDB document size issues that might cause outfit generation to fail"""
-        try:
-            print(f"   🔍 Testing for document size issues...")
-            
-            # Get current user profile to check document size
-            response = requests.get(f"{self.api_url}/auth/me", headers=self.headers, timeout=10)
-            
-            if response.status_code == 200:
-                # Try to estimate document size by checking wardrobe
-                wardrobe_response = requests.get(f"{self.api_url}/wardrobe", headers=self.headers, timeout=10)
-                
-                if wardrobe_response.status_code == 200:
-                    wardrobe_data = wardrobe_response.json()
-                    items = wardrobe_data.get("items", [])
-                    
-                    # Calculate approximate size
-                    total_base64_size = 0
-                    for item in items:
-                        base64_data = item.get("image_base64", "")
-                        total_base64_size += len(base64_data)
-                    
-                    # MongoDB has a 16MB document limit
-                    size_mb = total_base64_size / (1024 * 1024)
-                    
-                    print(f"      📏 Wardrobe data size: ~{size_mb:.2f} MB")
-                    print(f"      📦 Number of items: {len(items)}")
-                    
-                    if size_mb > 15:  # Close to 16MB limit
-                        self.log_test("Document Size Check", "FAIL", 
-                                    f"🚨 CRITICAL: Wardrobe data too large ({size_mb:.2f}MB). This likely causes outfit generation to fail!")
-                        return False
-                    elif size_mb > 10:
-                        self.log_test("Document Size Check", "WARN", 
-                                    f"Wardrobe data getting large ({size_mb:.2f}MB). May cause issues soon.")
-                        return True
-                    else:
-                        self.log_test("Document Size Check", "PASS", 
-                                    f"Wardrobe data size acceptable ({size_mb:.2f}MB)")
-                        return True
-                else:
-                    self.log_test("Document Size Check", "FAIL", 
-                                f"Could not get wardrobe data: {wardrobe_response.status_code}")
-                    return False
-            else:
-                self.log_test("Document Size Check", "FAIL", 
-                            f"Could not get user profile: {response.status_code}")
-                return False
-                
-        except Exception as e:
-            self.log_test("Document Size Check", "FAIL", f"Exception: {str(e)}")
-            return False
-    
-    async def test_json_parsing_errors(self):
-        """Test for JSON parsing errors in outfit generation"""
-        try:
-            print(f"   🔍 Testing for JSON parsing errors...")
-            
-            # Try outfit generation and look for parsing issues
-            response = requests.get(f"{self.api_url}/wardrobe/outfits?force_regenerate=true", 
-                                  headers=self.headers, timeout=30)
-            
-            if response.status_code == 200:
-                try:
-                    data = response.json()
-                    self.log_test("JSON Parsing Check", "PASS", 
-                                "Outfit generation API returns valid JSON")
-                    
-                    # Check if the response structure is correct
-                    if "outfits" in data:
-                        outfits = data["outfits"]
-                        if isinstance(outfits, list):
-                            self.log_test("Response Structure Check", "PASS", 
-                                        f"Outfits field is properly formatted list with {len(outfits)} items")
+                    # Verify data structure
+                    if outfit_count > 0:
+                        first_outfit = data["planned_outfits"][0]
+                        required_fields = ["date", "occasion", "items", "user_id"]
+                        missing_fields = [field for field in required_fields if field not in first_outfit]
+                        
+                        if not missing_fields:
+                            self.log_result("Outfit Data Structure", True, "Planned outfit has correct structure")
                         else:
-                            self.log_test("Response Structure Check", "FAIL", 
-                                        f"Outfits field is not a list: {type(outfits)}")
-                    else:
-                        self.log_test("Response Structure Check", "FAIL", 
-                                    "Response missing 'outfits' field")
-                    
-                    return True
-                except json.JSONDecodeError as e:
-                    self.log_test("JSON Parsing Check", "FAIL", 
-                                f"🚨 JSON parsing error: {str(e)}")
-                    return False
+                            self.log_result("Outfit Data Structure", False, f"Missing fields: {missing_fields}")
+                else:
+                    self.log_result("Get Planned Outfits", False, f"Invalid response format: {data}")
             else:
-                self.log_test("JSON Parsing Check", "FAIL", 
-                            f"API returned non-200 status: {response.status_code}")
-                return False
+                self.log_result("Get Planned Outfits", False, f"Failed with status {response.status_code}: {response.text}")
+            
+            # Test missing query parameters
+            response = requests.get(f"{API_BASE}/planner/outfits", headers=headers)
+            
+            if response.status_code == 422:  # FastAPI validation error
+                self.log_result("Date Range Validation", True, "Correctly validates missing date parameters")
+            else:
+                self.log_result("Date Range Validation", False, f"Expected 422, got {response.status_code}")
+            
+            # Test invalid date format
+            response = requests.get(
+                f"{API_BASE}/planner/outfits?start_date=invalid&end_date=2024-01-31",
+                headers=headers
+            )
+            
+            # Should handle gracefully (might return empty results or validation error)
+            if response.status_code in [200, 422, 400]:
+                self.log_result("Invalid Date Format", True, f"Handled invalid date format appropriately ({response.status_code})")
+            else:
+                self.log_result("Invalid Date Format", False, f"Unexpected response to invalid date: {response.status_code}")
                 
         except Exception as e:
-            self.log_test("JSON Parsing Check", "FAIL", f"Exception: {str(e)}")
-            return False
+            self.log_result("Get Planned Outfits", False, f"Get test error: {str(e)}")
     
-    async def test_image_compression_fix(self):
-        """Test 1: Image Compression & Outfit Generation Fix"""
-        print("\n🧪 Testing Image Compression & Outfit Generation Fix...")
-        
-        # Clear wardrobe first
+    def test_delete_planned_outfit(self):
+        """Test DELETE /api/planner/outfit/{date} endpoint"""
         try:
-            response = requests.delete(f"{self.api_url}/wardrobe/clear", headers=self.headers, timeout=10)
-        except:
-            pass
-        
-        # Test with large image to trigger compression
-        large_image = self.create_sample_base64_image(size=(2000, 2500), quality=95)
-        original_size_mb = len(large_image.split(',')[1]) * 0.75 / (1024 * 1024)
-        
-        print(f"   📏 Original image size: {original_size_mb:.2f} MB")
-        
-        item_data = {"image_base64": large_image}
-        
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            
+            # First, create an outfit to delete
+            test_outfit = {
+                "date": "2024-01-20",
+                "occasion": "Test Delete",
+                "items": {"top": str(uuid.uuid4())}
+            }
+            
+            create_response = requests.post(f"{API_BASE}/planner/outfit", json=test_outfit, headers=headers)
+            
+            if create_response.status_code == 200:
+                # Now delete it
+                delete_response = requests.delete(f"{API_BASE}/planner/outfit/2024-01-20", headers=headers)
+                
+                if delete_response.status_code == 200:
+                    data = delete_response.json()
+                    if "message" in data and "deleted" in data["message"].lower():
+                        self.log_result("Delete Planned Outfit", True, "Successfully deleted planned outfit")
+                    else:
+                        self.log_result("Delete Planned Outfit", False, f"Unexpected delete response: {data}")
+                else:
+                    self.log_result("Delete Planned Outfit", False, f"Delete failed: {delete_response.status_code}")
+            else:
+                self.log_result("Delete Planned Outfit", False, "Could not create outfit to delete")
+            
+            # Test deleting non-existent outfit
+            delete_response = requests.delete(f"{API_BASE}/planner/outfit/2024-12-31", headers=headers)
+            
+            if delete_response.status_code == 200:
+                data = delete_response.json()
+                if "not found" in data.get("message", "").lower() or "no" in data.get("message", "").lower():
+                    self.log_result("Delete Non-existent Outfit", True, "Correctly handled non-existent outfit deletion")
+                else:
+                    self.log_result("Delete Non-existent Outfit", True, f"Handled gracefully: {data.get('message')}")
+            else:
+                self.log_result("Delete Non-existent Outfit", False, f"Unexpected status for non-existent: {delete_response.status_code}")
+                
+        except Exception as e:
+            self.log_result("Delete Planned Outfit", False, f"Delete test error: {str(e)}")
+    
+    def test_data_validation(self):
+        """Test data validation and edge cases"""
         try:
-            response = requests.post(f"{self.api_url}/wardrobe", json=item_data, headers=self.headers, timeout=15)
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            
+            # Test invalid date format
+            invalid_outfit = {
+                "date": "invalid-date",
+                "occasion": "Test",
+                "items": {"top": "item1"}
+            }
+            
+            response = requests.post(f"{API_BASE}/planner/outfit", json=invalid_outfit, headers=headers)
+            
+            # Should either validate or handle gracefully
+            if response.status_code in [400, 422, 500]:
+                self.log_result("Invalid Date Validation", True, f"Handled invalid date appropriately ({response.status_code})")
+            else:
+                self.log_result("Invalid Date Validation", False, f"Unexpected response to invalid date: {response.status_code}")
+            
+            # Test empty items
+            empty_items_outfit = {
+                "date": "2024-01-25",
+                "occasion": "Test",
+                "items": {}
+            }
+            
+            response = requests.post(f"{API_BASE}/planner/outfit", json=empty_items_outfit, headers=headers)
+            
+            if response.status_code in [200, 400, 422]:
+                self.log_result("Empty Items Validation", True, f"Handled empty items appropriately ({response.status_code})")
+            else:
+                self.log_result("Empty Items Validation", False, f"Unexpected response to empty items: {response.status_code}")
+            
+            # Test missing required fields
+            incomplete_outfit = {
+                "date": "2024-01-26"
+                # Missing occasion and items
+            }
+            
+            response = requests.post(f"{API_BASE}/planner/outfit", json=incomplete_outfit, headers=headers)
+            
+            if response.status_code in [400, 422]:
+                self.log_result("Required Fields Validation", True, "Correctly validates required fields")
+            else:
+                self.log_result("Required Fields Validation", False, f"Expected validation error, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("Data Validation", False, f"Validation test error: {str(e)}")
+    
+    def test_integration_flow(self):
+        """Test complete integration flow"""
+        try:
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            
+            # 1. Save multiple outfits
+            outfits_to_save = [
+                {
+                    "date": "2024-02-01",
+                    "occasion": "Work",
+                    "event_name": "Team Standup",
+                    "items": {"top": str(uuid.uuid4()), "bottom": str(uuid.uuid4())}
+                },
+                {
+                    "date": "2024-02-02",
+                    "occasion": "Date Night",
+                    "event_name": "Dinner",
+                    "items": {"top": str(uuid.uuid4()), "bottom": str(uuid.uuid4()), "shoes": str(uuid.uuid4())}
+                },
+                {
+                    "date": "2024-02-03",
+                    "occasion": "Casual",
+                    "items": {"top": str(uuid.uuid4()), "bottom": str(uuid.uuid4())}
+                }
+            ]
+            
+            saved_count = 0
+            for outfit in outfits_to_save:
+                response = requests.post(f"{API_BASE}/planner/outfit", json=outfit, headers=headers)
+                if response.status_code == 200:
+                    saved_count += 1
+            
+            # 2. Retrieve them
+            response = requests.get(
+                f"{API_BASE}/planner/outfits?start_date=2024-02-01&end_date=2024-02-28",
+                headers=headers
+            )
             
             if response.status_code == 200:
-                self.log_test("Image Compression - Large Image Upload", "PASS", 
-                            "Large image successfully uploaded and processed")
+                data = response.json()
+                retrieved_count = len(data.get("planned_outfits", []))
                 
-                # Check if image was compressed by getting wardrobe
-                wardrobe_response = requests.get(f"{self.api_url}/wardrobe", headers=self.headers, timeout=10)
-                if wardrobe_response.status_code == 200:
-                    wardrobe = wardrobe_response.json()
-                    items = wardrobe.get("items", [])
-                    if items:
-                        stored_image = items[-1].get("image_base64", "")
-                        compressed_size_mb = len(stored_image) * 0.75 / (1024 * 1024)
-                        compression_ratio = compressed_size_mb / original_size_mb * 100
-                        
-                        print(f"   📏 Compressed size: {compressed_size_mb:.2f} MB ({compression_ratio:.1f}% of original)")
-                        
-                        if compressed_size_mb < original_size_mb:
-                            self.log_test("Image Compression - Verification", "PASS", 
-                                        f"Image compressed from {original_size_mb:.2f}MB to {compressed_size_mb:.2f}MB")
-                        else:
-                            self.log_test("Image Compression - Verification", "FAIL", 
-                                        "No compression detected")
-                    else:
-                        self.log_test("Image Compression - Verification", "FAIL", 
-                                    "No items found in wardrobe after upload")
+                if retrieved_count >= saved_count:
+                    self.log_result("Integration Flow", True, f"Saved {saved_count} outfits, retrieved {retrieved_count}")
+                else:
+                    self.log_result("Integration Flow", False, f"Saved {saved_count} but only retrieved {retrieved_count}")
             else:
-                self.log_test("Image Compression - Large Image Upload", "FAIL", 
-                            f"Upload failed: {response.status_code}, {response.text[:200]}")
+                self.log_result("Integration Flow", False, f"Failed to retrieve outfits: {response.status_code}")
                 
         except Exception as e:
-            self.log_test("Image Compression - Large Image Upload", "FAIL", f"Exception: {str(e)}")
+            self.log_result("Integration Flow", False, f"Integration test error: {str(e)}")
     
-    async def test_outfit_generation_guardrails(self):
-        """Test 2: Enhanced Outfit Generation Guardrails"""
-        print("\n🧪 Testing Enhanced Outfit Generation Guardrails...")
+    def run_all_tests(self):
+        """Run all planner endpoint tests"""
+        print("🧪 Starting Manual Outfit Builder Backend Tests")
+        print("=" * 60)
         
-        # Clear wardrobe
-        try:
-            requests.delete(f"{self.api_url}/wardrobe/clear", headers=self.headers, timeout=10)
-        except:
-            pass
-        
-        # Test 0 items
-        await self.test_guardrail_scenario(0, "Your wardrobe is empty!")
-        
-        # Test 1 item
-        await self.add_wardrobe_item("Blue T-shirt")
-        await self.test_guardrail_scenario(1, "Add more items to your wardrobe")
-        
-        # Test 2-3 items
-        await self.add_wardrobe_item("Black Jeans")
-        await self.test_guardrail_scenario(2, "You have 2 items. Add a few more")
-        
-        await self.add_wardrobe_item("White Shirt")
-        await self.test_guardrail_scenario(3, "You have 3 items. Add a few more")
-        
-        # Test 4+ items (should generate outfits)
-        await self.add_wardrobe_item("Navy Jacket")
-        await self.test_guardrail_scenario(4, None, should_generate=True)
-    
-    async def test_guardrail_scenario(self, expected_count, expected_message, should_generate=False):
-        """Test a specific guardrail scenario"""
-        try:
-            response = requests.get(f"{self.api_url}/wardrobe/outfits", headers=self.headers, timeout=15)
-            
-            if response.status_code == 200:
-                result = response.json()
-                outfits = result.get("outfits", [])
-                message = result.get("message", "")
-                
-                print(f"   📊 {expected_count} items: {len(outfits)} outfits, message: '{message}'")
-                
-                if should_generate:
-                    if len(outfits) > 0:
-                        self.log_test(f"Guardrail {expected_count} Items", "PASS", 
-                                    f"Generated {len(outfits)} outfits as expected")
-                    else:
-                        self.log_test(f"Guardrail {expected_count} Items", "FAIL", 
-                                    f"Expected outfits but got message: {message}")
-                else:
-                    if expected_message and expected_message.lower() in message.lower():
-                        self.log_test(f"Guardrail {expected_count} Items", "PASS", 
-                                    f"Correct message: {message}")
-                    else:
-                        self.log_test(f"Guardrail {expected_count} Items", "FAIL", 
-                                    f"Expected '{expected_message}' but got: {message}")
-            else:
-                self.log_test(f"Guardrail {expected_count} Items", "FAIL", 
-                            f"Status: {response.status_code}")
-                
-        except Exception as e:
-            self.log_test(f"Guardrail {expected_count} Items", "FAIL", f"Exception: {str(e)}")
-    
-    async def test_wardrobe_category_analysis(self):
-        """Test 3: Wardrobe Category Analysis"""
-        print("\n🧪 Testing Wardrobe Category Analysis...")
-        
-        # Clear wardrobe
-        try:
-            requests.delete(f"{self.api_url}/wardrobe/clear", headers=self.headers, timeout=10)
-        except:
-            pass
-        
-        # Add test items and analyze categorization
-        test_items = [
-            {"name": "Red T-shirt", "color": (200, 50, 50)},
-            {"name": "Blue Jeans", "color": (50, 100, 150)},
-            {"name": "Black Jacket", "color": (30, 30, 30)}
-        ]
-        
-        for item in test_items:
-            test_image = self.create_sample_base64_image(color=item["color"])
-            item_data = {"image_base64": test_image}
-            
-            try:
-                response = requests.post(f"{self.api_url}/wardrobe", json=item_data, headers=self.headers, timeout=15)
-                if response.status_code == 200:
-                    print(f"   ✅ Added {item['name']}")
-                else:
-                    print(f"   ❌ Failed to add {item['name']}")
-            except Exception as e:
-                print(f"   ❌ Exception adding {item['name']}: {e}")
-        
-        # Analyze categorization
-        await self.get_wardrobe_analysis()
-    
-    async def test_mongodb_document_size_fix(self):
-        """Test 4: MongoDB DocumentTooLarge Fix"""
-        print("\n🧪 Testing MongoDB DocumentTooLarge Fix...")
-        
-        # Clear wardrobe
-        try:
-            requests.delete(f"{self.api_url}/wardrobe/clear", headers=self.headers, timeout=10)
-        except:
-            pass
-        
-        # Add multiple large items to test document size limits
-        print("   📦 Adding multiple large images to test document size limits...")
-        
-        for i in range(8):  # Add 8 large items
-            large_image = self.create_sample_base64_image(size=(1500, 2000), quality=85)
-            item_data = {"image_base64": large_image}
-            
-            try:
-                response = requests.post(f"{self.api_url}/wardrobe", json=item_data, headers=self.headers, timeout=15)
-                if response.status_code == 200:
-                    print(f"   ✅ Added large item {i+1}")
-                else:
-                    self.log_test("MongoDB Size Fix", "FAIL", 
-                                f"Failed to add item {i+1}: {response.status_code}")
-                    return
-            except Exception as e:
-                self.log_test("MongoDB Size Fix", "FAIL", 
-                            f"Exception adding item {i+1}: {str(e)}")
-                return
-        
-        print("   🧪 Testing outfit generation with large wardrobe...")
-        
-        # Test outfit generation (this previously failed due to document size)
-        try:
-            response = requests.get(f"{self.api_url}/wardrobe/outfits?force_regenerate=true", 
-                                  headers=self.headers, timeout=30)
-            
-            if response.status_code == 200:
-                result = response.json()
-                outfits = result.get("outfits", [])
-                message = result.get("message", "")
-                
-                if len(outfits) > 0:
-                    self.log_test("MongoDB Size Fix", "PASS", 
-                                f"Successfully generated {len(outfits)} outfits with large wardrobe")
-                    
-                    # Test persistence
-                    response2 = requests.get(f"{self.api_url}/wardrobe/outfits", headers=self.headers, timeout=15)
-                    if response2.status_code == 200:
-                        result2 = response2.json()
-                        outfits2 = result2.get("outfits", [])
-                        
-                        if len(outfits2) == len(outfits):
-                            self.log_test("Outfit Persistence", "PASS", 
-                                        "Outfits successfully saved and retrieved from database")
-                        else:
-                            self.log_test("Outfit Persistence", "FAIL", 
-                                        "Outfits not properly persisted")
-                else:
-                    self.log_test("MongoDB Size Fix", "FAIL", 
-                                f"No outfits generated. Message: {message}")
-            else:
-                self.log_test("MongoDB Size Fix", "FAIL", 
-                            f"Outfit generation failed: {response.status_code}")
-                
-        except Exception as e:
-            self.log_test("MongoDB Size Fix", "FAIL", 
-                        f"Exception during outfit generation: {str(e)}")
-    
-    async def test_full_flow(self):
-        """Test 5: Complete End-to-End Flow"""
-        print("\n🧪 Testing Complete End-to-End Flow...")
-        
-        # Clear wardrobe
-        try:
-            requests.delete(f"{self.api_url}/wardrobe/clear", headers=self.headers, timeout=10)
-        except:
-            pass
-        
-        # Add diverse wardrobe items
-        test_items = [
-            {"name": "White T-shirt", "color": (255, 255, 255)},
-            {"name": "Blue Jeans", "color": (50, 100, 150)},
-            {"name": "Black Jacket", "color": (30, 30, 30)},
-            {"name": "Red Dress", "color": (200, 50, 50)},
-            {"name": "Brown Shoes", "color": (139, 69, 19)},
-            {"name": "Green Shirt", "color": (50, 150, 50)}
-        ]
-        
-        added_items = 0
-        for item in test_items:
-            test_image = self.create_sample_base64_image(color=item["color"])
-            item_data = {"image_base64": test_image}
-            
-            try:
-                response = requests.post(f"{self.api_url}/wardrobe", json=item_data, headers=self.headers, timeout=15)
-                if response.status_code == 200:
-                    added_items += 1
-                    print(f"   ✅ Added {item['name']}")
-                else:
-                    print(f"   ❌ Failed to add {item['name']}: {response.status_code}")
-            except Exception as e:
-                print(f"   ❌ Exception adding {item['name']}: {e}")
-        
-        if added_items >= 4:
-            self.log_test("Full Flow - Item Addition", "PASS", 
-                        f"Successfully added {added_items} items")
-            
-            # Generate outfits
-            try:
-                response = requests.get(f"{self.api_url}/wardrobe/outfits", headers=self.headers, timeout=30)
-                
-                if response.status_code == 200:
-                    result = response.json()
-                    outfits = result.get("outfits", [])
-                    
-                    if len(outfits) > 0:
-                        self.log_test("Full Flow - Outfit Generation", "PASS", 
-                                    f"Generated {len(outfits)} outfits")
-                        
-                        # Analyze outfit quality
-                        for i, outfit in enumerate(outfits[:3]):
-                            occasion = outfit.get("occasion", "Unknown")
-                            items = outfit.get("items", [])
-                            explanation = outfit.get("explanation", "")
-                            
-                            print(f"   👗 Outfit {i+1} ({occasion}): {len(items)} items - {explanation}")
-                            
-                            if len(items) >= 2:
-                                self.log_test(f"Full Flow - Outfit {i+1} Quality", "PASS", 
-                                            f"{occasion} outfit with {len(items)} items")
-                            else:
-                                self.log_test(f"Full Flow - Outfit {i+1} Quality", "FAIL", 
-                                            f"Insufficient items in {occasion} outfit")
-                    else:
-                        message = result.get("message", "No message")
-                        self.log_test("Full Flow - Outfit Generation", "FAIL", 
-                                    f"No outfits generated: {message}")
-                else:
-                    self.log_test("Full Flow - Outfit Generation", "FAIL", 
-                                f"Failed: {response.status_code}")
-            except Exception as e:
-                self.log_test("Full Flow - Outfit Generation", "FAIL", f"Exception: {str(e)}")
-        else:
-            self.log_test("Full Flow - Item Addition", "FAIL", 
-                        f"Only added {added_items} items, need at least 4")
-
-    async def run_wardrobe_fixes_tests(self):
-        """Run all wardrobe fixes tests"""
-        print("🧪 Starting Wardrobe Fixes Testing Suite")
-        print("=" * 70)
-        print("🎯 Testing: Image compression, outfit guardrails, category analysis")
-        print("=" * 70)
-        
-        # Step 1: Setup
-        if not await self.setup_test_user():
-            print("❌ Failed to setup test user. Aborting tests.")
+        # Setup
+        if not self.setup_test_user():
+            print("❌ Cannot proceed without test user setup")
             return False
         
-        # Step 2: Test image compression fix
-        await self.test_image_compression_fix()
+        if not self.add_test_wardrobe_items():
+            print("⚠️ Proceeding without wardrobe items")
         
-        # Step 3: Test outfit generation guardrails
-        await self.test_outfit_generation_guardrails()
+        # Core planner tests
+        self.test_planner_authentication()
+        self.test_save_planned_outfit()
+        self.test_get_planned_outfits()
+        self.test_delete_planned_outfit()
+        self.test_data_validation()
+        self.test_integration_flow()
         
-        # Step 4: Test wardrobe category analysis
-        await self.test_wardrobe_category_analysis()
-        
-        # Step 5: Test MongoDB document size fix
-        await self.test_mongodb_document_size_fix()
-        
-        # Step 6: Test complete flow
-        await self.test_full_flow()
-        
-        # Step 7: Summary
-        self.print_diagnostic_summary()
-        
-        return True
-    
-    def print_diagnostic_summary(self):
-        """Print comprehensive diagnostic summary focused on wardrobe fixes"""
-        print("\n" + "=" * 70)
-        print("🔍 WARDROBE FIXES DIAGNOSTIC SUMMARY")
-        print("=" * 70)
+        # Summary
+        print("\n" + "=" * 60)
+        print("📊 TEST SUMMARY")
+        print("=" * 60)
         
         total_tests = len(self.test_results)
-        passed_tests = len([r for r in self.test_results if r["status"] == "PASS"])
-        failed_tests = len([r for r in self.test_results if r["status"] == "FAIL"])
-        warned_tests = len([r for r in self.test_results if r["status"] == "WARN"])
+        passed_tests = sum(1 for result in self.test_results if result["success"])
+        failed_tests = total_tests - passed_tests
         
-        print(f"📊 Total Tests: {total_tests}")
+        print(f"Total Tests: {total_tests}")
         print(f"✅ Passed: {passed_tests}")
         print(f"❌ Failed: {failed_tests}")
-        print(f"⚠️  Warnings: {warned_tests}")
-        print(f"📈 Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
-        # Analyze specific fix areas
-        compression_tests = [r for r in self.test_results if "Compression" in r["test"]]
-        guardrail_tests = [r for r in self.test_results if "Guardrail" in r["test"]]
-        category_tests = [r for r in self.test_results if "Category" in r["test"]]
-        mongodb_tests = [r for r in self.test_results if "MongoDB" in r["test"]]
+        if failed_tests > 0:
+            print("\n🚨 FAILED TESTS:")
+            for result in self.test_results:
+                if not result["success"]:
+                    print(f"   • {result['test']}: {result['message']}")
         
-        print(f"\n🎯 WARDROBE FIXES ANALYSIS:")
-        print(f"   Image Compression Tests: {len([r for r in compression_tests if r['status'] == 'PASS'])}/{len(compression_tests)} passed")
-        print(f"   Guardrail Tests: {len([r for r in guardrail_tests if r['status'] == 'PASS'])}/{len(guardrail_tests)} passed")
-        print(f"   Category Analysis Tests: {len([r for r in category_tests if r['status'] == 'PASS'])}/{len(category_tests)} passed")
-        print(f"   MongoDB Size Fix Tests: {len([r for r in mongodb_tests if r['status'] == 'PASS'])}/{len(mongodb_tests)} passed")
-        
-        # Check for specific issue patterns
-        compression_failures = [r for r in compression_tests if r["status"] == "FAIL"]
-        guardrail_failures = [r for r in guardrail_tests if r["status"] == "FAIL"]
-        category_issues = [r for r in category_tests if r["status"] in ["FAIL", "WARN"]]
-        mongodb_failures = [r for r in mongodb_tests if r["status"] == "FAIL"]
-        
-        print(f"\n🔍 FIX STATUS ANALYSIS:")
-        
-        if len(compression_failures) == 0:
-            print(f"   ✅ IMAGE COMPRESSION FIX: Working correctly")
-        else:
-            print(f"   ❌ IMAGE COMPRESSION FIX: Issues detected")
-            for failure in compression_failures:
-                print(f"      • {failure['details']}")
-        
-        if len(guardrail_failures) == 0:
-            print(f"   ✅ OUTFIT GENERATION GUARDRAILS: Working correctly")
-        else:
-            print(f"   ❌ OUTFIT GENERATION GUARDRAILS: Issues detected")
-            for failure in guardrail_failures:
-                print(f"      • {failure['details']}")
-        
-        if len(category_issues) == 0:
-            print(f"   ✅ CATEGORY ANALYSIS: Working correctly")
-        else:
-            print(f"   ⚠️  CATEGORY ANALYSIS: Issues detected")
-            for issue in category_issues:
-                print(f"      • {issue['details']}")
-        
-        if len(mongodb_failures) == 0:
-            print(f"   ✅ MONGODB DOCUMENT SIZE FIX: Working correctly")
-        else:
-            print(f"   ❌ MONGODB DOCUMENT SIZE FIX: Issues detected")
-            for failure in mongodb_failures:
-                print(f"      • {failure['details']}")
-        
-        print(f"\n📋 OVERALL ASSESSMENT:")
-        
-        critical_failures = compression_failures + mongodb_failures
-        if len(critical_failures) == 0:
-            print(f"   🎉 CRITICAL FIXES: All working correctly!")
-            print(f"   ✅ Image compression preventing MongoDB document size errors")
-            print(f"   ✅ Outfit generation working with large wardrobes")
-        else:
-            print(f"   🚨 CRITICAL ISSUES REMAINING:")
-            for failure in critical_failures:
-                print(f"      • {failure['test']}: {failure['details']}")
-        
-        if len(guardrail_failures) == 0:
-            print(f"   ✅ GUARDRAILS: Enhanced outfit generation guardrails working")
-        else:
-            print(f"   ❌ GUARDRAILS: Issues with outfit generation guardrails")
-        
-        if len(category_issues) == 0:
-            print(f"   ✅ CATEGORIZATION: AI analysis providing good categories")
-        else:
-            print(f"   ⚠️  CATEGORIZATION: Room for improvement in AI categorization")
-        
-        print("\n" + "=" * 70)
-
-async def main():
-    """Main test execution for wardrobe fixes testing"""
-    print("🚀 Starting Wardrobe Fixes Testing...")
-    print("🎯 Focus: Testing image compression, outfit guardrails, and category analysis")
-    print("=" * 70)
-    
-    tester = WardrobeFixesTester()
-    
-    try:
-        await tester.run_wardrobe_fixes_tests()
-    except KeyboardInterrupt:
-        print("\n⏹️  Tests interrupted by user")
-    except Exception as e:
-        print(f"\n💥 Unexpected error during testing: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        return failed_tests == 0
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    tester = BackendTester()
+    success = tester.run_all_tests()
+    
+    if success:
+        print("\n🎉 All tests passed! Manual Outfit Builder backend is working correctly.")
+    else:
+        print("\n⚠️ Some tests failed. Check the details above.")
