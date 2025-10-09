@@ -2809,6 +2809,17 @@ export default function App() {
                     </View>
                   ))}
                 </View>
+                
+                {/* Repetition Warning */}
+                {(() => {
+                  const warning = checkOutfitRepetition(selectedOutfit);
+                  return warning ? (
+                    <View style={styles.repetitionWarning}>
+                      <Ionicons name="warning-outline" size={20} color="#FF9500" />
+                      <Text style={styles.repetitionWarningText}>{warning.message}</Text>
+                    </View>
+                  ) : null;
+                })()}
               </View>
 
               <TouchableOpacity
