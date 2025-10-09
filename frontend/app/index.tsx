@@ -2271,6 +2271,10 @@ export default function App() {
                     setShowOutfitModal(false);
                     setShowManualOutfitBuilder(true);
                     console.log('Setting showManualOutfitBuilder to true');
+                    // Load wardrobe items when opening manual builder
+                    if (wardrobe.length === 0) {
+                      loadWardrobe();
+                    }
                   }}
                 >
                   <View style={styles.outfitOptionIcon}>
