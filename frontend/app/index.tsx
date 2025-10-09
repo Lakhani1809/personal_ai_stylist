@@ -2944,6 +2944,85 @@ export default function App() {
           </View>
         </Modal>
 
+        {/* Week Picker Modal */}
+        <Modal
+          visible={showDatePicker}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowDatePicker(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.weekPickerContainer}>
+              <View style={styles.weekPickerHeader}>
+                <Text style={styles.weekPickerTitle}>Select Week</Text>
+                <TouchableOpacity
+                  style={styles.closeModalButton}
+                  onPress={() => setShowDatePicker(false)}
+                >
+                  <Text style={styles.closeModalText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.weekPickerContent}>
+                <View style={styles.weekNavigator}>
+                  <TouchableOpacity 
+                    style={styles.weekNavButton}
+                    onPress={() => setTempSelectedWeek(tempSelectedWeek - 4)}
+                  >
+                    <Text style={styles.weekNavText}>{'<<'} Previous Month</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={styles.weekNavButton}
+                    onPress={() => setTempSelectedWeek(tempSelectedWeek + 4)}
+                  >
+                    <Text style={styles.weekNavText}>Next Month {'>>'}</Text>
+                  </TouchableOpacity>
+                </View>
+                
+                <ScrollView style={styles.weeksList} showsVerticalScrollIndicator={false}>
+                  {Array.from({ length: 12 }, (_, i) => tempSelectedWeek - 6 + i).map((weekOffset) => (
+                    <TouchableOpacity
+                      key={weekOffset}
+                      style={[
+                        styles.weekOption,
+                        weekOffset === tempSelectedWeek && styles.selectedWeekOption
+                      ]}
+                      onPress={() => setTempSelectedWeek(weekOffset)}
+                    >
+                      <Text style={[
+                        styles.weekOptionText,
+                        weekOffset === tempSelectedWeek && styles.selectedWeekOptionText
+                      ]}>
+                        {getWeekDateRange(weekOffset)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+                
+                <View style={styles.weekPickerActions}>
+                  <TouchableOpacity
+                    style={styles.weekPickerCancel}
+                    onPress={() => setShowDatePicker(false)}
+                  >
+                    <Text style={styles.weekPickerCancelText}>Cancel</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={styles.weekPickerConfirm}
+                    onPress={() => {
+                      setSelectedWeek(tempSelectedWeek);
+                      setShowDatePicker(false);
+                    }}
+                  >
+                    <Text style={styles.weekPickerConfirmText}>Select</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
         {currentTab === 'chat' && (
           <KeyboardAvoidingView 
             style={styles.chatContainer}
