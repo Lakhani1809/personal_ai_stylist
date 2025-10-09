@@ -252,6 +252,8 @@ export default function App() {
     layering: null,
     shoes: null,
   });
+  const [outfitOccasion, setOutfitOccasion] = useState('');
+  const [outfitEvent, setOutfitEvent] = useState('');
   
   // Initialize with empty events - let users add their own
   useEffect(() => {
