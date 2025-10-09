@@ -1149,5 +1149,86 @@ Remember: Only use item numbers that exist in the wardrobe list!"""
         traceback.print_exc()
         return {"outfits": [], "message": f"Error generating outfits: {str(e)}"}
 
+# Planned outfit models
+class PlannedOutfit(BaseModel):
+    date: str  # Format: YYYY-MM-DD
+    occasion: str
+    event_name: Optional[str] = None
+    items: Dict[str, Optional[str]]  # {category: item_id}
+
+# Save planned outfit
+@app.post("/api/planner/outfit")
+async def save_planned_outfit(planned_outfit: PlannedOutfit, current_user: dict = Depends(get_current_user)):
+    try:
+        user_id = current_user["user_id"]
+        
+        # Create planned outfit document
+        planned_outfit_doc = {
+            "date": planned_outfit.date,
+            "occasion": planned_outfit.occasion,
+            "event_name": planned_outfit.event_name,
+            "items": planned_outfit.items,
+            "created_at": datetime.utcnow().isoformat(),
+            "user_id": user_id
+        }
+        
+        # Update or insert planned outfit for this date
+        await db.planned_outfits.replace_one(
+            {"user_id": user_id, "date": planned_outfit.date},
+            planned_outfit_doc,
+            upsert=True
+        )
+        
+        print(f"💾 Saved planned outfit for {planned_outfit.date}")
+        return {"message": "Planned outfit saved successfully"}
+        
+    except Exception as e:
+        print(f"❌ Error saving planned outfit: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving planned outfit: {str(e)}")
+
+# Get planned outfits for a date range
+@app.get("/api/planner/outfits")
+async def get_planned_outfits(
+    start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
+    end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        user_id = current_user["user_id"]
+        
+        # Query planned outfits within date range
+        planned_outfits_cursor = db.planned_outfits.find({
+            "user_id": user_id,
+            "date": {"$gte": start_date, "$lte": end_date}
+        })
+        
+        planned_outfits = []
+        async for outfit in planned_outfits_cursor:
+            outfit["_id"] = str(outfit["_id"])  # Convert ObjectId to string
+            planned_outfits.append(outfit)
+        
+        return {"planned_outfits": planned_outfits}
+        
+    except Exception as e:
+        print(f"❌ Error fetching planned outfits: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching planned outfits: {str(e)}")
+
+# Delete planned outfit
+@app.delete("/api/planner/outfit/{date}")
+async def delete_planned_outfit(date: str, current_user: dict = Depends(get_current_user)):
+    try:
+        user_id = current_user["user_id"]
+        
+        result = await db.planned_outfits.delete_one({"user_id": user_id, "date": date})
+        
+        if result.deleted_count > 0:
+            return {"message": f"Planned outfit for {date} deleted successfully"}
+        else:
+            return {"message": f"No planned outfit found for {date}"}
+            
+    except Exception as e:
+        print(f"❌ Error deleting planned outfit: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting planned outfit: {str(e)}")
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
