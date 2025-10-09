@@ -3942,7 +3942,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dayDate: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#666',
     marginTop: 2,
   },
