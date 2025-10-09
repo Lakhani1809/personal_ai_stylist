@@ -5758,4 +5758,23 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
+  
+  // Repetition Warning Styles
+  repetitionWarning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3CD',
+    borderWidth: 1,
+    borderColor: '#FFE69C',
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 16,
+    gap: 8,
+  },
+  repetitionWarningText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#664D03',
+    fontWeight: '500',
+  },
 });
