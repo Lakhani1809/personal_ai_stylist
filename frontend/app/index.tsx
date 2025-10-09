@@ -3952,7 +3952,6 @@ const styles = StyleSheet.create({
   },
   todayDate: {
     color: '#007AFF',
-    fontWeight: '600',
   },
   eventText: {
     fontSize: 14,
