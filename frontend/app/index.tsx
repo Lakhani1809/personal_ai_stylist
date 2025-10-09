@@ -2248,8 +2248,10 @@ export default function App() {
                   style={styles.outfitOptionButton}
                   onPress={() => {
                     console.log('✋ Manual mode selected');
+                    console.log('Current showManualOutfitBuilder state:', showManualOutfitBuilder);
                     setShowOutfitModal(false);
                     setShowManualOutfitBuilder(true);
+                    console.log('Setting showManualOutfitBuilder to true');
                   }}
                 >
                   <View style={styles.outfitOptionIcon}>
