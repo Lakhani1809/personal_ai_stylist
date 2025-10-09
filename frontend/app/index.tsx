@@ -3040,6 +3040,106 @@ export default function App() {
           </View>
         </Modal>
 
+        {/* Time Picker Modal */}
+        <Modal
+          visible={showTimePicker}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowTimePicker(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.timePickerContainer}>
+              <View style={styles.timePickerHeader}>
+                <TouchableOpacity
+                  onPress={() => setShowTimePicker(false)}
+                >
+                  <Text style={styles.timePickerCancel}>Cancel</Text>
+                </TouchableOpacity>
+                <Text style={styles.timePickerTitle}>Select Time</Text>
+                <TouchableOpacity
+                  onPress={() => setShowTimePicker(false)}
+                >
+                  <Text style={styles.timePickerConfirm}>Done</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.timePickerContent}>
+                {/* Hour Picker */}
+                <View style={styles.timePicker}>
+                  <Text style={styles.timeLabel}>Hour</Text>
+                  <ScrollView style={styles.timeScrollView} showsVerticalScrollIndicator={false}>
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((hour) => (
+                      <TouchableOpacity
+                        key={hour}
+                        style={[
+                          styles.timeOption,
+                          selectedHour === hour && styles.selectedTimeOption
+                        ]}
+                        onPress={() => setSelectedHour(hour)}
+                      >
+                        <Text style={[
+                          styles.timeOptionText,
+                          selectedHour === hour && styles.selectedTimeOptionText
+                        ]}>
+                          {hour}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+                
+                {/* Minute Picker */}
+                <View style={styles.timePicker}>
+                  <Text style={styles.timeLabel}>Min</Text>
+                  <ScrollView style={styles.timeScrollView} showsVerticalScrollIndicator={false}>
+                    {Array.from({ length: 12 }, (_, i) => i * 5).map((minute) => (
+                      <TouchableOpacity
+                        key={minute}
+                        style={[
+                          styles.timeOption,
+                          selectedMinute === minute && styles.selectedTimeOption
+                        ]}
+                        onPress={() => setSelectedMinute(minute)}
+                      >
+                        <Text style={[
+                          styles.timeOptionText,
+                          selectedMinute === minute && styles.selectedTimeOptionText
+                        ]}>
+                          {minute.toString().padStart(2, '0')}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+                
+                {/* AM/PM Picker */}
+                <View style={styles.timePicker}>
+                  <Text style={styles.timeLabel}>AM/PM</Text>
+                  <ScrollView style={styles.timeScrollView} showsVerticalScrollIndicator={false}>
+                    {['AM', 'PM'].map((period) => (
+                      <TouchableOpacity
+                        key={period}
+                        style={[
+                          styles.timeOption,
+                          selectedAmPm === period && styles.selectedTimeOption
+                        ]}
+                        onPress={() => setSelectedAmPm(period)}
+                      >
+                        <Text style={[
+                          styles.timeOptionText,
+                          selectedAmPm === period && styles.selectedTimeOptionText
+                        ]}>
+                          {period}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
         {currentTab === 'chat' && (
           <KeyboardAvoidingView 
             style={styles.chatContainer}
