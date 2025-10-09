@@ -5097,4 +5097,131 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  
+  // Manual Outfit Builder Styles
+  manualBuilderContainer: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  manualBuilderHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
+  },
+  manualBuilderTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    flex: 1,
+    textAlign: 'center',
+  },
+  addPhotoButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+  },
+  addPhotoButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  manualBuilderContent: {
+    flex: 1,
+    padding: 16,
+  },
+  categorySection: {
+    marginBottom: 24,
+  },
+  itemsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingHorizontal: 4,
+  },
+  wardrobeItemCard: {
+    width: 100,
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedItem: {
+    borderColor: '#007AFF',
+    backgroundColor: '#f0f8ff',
+  },
+  wardrobeItemImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  wardrobeItemText: {
+    fontSize: 12,
+    color: '#333',
+    textAlign: 'center',
+  },
+  outfitPreviewSection: {
+    marginTop: 24,
+    marginBottom: 32,
+  },
+  outfitPreview: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  previewCategory: {
+    alignItems: 'center',
+    width: '22%',
+  },
+  previewCategoryText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 8,
+  },
+  previewImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+  },
+  previewPlaceholder: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewPlaceholderText: {
+    fontSize: 10,
+    color: '#999',
+    textAlign: 'center',
+  },
+  saveOutfitButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  saveOutfitButtonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  saveOutfitButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
