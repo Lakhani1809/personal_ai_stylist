@@ -2496,6 +2496,9 @@ export default function App() {
                     // Reset outfit form when opening
                     setOutfitEvent('');
                     setOutfitOccasion('');
+                    setSelectedHour(12);
+                    setSelectedMinute(0);
+                    setSelectedAmPm('PM');
                     setSelectedOutfit({ top: null, bottom: null, layering: null, shoes: null });
                   }}
                 >
