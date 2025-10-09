@@ -3934,9 +3934,9 @@ const styles = StyleSheet.create({
   },
   dayHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    justifyContent: 'space-between',
+    marginBottom: 12,
   },
   dayInfo: {
     flex: 1,
