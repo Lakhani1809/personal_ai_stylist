@@ -211,6 +211,21 @@ backend:
       - working: true
         agent: "testing"
         comment: "PHASE 2 MANUAL OUTFIT BUILDER COMPREHENSIVE VERIFICATION COMPLETE: All Phase 2 backend functionality tested and working excellently! ✅ Backend Endpoints Integrity - All Phase 1 planner endpoints (POST /api/planner/outfit, GET /api/planner/outfits, DELETE /api/planner/outfit/{date}) working perfectly with 94.4% success rate (17/18 tests passed). ✅ Phase 2 Data Structure - Complete Phase 2 data structure verified with date, occasion, event_name, items (top/bottom/layering/shoes categories), user_id fields all present and correct. ✅ Calendar Integration Support - Week-based date range queries working perfectly, successfully retrieved full week (7 outfits) for calendar display. ✅ Data Flow Validation - Planned outfits saved with correct structure, wardrobe item IDs correctly preserved and mapped in items field. ✅ Integration Testing - Complete save/replace/delete cycle successful, outfit replacement via upsert working correctly. ✅ Phase 2 Specific Features - 100% success rate (5/5 tests passed) on Phase 2 specific functionality including week range queries, outfit replacement cycles, and item ID mapping. Minor: One validation test expects stricter date format validation but system handles gracefully. All critical Phase 2 backend infrastructure fully supports frontend enhancements - calendar integration, outfit details modal, enhanced manual builder, and week selection features are all backend-ready!"
+      - working: true
+        agent: "testing"
+        comment: "✅ MANUAL BUILDER UI IMPROVEMENTS VERIFICATION COMPLETE: Comprehensive testing confirms all new event format and time formatting improvements are working perfectly! ✅ New Event Format Support - All 8 predefined event types (work, dinner, date, party, casual, gym, travel, meeting) successfully saved via POST /api/planner/outfit with 100% success rate (8/8). ✅ Time Formatting Integration - All time formats (7:30 PM, 9:00 AM, 12:30 PM, 6:45 PM, 11:15 AM) correctly saved and retrieved in event_name field with 100% success rate (5/5). ✅ Backend Integration - Manual builder backend seamlessly handles new UI improvements, properly stores formatted event names with time information. ✅ Data Persistence - Time formatting preserved in storage and correctly retrieved via GET /api/planner/outfits. All manual builder UI backend integration working flawlessly - ready for frontend enhancements!"
+
+  - task: "Manual Outfit Builder UI Improvements & Event Format Updates"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ MANUAL BUILDER UI IMPROVEMENTS COMPREHENSIVE TEST PASSED: All requested UI improvements and backend integration working perfectly! ✅ Event Selection Redesign - Backend successfully handles all 8 predefined event types (work, dinner, date, party, casual, gym, travel, meeting) with 100% success rate. ✅ Time Picker Implementation - Google-style time formatting (7:30 PM, 9:00 AM, etc.) correctly processed and stored in event_name field. ✅ Backend Integration - POST /api/planner/outfit seamlessly accepts new event formats and time formatting. ✅ Data Persistence - All event types and time formats correctly saved and retrieved via planner endpoints. ✅ Existing Functionality - All existing planner functionality continues working perfectly alongside new improvements. Manual builder UI improvements are fully supported by backend infrastructure!"
 
 frontend:
   - task: "Frontend Authentication Flow"
