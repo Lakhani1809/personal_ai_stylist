@@ -2450,7 +2450,12 @@ export default function App() {
                           styles.wardrobeItemCard,
                           selectedOutfit.top?.id === item.id && styles.selectedItem
                         ]}
-                        onPress={() => setSelectedOutfit(prev => ({...prev, top: item}))}
+                        onPress={() => {
+                          setSelectedOutfit(prev => ({
+                            ...prev, 
+                            top: prev.top?.id === item.id ? null : item
+                          }));
+                        }}
                       >
                         <Image
                           source={{ uri: `data:image/jpeg;base64,${item.image_base64}` }}
