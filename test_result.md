@@ -226,7 +226,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: ["manual_outfit_builder_deselection", "planned_outfit_backend", "manual_outfit_saving"]
+  current_focus: ["manual_outfit_builder_deselection", "manual_outfit_saving"]
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
