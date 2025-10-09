@@ -259,6 +259,10 @@ export default function App() {
   const [showOutfitDetailsModal, setShowOutfitDetailsModal] = useState(false);
   const [selectedOutfitDetails, setSelectedOutfitDetails] = useState<any>(null);
   
+  // Date picker state
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [tempSelectedWeek, setTempSelectedWeek] = useState(selectedWeek);
+  
   // Initialize with empty events - let users add their own
   useEffect(() => {
     // Start with empty weekly events
