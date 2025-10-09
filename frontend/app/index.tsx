@@ -2624,41 +2624,52 @@ export default function App() {
             </View>
             
             <ScrollView style={styles.manualBuilderContent}>
-              {/* Occasion and Event Section */}
-              <View style={styles.occasionSection}>
-                <Text style={styles.sectionHeaderText}>Event Details</Text>
+              {/* Event Selection Section */}
+              <View style={styles.eventSection}>
+                <Text style={styles.sectionHeaderText}>What's the occasion?</Text>
                 
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Event Name</Text>
-                  <TextInput
-                    style={styles.occasionInput}
-                    placeholder="e.g., Team Meeting, Date Night, Gym"
-                    value={outfitEvent}
-                    onChangeText={setOutfitEvent}
-                  />
+                <View style={styles.eventGrid}>
+                  {[
+                    { id: 'work', label: 'Work', icon: '💼' },
+                    { id: 'dinner', label: 'Dinner', icon: '🍽️' },
+                    { id: 'date', label: 'Date', icon: '💕' },
+                    { id: 'party', label: 'Party', icon: '🎉' },
+                    { id: 'casual', label: 'Casual', icon: '👕' },
+                    { id: 'gym', label: 'Gym', icon: '💪' },
+                    { id: 'travel', label: 'Travel', icon: '✈️' },
+                    { id: 'meeting', label: 'Meeting', icon: '🤝' }
+                  ].map((event) => (
+                    <TouchableOpacity
+                      key={event.id}
+                      style={[
+                        styles.eventButton,
+                        outfitEvent === event.id && styles.eventButtonActive
+                      ]}
+                      onPress={() => setOutfitEvent(event.id)}
+                    >
+                      <Text style={styles.eventIcon}>{event.icon}</Text>
+                      <Text style={[
+                        styles.eventButtonText,
+                        outfitEvent === event.id && styles.eventButtonTextActive
+                      ]}>
+                        {event.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
                 </View>
-                
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Occasion Type</Text>
-                  <View style={styles.occasionButtons}>
-                    {['Casual', 'Work', 'Formal', 'Party', 'Sports', 'Date'].map((occasion) => (
-                      <TouchableOpacity
-                        key={occasion}
-                        style={[
-                          styles.occasionButton,
-                          outfitOccasion === occasion && styles.occasionButtonActive
-                        ]}
-                        onPress={() => setOutfitOccasion(occasion)}
-                      >
-                        <Text style={[
-                          styles.occasionButtonText,
-                          outfitOccasion === occasion && styles.occasionButtonTextActive
-                        ]}>
-                          {occasion}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+
+                {/* Time Selection */}
+                <View style={styles.timeSection}>
+                  <Text style={styles.inputLabel}>Time</Text>
+                  <TouchableOpacity 
+                    style={styles.timeButton}
+                    onPress={() => setShowTimePicker(true)}
+                  >
+                    <Text style={styles.timeButtonText}>
+                      {selectedHour}:{selectedMinute.toString().padStart(2, '0')} {selectedAmPm}
+                    </Text>
+                    <Ionicons name="time-outline" size={20} color="#007AFF" />
+                  </TouchableOpacity>
                 </View>
               </View>
 
