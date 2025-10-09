@@ -253,6 +253,9 @@ export default function App() {
   // Chat scroll ref for auto-scroll
   const chatScrollRef = useRef<ScrollView>(null);
   
+  // Planner scroll ref for auto-scroll to current day
+  const plannerScrollRef = useRef<ScrollView>(null);
+  
   // Animated values for typing indicator
   const typingAnimation1 = useRef(new Animated.Value(0)).current;
   const typingAnimation2 = useRef(new Animated.Value(0)).current;
