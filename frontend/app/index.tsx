@@ -367,7 +367,7 @@ export default function App() {
       const greetingMessage: ChatMessage = {
         id: 'greeting-' + Date.now(),
         user_id: user.id,
-        message: `Hi ${user.name}, I am Maya ✨`,
+        message: `Hi ${user.name}, I am Mirro ✨`,
         is_user: false,
         timestamp: new Date().toISOString(),
         isTyping: false,
