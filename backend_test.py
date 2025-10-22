@@ -21,89 +21,176 @@ BACKEND_URL = "https://smart-stylist-15.preview.emergentagent.com/api"
 print(f"🔗 Testing backend at: {BACKEND_URL}")
 print(f"🎯 Focus: Chat Memory & Fashion Intelligence Enhancements")
 
-class BackendTester:
+class ChatMemoryIntelligenceTest:
     def __init__(self):
+        self.base_url = BACKEND_URL
         self.access_token = None
         self.user_id = None
         self.test_results = []
         
-    def log_result(self, test_name, success, message, details=None):
-        """Log test result"""
+    def log_test(self, test_name, success, details=""):
+        """Log test results"""
         status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}: {message}")
+        print(f"{status} {test_name}")
         if details:
             print(f"   Details: {details}")
-        
         self.test_results.append({
             "test": test_name,
             "success": success,
-            "message": message,
             "details": details
         })
     
     def setup_test_user(self):
-        """Create and authenticate test user"""
-        try:
-            # Register test user
-            register_data = {
-                "email": f"testuser_{int(time.time())}@example.com",
-                "password": "testpass123",
-                "name": "Test User"
-            }
-            
-            response = requests.post(f"{API_BASE}/auth/register", json=register_data)
-            if response.status_code == 200:
-                data = response.json()
-                self.access_token = data["access_token"]
-                self.user_id = data["user"]["id"]
-                self.log_result("User Registration", True, f"Created user {self.user_id}")
-                
-                # Complete onboarding with city for weather integration
-                onboarding_data = {
-                    "age": 28,
-                    "profession": "Software Engineer",
-                    "body_shape": "Athletic",
-                    "skin_tone": "Medium",
-                    "style_inspiration": ["Minimalist", "Modern"],
-                    "style_vibes": ["Professional", "Casual"],
-                    "style_message": "I like clean, simple styles",
-                    "city": "Bangalore,IN"
-                }
-                
-                headers = {"Authorization": f"Bearer {self.access_token}"}
-                onboard_response = requests.put(f"{API_BASE}/auth/onboarding", json=onboarding_data, headers=headers)
-                
-                if onboard_response.status_code == 200:
-                    self.log_result("User Onboarding", True, "Completed onboarding with city field")
-                    return True
-                else:
-                    self.log_result("User Onboarding", False, f"Status: {onboard_response.status_code}")
-                    return False
-            else:
-                self.log_result("User Registration", False, f"Status: {response.status_code}")
-                return False
-                
-        except Exception as e:
-            self.log_result("User Setup", False, f"Exception: {str(e)}")
+        """Create and setup a test user with comprehensive profile"""
+        print("\n🔧 Setting up test user with comprehensive profile...")
+        
+        # Register user
+        register_data = {
+            "email": f"maya_memory_test_{int(time.time())}@test.com",
+            "password": "testpass123",
+            "name": "Maya Memory Tester"
+        }
+        
+        response = requests.post(f"{self.base_url}/auth/register", json=register_data)
+        if response.status_code == 200:
+            data = response.json()
+            self.access_token = data["access_token"]
+            self.user_id = data["user"]["id"]
+            self.log_test("User Registration", True, f"User ID: {self.user_id}")
+        else:
+            self.log_test("User Registration", False, f"Status: {response.status_code}")
+            return False
+        
+        # Complete comprehensive onboarding with all profile data
+        onboarding_data = {
+            "age": 28,
+            "gender": "female",
+            "profession": "Marketing Manager",
+            "body_shape": "hourglass",
+            "skin_tone": "warm",
+            "style_inspiration": ["Minimalist", "Classic", "Modern"],
+            "style_vibes": ["Professional", "Chic", "Versatile"],
+            "style_message": "I love timeless pieces that can transition from work to weekend",
+            "city": "New York,NY,US",
+            "color_preferences": ["navy", "white", "beige", "burgundy"],
+            "budget_range": "mid-range"
+        }
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        response = requests.put(f"{self.base_url}/auth/onboarding", json=onboarding_data, headers=headers)
+        
+        if response.status_code == 200:
+            self.log_test("Comprehensive Onboarding", True, "All profile data set")
+            return True
+        else:
+            self.log_test("Comprehensive Onboarding", False, f"Status: {response.status_code}")
             return False
     
-    def create_sample_base64_image(self, size=(800, 600), color="blue"):
-        """Create a sample base64 image for testing"""
-        try:
-            from PIL import Image
-            import io
-            
-            # Create a simple colored image
-            img = Image.new('RGB', size, color)
-            buffer = io.BytesIO()
-            img.save(buffer, format='JPEG', quality=85)
-            img_data = buffer.getvalue()
-            
-            return base64.b64encode(img_data).decode('utf-8')
-        except Exception as e:
-            print(f"Error creating sample image: {e}")
-            # Return a minimal base64 image if PIL fails
-            return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+    def add_diverse_wardrobe(self):
+        """Add diverse wardrobe items for memory and intelligence testing"""
+        print("\n👗 Adding diverse wardrobe items...")
+        
+        # Sample base64 image (small test image)
+        test_image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+        
+        wardrobe_items = [
+            {"image_base64": test_image, "description": "Navy blazer"},
+            {"image_base64": test_image, "description": "White silk blouse"},
+            {"image_base64": test_image, "description": "Black wool trousers"},
+            {"image_base64": test_image, "description": "Burgundy cashmere sweater"},
+            {"image_base64": test_image, "description": "Beige trench coat"},
+            {"image_base64": test_image, "description": "Dark wash jeans"}
+        ]
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        added_items = 0
+        
+        for item in wardrobe_items:
+            response = requests.post(f"{self.base_url}/wardrobe", json=item, headers=headers)
+            if response.status_code == 200:
+                added_items += 1
+                time.sleep(0.5)  # Small delay between additions
+        
+        self.log_test("Diverse Wardrobe Addition", added_items >= 4, f"Added {added_items}/6 items")
+        return added_items >= 4
+    
+    def create_planned_outfits(self):
+        """Create planned outfits for outfit memory testing"""
+        print("\n📅 Creating planned outfits for memory testing...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Create planned outfits for different dates
+        planned_outfits = [
+            {
+                "date": "2024-01-15",
+                "occasion": "work",
+                "event_name": "Important client meeting at 9:00 AM",
+                "items": {"top": "item1", "bottom": "item2", "layering": "item3"}
+            },
+            {
+                "date": "2024-01-16", 
+                "occasion": "date",
+                "event_name": "Dinner date at 7:30 PM",
+                "items": {"top": "item4", "bottom": "item5"}
+            },
+            {
+                "date": "2024-01-17",
+                "occasion": "casual",
+                "event_name": "Weekend brunch with friends",
+                "items": {"top": "item2", "bottom": "item6", "layering": "item5"}
+            }
+        ]
+        
+        created_outfits = 0
+        for outfit in planned_outfits:
+            response = requests.post(f"{self.base_url}/planner/outfit", json=outfit, headers=headers)
+            if response.status_code == 200:
+                created_outfits += 1
+                time.sleep(0.3)
+        
+        self.log_test("Planned Outfits Creation", created_outfits >= 2, f"Created {created_outfits}/3 outfits")
+        return created_outfits >= 2
+    
+    def create_conversation_history(self):
+        """Create conversation history for memory testing"""
+        print("\n💬 Creating conversation history for memory testing...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Create a series of conversations to build memory
+        conversations = [
+            "Hi Maya! I love wearing navy and white together, they're my favorite colors",
+            "I have a work presentation tomorrow, what should I wear?",
+            "I really liked that burgundy sweater suggestion you gave me last time",
+            "Do you think red would look good with my warm skin tone?",
+            "I'm going on a date this weekend, something casual but stylish",
+            "I prefer minimalist styles over busy patterns",
+            "What colors work best for professional settings?",
+            "I love classic pieces that never go out of style",
+            "Can you help me with outfit ideas for winter weather?",
+            "I want to build a capsule wardrobe with versatile pieces"
+        ]
+        
+        successful_chats = 0
+        for i, message in enumerate(conversations):
+            response = requests.post(f"{self.base_url}/chat", json={"message": message}, headers=headers)
+            if response.status_code == 200:
+                successful_chats += 1
+                # Add some feedback to certain messages for learning
+                if i in [1, 2, 4]:  # Add positive feedback to some responses
+                    chat_data = response.json()
+                    if "message_ids" in chat_data and chat_data["message_ids"]:
+                        feedback_data = {
+                            "message_id": chat_data["message_ids"][0],
+                            "feedback": "positive"
+                        }
+                        requests.post(f"{self.base_url}/chat/feedback", json=feedback_data, headers=headers)
+                
+                time.sleep(0.5)  # Small delay between messages
+        
+        self.log_test("Conversation History Creation", successful_chats >= 8, f"Created {successful_chats}/10 conversations")
+        return successful_chats >= 8
     
     def test_wardrobe_image_compression(self):
         """Test POST /api/wardrobe with image compression"""
