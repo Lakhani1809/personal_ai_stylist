@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend Testing for Chat Memory & Fashion Intelligence Enhancements
-Testing the advanced memory system and deep fashion intelligence features
+Comprehensive Backend Testing for Railway AI Fashion Segmentation Integration
+Testing the Railway AI service integration with wardrobe and validation endpoints
 """
 
 import requests
@@ -19,7 +19,7 @@ load_dotenv()
 BACKEND_URL = "https://smart-stylist-15.preview.emergentagent.com/api"
 
 print(f"🔗 Testing backend at: {BACKEND_URL}")
-print(f"🎯 Focus: Chat Memory & Fashion Intelligence Enhancements")
+print(f"🎯 Focus: Railway AI Fashion Segmentation Integration")
 
 class ChatMemoryIntelligenceTest:
     def __init__(self):
