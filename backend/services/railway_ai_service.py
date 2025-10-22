@@ -24,29 +24,56 @@ async def extract_products_from_image(image_base64: str, user_id: str) -> List[D
     try:
         print(f"🤖 Railway AI: Extracting products for user {user_id}")
         
-        # Prepare the request payload
-        payload = {
-            "image": image_base64,
-            "extract_products": True,
-            "return_segmented": True
+        # Convert base64 to bytes for multipart upload
+        import base64
+        from io import BytesIO
+        
+        image_bytes = base64.b64decode(image_base64)
+        
+        # Prepare multipart form data
+        files = {
+            'image': ('image.jpg', BytesIO(image_bytes), 'image/jpeg')
         }
         
         headers = {
             "Authorization": f"Bearer {RAILWAY_API_KEY}",
-            "Content-Type": "application/json"
         }
         
-        # Make async request to Railway API
-        loop = asyncio.get_event_loop()
-        response = await loop.run_in_executor(
-            None,
-            lambda: requests.post(
-                f"{RAILWAY_API_URL}/api/extract-products",
-                json=payload,
-                headers=headers,
-                timeout=30
-            )
-        )
+        # Try multiple possible endpoints
+        endpoints_to_try = [
+            "/segment/image",
+            "/upload", 
+            "/api/segment",
+            "/api/upload",
+            "/extract-products"
+        ]
+        
+        response = None
+        for endpoint in endpoints_to_try:
+            try:
+                print(f"🔄 Trying Railway AI endpoint: {endpoint}")
+                
+                # Make async request to Railway API
+                loop = asyncio.get_event_loop()
+                response = await loop.run_in_executor(
+                    None,
+                    lambda ep=endpoint: requests.post(
+                        f"{RAILWAY_API_URL}{ep}",
+                        files=files,
+                        headers=headers,
+                        timeout=30
+                    )
+                )
+                
+                if response.status_code == 200:
+                    print(f"✅ Railway AI responded successfully on {endpoint}")
+                    break
+                else:
+                    print(f"❌ Endpoint {endpoint} failed with status {response.status_code}")
+                    
+            except Exception as e:
+                print(f"❌ Endpoint {endpoint} error: {str(e)}")
+                continue
         
         if response.status_code == 200:
             data = response.json()
