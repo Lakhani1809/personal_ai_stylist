@@ -405,6 +405,203 @@ async def gather_contextual_data(user: dict, message: str = "") -> dict:
     
     return context
 
+# ADVANCED MEMORY & INTELLIGENCE HELPER FUNCTIONS
+
+async def analyze_user_preferences(user_id: str, conversation_history: list) -> dict:
+    """
+    Analyze conversation history to learn user preferences and patterns
+    """
+    preferences = {
+        "favorite_colors": [],
+        "preferred_styles": [],
+        "common_occasions": [],
+        "shopping_patterns": [],
+        "feedback_patterns": {"positive": [], "negative": []},
+        "style_evolution": {}
+    }
+    
+    try:
+        # Analyze recent messages for preferences
+        for msg in conversation_history[-20:]:  # Last 20 messages
+            message_text = msg.get("message", "").lower()
+            feedback = msg.get("feedback")
+            
+            # Track colors mentioned
+            colors = ["red", "blue", "black", "white", "green", "pink", "purple", "yellow", "orange", "brown", "grey", "gray", "navy", "burgundy", "maroon", "beige", "khaki", "olive"]
+            for color in colors:
+                if color in message_text and color not in preferences["favorite_colors"]:
+                    preferences["favorite_colors"].append(color)
+            
+            # Track style terms
+            styles = ["casual", "formal", "business", "party", "date", "work", "gym", "travel", "vintage", "modern", "boho", "minimalist", "chic", "edgy", "classic"]
+            for style in styles:
+                if style in message_text and style not in preferences["preferred_styles"]:
+                    preferences["preferred_styles"].append(style)
+            
+            # Track occasions
+            occasions = ["work", "date", "party", "wedding", "meeting", "dinner", "lunch", "interview", "vacation", "gym", "shopping"]
+            for occasion in occasions:
+                if occasion in message_text and occasion not in preferences["common_occasions"]:
+                    preferences["common_occasions"].append(occasion)
+            
+            # Track feedback patterns
+            if feedback == "positive":
+                preferences["feedback_patterns"]["positive"].append(message_text[:100])
+            elif feedback == "negative":
+                preferences["feedback_patterns"]["negative"].append(message_text[:100])
+        
+        # Limit lists to prevent bloat
+        for key in ["favorite_colors", "preferred_styles", "common_occasions"]:
+            preferences[key] = preferences[key][:5]
+            
+    except Exception as e:
+        print(f"❌ Preference analysis error: {e}")
+    
+    return preferences
+
+async def get_outfit_memory(user_id: str) -> dict:
+    """
+    Get user's outfit history from validations and planned outfits
+    """
+    memory = {
+        "recent_validations": [],
+        "planned_outfits": [],
+        "wardrobe_additions": [],
+        "outfit_patterns": {}
+    }
+    
+    try:
+        # Get recent planned outfits
+        planned_cursor = db.planned_outfits.find({"user_id": user_id}).sort("created_at", -1).limit(5)
+        async for outfit in planned_cursor:
+            memory["planned_outfits"].append({
+                "date": outfit.get("date"),
+                "occasion": outfit.get("occasion"),
+                "event_name": outfit.get("event_name"),
+                "created_at": outfit.get("created_at")
+            })
+        
+        # Get recent wardrobe additions (last 10 items)
+        user = await db.users.find_one({"id": user_id})
+        if user and user.get("wardrobe"):
+            wardrobe = user["wardrobe"][-10:]  # Last 10 items
+            for item in wardrobe:
+                memory["wardrobe_additions"].append({
+                    "name": item.get("exact_item_name", "Item"),
+                    "category": item.get("category", ""),
+                    "color": item.get("color", ""),
+                    "style": item.get("style", "")
+                })
+        
+    except Exception as e:
+        print(f"❌ Outfit memory error: {e}")
+    
+    return memory
+
+async def get_advanced_fashion_intelligence(user: dict, message: str, wardrobe: list) -> str:
+    """
+    Generate advanced fashion intelligence including color theory, trends, and styling expertise
+    """
+    intelligence = ""
+    
+    try:
+        # COLOR THEORY ANALYSIS
+        if wardrobe:
+            wardrobe_colors = [item.get("color", "").lower() for item in wardrobe if item.get("color")]
+            color_analysis = analyze_color_harmony(wardrobe_colors)
+            if color_analysis:
+                intelligence += f"\n🎨 Color Intelligence:\n{color_analysis}\n"
+        
+        # BODY TYPE STYLING
+        body_shape = user.get("body_shape", "").lower() if user else ""
+        if body_shape:
+            styling_tips = get_body_type_styling(body_shape)
+            if styling_tips:
+                intelligence += f"\n👤 Body Type Styling (for {body_shape}):\n{styling_tips}\n"
+        
+        # SEASONAL ANALYSIS
+        current_month = datetime.now().month
+        seasonal_advice = get_seasonal_styling_advice(current_month)
+        if seasonal_advice:
+            intelligence += f"\n🍂 Seasonal Styling:\n{seasonal_advice}\n"
+        
+        # CARE & MAINTENANCE INTELLIGENCE
+        if "care" in message.lower() or "clean" in message.lower() or "wash" in message.lower():
+            care_tips = get_fabric_care_intelligence(wardrobe)
+            if care_tips:
+                intelligence += f"\n🧽 Care Intelligence:\n{care_tips}\n"
+        
+    except Exception as e:
+        print(f"❌ Fashion intelligence error: {e}")
+    
+    return intelligence
+
+def analyze_color_harmony(colors: list) -> str:
+    """Advanced color theory analysis"""
+    if not colors:
+        return ""
+    
+    color_families = {
+        "neutrals": ["black", "white", "grey", "gray", "beige", "brown", "khaki"],
+        "warm": ["red", "orange", "yellow", "burgundy", "maroon", "coral"],
+        "cool": ["blue", "green", "purple", "navy", "teal", "mint"],
+        "jewel": ["emerald", "ruby", "sapphire", "amethyst", "topaz"]
+    }
+    
+    user_families = []
+    for color in colors:
+        for family, family_colors in color_families.items():
+            if any(fc in color for fc in family_colors):
+                if family not in user_families:
+                    user_families.append(family)
+    
+    if len(user_families) >= 2:
+        return f"• Your wardrobe has great color diversity with {', '.join(user_families)} tones\n• Try pairing {user_families[0]} with {user_families[1]} for sophisticated looks"
+    else:
+        return f"• Consider adding complementary colors to your {user_families[0] if user_families else 'current'} palette"
+
+def get_body_type_styling(body_shape: str) -> str:
+    """Body type specific styling advice"""
+    styling_guide = {
+        "pear": "• Highlight your waist with fitted tops\n• A-line skirts and wide-leg pants flatter your silhouette\n• Draw attention up with statement necklaces",
+        "apple": "• Empire waists and A-line cuts are your friends\n• V-necks elongate your torso beautifully\n• High-waisted bottoms create definition",
+        "hourglass": "• Embrace fitted silhouettes that show your waist\n• Wrap dresses and belted styles are perfect\n• Balance top and bottom proportions",
+        "rectangle": "• Create curves with peplum tops and layering\n• High-low hems add visual interest\n• Belts and defined waistlines add shape",
+        "inverted triangle": "• Balance with A-line bottoms and wide-leg pants\n• Scoop necks soften broad shoulders\n• Add volume to your lower half"
+    }
+    
+    return styling_guide.get(body_shape, "")
+
+def get_seasonal_styling_advice(month: int) -> str:
+    """Seasonal fashion advice based on current month"""
+    seasons = {
+        (12, 1, 2): "Winter: Layer textures like wool, cashmere, and leather. Rich jewel tones and metallics shine now.",
+        (3, 4, 5): "Spring: Fresh pastels and florals bloom. Light layers and transitional pieces work perfectly.",
+        (6, 7, 8): "Summer: Breathable fabrics like linen and cotton. Light colors reflect heat and look fresh.",
+        (9, 10, 11): "Fall: Earth tones and rich textures. Perfect time for layering and cozy knits."
+    }
+    
+    for months, advice in seasons.items():
+        if month in months:
+            return advice
+    return ""
+
+def get_fabric_care_intelligence(wardrobe: list) -> str:
+    """Fabric care and maintenance advice"""
+    fabrics = [item.get("fabric_type", "").lower() for item in wardrobe if item.get("fabric_type")]
+    
+    care_tips = []
+    if any("silk" in f for f in fabrics):
+        care_tips.append("• Silk: Hand wash in cold water, hang dry away from direct sunlight")
+    if any("wool" in f for f in fabrics):
+        care_tips.append("• Wool: Dry clean or gentle hand wash, lay flat to dry")
+    if any("leather" in f for f in fabrics):
+        care_tips.append("• Leather: Condition regularly, store in breathable bags")
+    if any("denim" in f for f in fabrics):
+        care_tips.append("• Denim: Wash inside out in cold water to preserve color")
+    
+    return "\n".join(care_tips) if care_tips else "• Always check garment care labels\n• When in doubt, gentle cycle or hand wash"
+
 @app.post("/api/chat")
 async def chat(message_data: dict, user_id: str = Depends(get_current_user)):
     try:
