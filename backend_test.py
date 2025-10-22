@@ -192,271 +192,336 @@ class ChatMemoryIntelligenceTest:
         self.log_test("Conversation History Creation", successful_chats >= 8, f"Created {successful_chats}/10 conversations")
         return successful_chats >= 8
     
-    def test_wardrobe_image_compression(self):
-        """Test POST /api/wardrobe with image compression"""
-        if not self.access_token:
-            self.log_result("Wardrobe Image Compression", False, "No auth token")
-            return False
+    def test_conversation_memory_retrieval(self):
+        """Test that chat retrieves and uses conversation history"""
+        print("\n🧠 Testing Conversation Memory Retrieval...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Ask about previous conversations
+        test_message = "What colors did I mention I like in our previous conversations?"
+        response = requests.post(f"{self.base_url}/chat", json={"message": test_message}, headers=headers)
+        
+        if response.status_code == 200:
+            chat_data = response.json()
+            messages = chat_data.get("messages", [])
+            full_response = " ".join(messages).lower()
             
-        try:
-            headers = {"Authorization": f"Bearer {self.access_token}"}
+            # Check if response references previous conversations
+            memory_indicators = ["navy", "white", "burgundy", "previous", "mentioned", "talked about", "remember"]
+            memory_found = any(indicator in full_response for indicator in memory_indicators)
             
-            # Test with large image to verify compression
-            large_image_b64 = self.create_sample_base64_image(size=(2000, 1500), color="red")
-            
-            wardrobe_data = {
-                "image_base64": f"data:image/jpeg;base64,{large_image_b64}"
-            }
-            
-            response = requests.post(f"{API_BASE}/wardrobe", json=wardrobe_data, headers=headers)
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.log_result("Wardrobe Image Compression", True, 
-                               f"Added item: {data.get('message', 'Success')}")
-                return True
-            else:
-                self.log_result("Wardrobe Image Compression", False, 
-                               f"Status: {response.status_code}, Response: {response.text[:200]}")
-                return False
-                
-        except Exception as e:
-            self.log_result("Wardrobe Image Compression", False, f"Exception: {str(e)}")
+            self.log_test("Conversation Memory Retrieval", memory_found, 
+                         f"Response references previous conversations: {memory_found}")
+            return memory_found
+        else:
+            self.log_test("Conversation Memory Retrieval", False, f"Status: {response.status_code}")
             return False
     
-    def test_outfit_generation_fix(self):
-        """Test GET /api/wardrobe/outfits to verify DocumentTooLarge fix"""
-        if not self.access_token:
-            self.log_result("Outfit Generation Fix", False, "No auth token")
-            return False
+    def test_user_preference_learning(self):
+        """Test user preference analysis from conversation patterns"""
+        print("\n🎨 Testing User Preference Learning...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Ask about style preferences to see if AI learned from conversations
+        test_message = "Based on our conversations, what do you think my style preferences are?"
+        response = requests.post(f"{self.base_url}/chat", json={"message": test_message}, headers=headers)
+        
+        if response.status_code == 200:
+            chat_data = response.json()
+            messages = chat_data.get("messages", [])
+            full_response = " ".join(messages).lower()
             
-        try:
-            headers = {"Authorization": f"Bearer {self.access_token}"}
+            # Check if response shows learned preferences
+            learned_preferences = ["minimalist", "classic", "navy", "white", "professional", "versatile", "timeless"]
+            preferences_found = sum(1 for pref in learned_preferences if pref in full_response)
             
-            # First add multiple wardrobe items to test with sufficient items
-            for i, color in enumerate(["blue", "red", "green", "black", "white"]):
-                image_b64 = self.create_sample_base64_image(size=(1200, 900), color=color)
-                wardrobe_data = {
-                    "image_base64": f"data:image/jpeg;base64,{image_b64}"
-                }
-                
-                response = requests.post(f"{API_BASE}/wardrobe", json=wardrobe_data, headers=headers)
-                if response.status_code != 200:
-                    self.log_result("Outfit Generation Setup", False, 
-                                   f"Failed to add item {i+1}: {response.status_code}")
-                    return False
-            
-            # Now test outfit generation
-            response = requests.get(f"{API_BASE}/wardrobe/outfits", headers=headers)
-            
-            if response.status_code == 200:
-                data = response.json()
-                outfits = data.get("outfits", [])
-                
-                if len(outfits) > 0:
-                    self.log_result("Outfit Generation Fix", True, 
-                                   f"Generated {len(outfits)} outfits successfully without DocumentTooLarge error")
-                    
-                    # Verify outfit structure includes compressed thumbnails
-                    first_outfit = outfits[0]
-                    if "items" in first_outfit and len(first_outfit["items"]) > 0:
-                        first_item = first_outfit["items"][0]
-                        if "image_base64" in first_item:
-                            thumbnail_size = len(first_item["image_base64"])
-                            self.log_result("Outfit Thumbnail Compression", True, 
-                                           f"Thumbnail size: {thumbnail_size} chars (compressed)")
-                        else:
-                            self.log_result("Outfit Thumbnail Compression", False, "No image_base64 in outfit item")
-                    
-                    return True
-                else:
-                    message = data.get("message", "No outfits generated")
-                    if "need at least" in message.lower() or "add more" in message.lower():
-                        self.log_result("Outfit Generation Fix", True, 
-                                       f"Proper guardrails working: {message}")
-                        return True
-                    else:
-                        self.log_result("Outfit Generation Fix", False, f"No outfits: {message}")
-                        return False
-            else:
-                self.log_result("Outfit Generation Fix", False, 
-                               f"Status: {response.status_code}, Response: {response.text[:200]}")
-                return False
-                
-        except Exception as e:
-            self.log_result("Outfit Generation Fix", False, f"Exception: {str(e)}")
+            success = preferences_found >= 3
+            self.log_test("User Preference Learning", success, 
+                         f"Found {preferences_found}/7 learned preferences in response")
+            return success
+        else:
+            self.log_test("User Preference Learning", False, f"Status: {response.status_code}")
             return False
     
-    def test_manual_builder_new_event_format(self):
-        """Test POST /api/planner/outfit with new event format (work, dinner, date, etc.)"""
-        if not self.access_token:
-            self.log_result("Manual Builder Event Format", False, "No auth token")
+    def test_wardrobe_awareness(self):
+        """Test wardrobe-aware suggestions with specific item references"""
+        print("\n👔 Testing Wardrobe Awareness...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Ask for outfit suggestions using wardrobe items
+        test_message = "Can you suggest an outfit using items from my wardrobe for a work meeting?"
+        response = requests.post(f"{self.base_url}/chat", json={"message": test_message}, headers=headers)
+        
+        if response.status_code == 200:
+            chat_data = response.json()
+            messages = chat_data.get("messages", [])
+            full_response = " ".join(messages).lower()
+            
+            # Check if response references specific wardrobe items
+            wardrobe_references = ["blazer", "blouse", "trousers", "sweater", "navy", "white", "black", "burgundy"]
+            references_found = sum(1 for ref in wardrobe_references if ref in full_response)
+            
+            success = references_found >= 3
+            self.log_test("Wardrobe Awareness", success, 
+                         f"Found {references_found}/8 wardrobe references in response")
+            return success
+        else:
+            self.log_test("Wardrobe Awareness", False, f"Status: {response.status_code}")
             return False
+    
+    def test_outfit_memory_integration(self):
+        """Test outfit history memory from planned outfits"""
+        print("\n📅 Testing Outfit Memory Integration...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Ask about recent outfit planning
+        test_message = "What outfits have I planned recently? Any upcoming events?"
+        response = requests.post(f"{self.base_url}/chat", json={"message": test_message}, headers=headers)
+        
+        if response.status_code == 200:
+            chat_data = response.json()
+            messages = chat_data.get("messages", [])
+            full_response = " ".join(messages).lower()
             
-        try:
-            headers = {"Authorization": f"Bearer {self.access_token}"}
+            # Check if response references planned outfits
+            outfit_references = ["meeting", "date", "brunch", "planned", "upcoming", "client", "dinner"]
+            references_found = sum(1 for ref in outfit_references if ref in full_response)
             
-            # Test with new predefined event types
-            test_events = [
-                ("work", "Work Meeting"),
-                ("dinner", "Dinner with Friends"),
-                ("date", "Date Night"),
-                ("party", "Birthday Party"),
-                ("casual", "Casual Day Out"),
-                ("gym", "Gym Session"),
-                ("travel", "Travel Day"),
-                ("meeting", "Business Meeting")
+            success = references_found >= 2
+            self.log_test("Outfit Memory Integration", success, 
+                         f"Found {references_found}/7 outfit memory references")
+            return success
+        else:
+            self.log_test("Outfit Memory Integration", False, f"Status: {response.status_code}")
+            return False
+    
+    def test_color_theory_analysis(self):
+        """Test advanced color theory analysis"""
+        print("\n🎨 Testing Color Theory Analysis...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Ask about color combinations
+        test_message = "What colors work well together in my wardrobe? Can you explain the color theory?"
+        response = requests.post(f"{self.base_url}/chat", json={"message": test_message}, headers=headers)
+        
+        if response.status_code == 200:
+            chat_data = response.json()
+            messages = chat_data.get("messages", [])
+            full_response = " ".join(messages).lower()
+            
+            # Check for color theory concepts
+            color_theory_terms = ["harmony", "complementary", "palette", "warm", "cool", "neutral", "theory", "coordination"]
+            theory_found = sum(1 for term in color_theory_terms if term in full_response)
+            
+            success = theory_found >= 3
+            self.log_test("Color Theory Analysis", success, 
+                         f"Found {theory_found}/8 color theory concepts")
+            return success
+        else:
+            self.log_test("Color Theory Analysis", False, f"Status: {response.status_code}")
+            return False
+    
+    def test_body_type_styling(self):
+        """Test body type styling expertise"""
+        print("\n👤 Testing Body Type Styling...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Ask for body type specific advice
+        test_message = "What styles work best for my body shape? Any specific fit recommendations?"
+        response = requests.post(f"{self.base_url}/chat", json={"message": test_message}, headers=headers)
+        
+        if response.status_code == 200:
+            chat_data = response.json()
+            messages = chat_data.get("messages", [])
+            full_response = " ".join(messages).lower()
+            
+            # Check for body type styling advice
+            body_styling_terms = ["hourglass", "waist", "fitted", "silhouette", "proportions", "shape", "flatter", "highlight"]
+            styling_found = sum(1 for term in body_styling_terms if term in full_response)
+            
+            success = styling_found >= 3
+            self.log_test("Body Type Styling", success, 
+                         f"Found {styling_found}/8 body type styling terms")
+            return success
+        else:
+            self.log_test("Body Type Styling", False, f"Status: {response.status_code}")
+            return False
+    
+    def test_seasonal_advice(self):
+        """Test seasonal fashion advice based on current date"""
+        print("\n🍂 Testing Seasonal Advice...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Ask for seasonal advice
+        test_message = "What should I wear for this time of year? Any seasonal styling tips?"
+        response = requests.post(f"{self.base_url}/chat", json={"message": test_message}, headers=headers)
+        
+        if response.status_code == 200:
+            chat_data = response.json()
+            messages = chat_data.get("messages", [])
+            full_response = " ".join(messages).lower()
+            
+            # Check for seasonal advice (winter/spring/summer/fall terms)
+            seasonal_terms = ["winter", "spring", "summer", "fall", "season", "weather", "layer", "fabric", "temperature"]
+            seasonal_found = sum(1 for term in seasonal_terms if term in full_response)
+            
+            success = seasonal_found >= 2
+            self.log_test("Seasonal Advice", success, 
+                         f"Found {seasonal_found}/9 seasonal styling terms")
+            return success
+        else:
+            self.log_test("Seasonal Advice", False, f"Status: {response.status_code}")
+            return False
+    
+    def test_weather_integration(self):
+        """Test weather-aware recommendations"""
+        print("\n🌤️ Testing Weather Integration...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Ask about weather-appropriate clothing
+        test_message = "What should I wear today based on the weather in New York?"
+        response = requests.post(f"{self.base_url}/chat", json={"message": test_message}, headers=headers)
+        
+        if response.status_code == 200:
+            chat_data = response.json()
+            messages = chat_data.get("messages", [])
+            full_response = " ".join(messages).lower()
+            
+            # Check for weather-aware recommendations
+            weather_terms = ["temperature", "weather", "degrees", "warm", "cold", "fabric", "layer", "condition"]
+            weather_found = sum(1 for term in weather_terms if term in full_response)
+            
+            success = weather_found >= 2
+            self.log_test("Weather Integration", success, 
+                         f"Found {weather_found}/8 weather-aware terms")
+            return success
+        else:
+            self.log_test("Weather Integration", False, f"Status: {response.status_code}")
+            return False
+    
+    def test_care_maintenance_intelligence(self):
+        """Test fabric care and maintenance intelligence"""
+        print("\n🧽 Testing Care & Maintenance Intelligence...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Ask about fabric care
+        test_message = "How should I care for my silk blouse and wool trousers? Any maintenance tips?"
+        response = requests.post(f"{self.base_url}/chat", json={"message": test_message}, headers=headers)
+        
+        if response.status_code == 200:
+            chat_data = response.json()
+            messages = chat_data.get("messages", [])
+            full_response = " ".join(messages).lower()
+            
+            # Check for care instructions
+            care_terms = ["care", "wash", "clean", "dry", "silk", "wool", "maintenance", "fabric", "gentle"]
+            care_found = sum(1 for term in care_terms if term in full_response)
+            
+            success = care_found >= 4
+            self.log_test("Care & Maintenance Intelligence", success, 
+                         f"Found {care_found}/9 care-related terms")
+            return success
+        else:
+            self.log_test("Care & Maintenance Intelligence", False, f"Status: {response.status_code}")
+            return False
+    
+    def test_trend_intelligence(self):
+        """Test fashion trend integration"""
+        print("\n🔥 Testing Trend Intelligence...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Ask about current trends
+        test_message = "What are the current fashion trends? How can I incorporate them into my style?"
+        response = requests.post(f"{self.base_url}/chat", json={"message": test_message}, headers=headers)
+        
+        if response.status_code == 200:
+            chat_data = response.json()
+            messages = chat_data.get("messages", [])
+            full_response = " ".join(messages).lower()
+            
+            # Check for trend-related content
+            trend_terms = ["trend", "current", "fashion", "style", "popular", "season", "modern", "contemporary"]
+            trend_found = sum(1 for term in trend_terms if term in full_response)
+            
+            success = trend_found >= 3
+            self.log_test("Trend Intelligence", success, 
+                         f"Found {trend_found}/8 trend-related terms")
+            return success
+        else:
+            self.log_test("Trend Intelligence", False, f"Status: {response.status_code}")
+            return False
+    
+    def test_enhanced_system_prompt(self):
+        """Test that enhanced system prompt includes all context types"""
+        print("\n📝 Testing Enhanced System Prompt Integration...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Ask a comprehensive question that should trigger all context types
+        test_message = "I need a complete style consultation. Consider my profile, wardrobe, recent conversations, planned outfits, current weather, and give me your best fashion advice with color theory and body type considerations."
+        response = requests.post(f"{self.base_url}/chat", json={"message": test_message}, headers=headers)
+        
+        if response.status_code == 200:
+            chat_data = response.json()
+            messages = chat_data.get("messages", [])
+            full_response = " ".join(messages).lower()
+            
+            # Check for comprehensive context integration
+            context_indicators = [
+                "profile", "wardrobe", "hourglass", "warm", "professional", 
+                "navy", "white", "weather", "temperature", "season"
             ]
+            context_found = sum(1 for indicator in context_indicators if indicator in full_response)
             
-            success_count = 0
-            
-            for event_type, event_description in test_events:
-                # Test date (tomorrow)
-                test_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-                
-                planned_outfit_data = {
-                    "date": test_date,
-                    "occasion": event_type,
-                    "event_name": f"{event_description} at 7:30 PM",  # Test time formatting
-                    "items": {
-                        "top": "item_id_1",
-                        "bottom": "item_id_2",
-                        "shoes": "item_id_3"
-                    }
-                }
-                
-                response = requests.post(f"{API_BASE}/planner/outfit", json=planned_outfit_data, headers=headers)
-                
-                if response.status_code == 200:
-                    success_count += 1
-                    self.log_result(f"Manual Builder - {event_type}", True, 
-                                   f"Saved outfit for {event_description}")
-                else:
-                    self.log_result(f"Manual Builder - {event_type}", False, 
-                                   f"Status: {response.status_code}, Response: {response.text[:100]}")
-            
-            # Overall result
-            if success_count >= 6:  # At least 6 out of 8 event types should work
-                self.log_result("Manual Builder Event Format", True, 
-                               f"Successfully saved {success_count}/{len(test_events)} event types")
-                return True
-            else:
-                self.log_result("Manual Builder Event Format", False, 
-                               f"Only {success_count}/{len(test_events)} event types worked")
-                return False
-                
-        except Exception as e:
-            self.log_result("Manual Builder Event Format", False, f"Exception: {str(e)}")
+            success = context_found >= 6
+            self.log_test("Enhanced System Prompt Integration", success, 
+                         f"Found {context_found}/10 context indicators")
+            return success
+        else:
+            self.log_test("Enhanced System Prompt Integration", False, f"Status: {response.status_code}")
             return False
     
-    def test_manual_builder_time_formatting(self):
-        """Test time formatting in manual builder (e.g., '7:30 PM')"""
-        if not self.access_token:
-            self.log_result("Manual Builder Time Format", False, "No auth token")
-            return False
+    def test_message_chunking_format(self):
+        """Test that responses are properly chunked into short messages"""
+        print("\n📱 Testing Message Chunking Format...")
+        
+        headers = {"Authorization": f"Bearer {self.access_token}"}
+        
+        # Ask a question that should generate multiple chunks
+        test_message = "Give me detailed styling advice for three different occasions: work, date night, and casual weekend."
+        response = requests.post(f"{self.base_url}/chat", json={"message": test_message}, headers=headers)
+        
+        if response.status_code == 200:
+            chat_data = response.json()
+            messages = chat_data.get("messages", [])
+            message_ids = chat_data.get("message_ids", [])
+            total_chunks = chat_data.get("total_chunks", 0)
             
-        try:
-            headers = {"Authorization": f"Bearer {self.access_token}"}
+            # Check chunking format
+            has_multiple_chunks = len(messages) >= 2
+            has_message_ids = len(message_ids) == len(messages)
+            has_total_chunks = total_chunks == len(messages)
             
-            # Test various time formats
-            time_formats = [
-                "7:30 PM",
-                "9:00 AM", 
-                "12:30 PM",
-                "6:45 PM",
-                "11:15 AM"
-            ]
+            # Check message length (should be short, conversational)
+            avg_length = sum(len(msg.split()) for msg in messages) / len(messages) if messages else 0
+            appropriate_length = avg_length <= 30  # Max ~30 words per chunk
             
-            success_count = 0
-            
-            for time_format in time_formats:
-                test_date = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
-                
-                planned_outfit_data = {
-                    "date": test_date,
-                    "occasion": "dinner",
-                    "event_name": f"Dinner at {time_format}",
-                    "items": {
-                        "top": "shirt_id",
-                        "bottom": "pants_id"
-                    }
-                }
-                
-                response = requests.post(f"{API_BASE}/planner/outfit", json=planned_outfit_data, headers=headers)
-                
-                if response.status_code == 200:
-                    success_count += 1
-                    
-                    # Verify the time was saved correctly by retrieving it
-                    start_date = test_date
-                    end_date = test_date
-                    get_response = requests.get(f"{API_BASE}/planner/outfits?start_date={start_date}&end_date={end_date}", headers=headers)
-                    
-                    if get_response.status_code == 200:
-                        data = get_response.json()
-                        planned_outfits = data.get("planned_outfits", [])
-                        
-                        if planned_outfits and time_format in planned_outfits[0].get("event_name", ""):
-                            self.log_result(f"Time Format - {time_format}", True, 
-                                           f"Time correctly saved and retrieved")
-                        else:
-                            self.log_result(f"Time Format - {time_format}", False, 
-                                           f"Time format not preserved in storage")
-                    else:
-                        self.log_result(f"Time Format - {time_format}", False, 
-                                       f"Could not retrieve saved outfit")
-                else:
-                    self.log_result(f"Time Format - {time_format}", False, 
-                                   f"Status: {response.status_code}")
-            
-            if success_count >= 4:  # At least 4 out of 5 time formats should work
-                self.log_result("Manual Builder Time Format", True, 
-                               f"Successfully handled {success_count}/{len(time_formats)} time formats")
-                return True
-            else:
-                self.log_result("Manual Builder Time Format", False, 
-                               f"Only {success_count}/{len(time_formats)} time formats worked")
-                return False
-                
-        except Exception as e:
-            self.log_result("Manual Builder Time Format", False, f"Exception: {str(e)}")
-            return False
-    
-    def test_existing_functionality(self):
-        """Test that existing functionality still works"""
-        if not self.access_token:
-            self.log_result("Existing Functionality", False, "No auth token")
-            return False
-            
-        try:
-            headers = {"Authorization": f"Bearer {self.access_token}"}
-            
-            # Test wardrobe retrieval
-            response = requests.get(f"{API_BASE}/wardrobe", headers=headers)
-            if response.status_code == 200:
-                self.log_result("Wardrobe Retrieval", True, "Wardrobe endpoint working")
-            else:
-                self.log_result("Wardrobe Retrieval", False, f"Status: {response.status_code}")
-                return False
-            
-            # Test chat functionality
-            chat_data = {"message": "What should I wear today?"}
-            response = requests.post(f"{API_BASE}/chat", json=chat_data, headers=headers)
-            if response.status_code == 200:
-                data = response.json()
-                if "messages" in data or "message" in data:
-                    self.log_result("Chat Functionality", True, "Chat endpoint working")
-                else:
-                    self.log_result("Chat Functionality", False, "Unexpected chat response format")
-                    return False
-            else:
-                self.log_result("Chat Functionality", False, f"Status: {response.status_code}")
-                return False
-            
-            return True
-                
-        except Exception as e:
-            self.log_result("Existing Functionality", False, f"Exception: {str(e)}")
+            success = has_multiple_chunks and has_message_ids and has_total_chunks and appropriate_length
+            self.log_test("Message Chunking Format", success, 
+                         f"Chunks: {len(messages)}, Avg words: {avg_length:.1f}")
+            return success
+        else:
+            self.log_test("Message Chunking Format", False, f"Status: {response.status_code}")
             return False
     
     def run_all_tests(self):
