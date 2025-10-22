@@ -34,68 +34,160 @@ if not BACKEND_URL:
 print(f"🔗 Testing backend at: {BACKEND_URL}")
 print(f"🎯 Focus: Completed functionality excluding Railway AI integration")
 
-class RailwayAIIntegrationTest:
-    def __init__(self):
-        self.base_url = BACKEND_URL
-        self.access_token = None
-        self.user_id = None
-        self.test_results = []
-        
-    def log_test(self, test_name, success, details=""):
-        """Log test results"""
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}")
-        if details:
-            print(f"   Details: {details}")
-        self.test_results.append({
-            "test": test_name,
-            "success": success,
-            "details": details
-        })
+# Test configuration
+API_BASE = f"{BACKEND_URL}/api"
+TEST_USER_EMAIL = "mirro.test@example.com"
+TEST_USER_PASSWORD = "testpassword123"
+TEST_USER_NAME = "Mirro Test User"
+
+# Global variables for test session
+access_token = None
+user_id = None
+test_results = {
+    "total_tests": 0,
+    "passed_tests": 0,
+    "failed_tests": 0,
+    "test_details": []
+}
+
+def log_test(test_name, passed, details=""):
+    """Log test results"""
+    global test_results
+    test_results["total_tests"] += 1
+    if passed:
+        test_results["passed_tests"] += 1
+        print(f"✅ {test_name}")
+    else:
+        test_results["failed_tests"] += 1
+        print(f"❌ {test_name}: {details}")
     
-    def setup_test_user(self):
-        """Create and setup a test user for Railway AI testing"""
-        print("\n🔧 Setting up test user for Railway AI testing...")
+    test_results["test_details"].append({
+        "test": test_name,
+        "passed": passed,
+        "details": details
+    })
+
+def make_request(method, endpoint, data=None, headers=None):
+    """Make HTTP request with error handling"""
+    try:
+        url = f"{API_BASE}{endpoint}"
+        default_headers = {"Content-Type": "application/json"}
+        if headers:
+            default_headers.update(headers)
         
-        # Register user
-        register_data = {
-            "email": f"railway_ai_test_{int(time.time())}@test.com",
-            "password": "testpass123",
-            "name": "Railway AI Tester"
-        }
+        if method.upper() == "GET":
+            response = requests.get(url, headers=default_headers, timeout=30)
+        elif method.upper() == "POST":
+            response = requests.post(url, json=data, headers=default_headers, timeout=30)
+        elif method.upper() == "PUT":
+            response = requests.put(url, json=data, headers=default_headers, timeout=30)
+        elif method.upper() == "DELETE":
+            response = requests.delete(url, headers=default_headers, timeout=30)
         
-        response = requests.post(f"{self.base_url}/auth/register", json=register_data)
+        return response
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Request error for {endpoint}: {str(e)}")
+        return None
+
+def get_auth_headers():
+    """Get authorization headers"""
+    if access_token:
+        return {"Authorization": f"Bearer {access_token}"}
+    return {}
+
+def create_test_image():
+    """Create a small test image in base64 format"""
+    # Create a simple 100x100 red square image
+    from PIL import Image
+    import io
+    
+    img = Image.new('RGB', (100, 100), color='red')
+    buffer = io.BytesIO()
+    img.save(buffer, format='JPEG')
+    img_data = buffer.getvalue()
+    return base64.b64encode(img_data).decode('utf-8')
+
+def test_authentication():
+    """Test user registration and login"""
+    print("\n🔐 Testing Authentication...")
+    
+    global access_token, user_id
+    
+    # Test registration
+    reg_data = {
+        "email": TEST_USER_EMAIL,
+        "password": TEST_USER_PASSWORD,
+        "name": TEST_USER_NAME
+    }
+    
+    response = make_request("POST", "/auth/register", reg_data)
+    if response and response.status_code in [200, 400]:  # 400 if user exists
         if response.status_code == 200:
             data = response.json()
-            self.access_token = data["access_token"]
-            self.user_id = data["user"]["id"]
-            self.log_test("User Registration", True, f"User ID: {self.user_id}")
+            access_token = data.get("access_token")
+            user_data = data.get("user", {})
+            user_id = user_data.get("id")
+            log_test("User Registration", True, "New user registered successfully")
         else:
-            self.log_test("User Registration", False, f"Status: {response.status_code}")
-            return False
-        
-        # Complete onboarding
-        onboarding_data = {
-            "age": 25,
-            "gender": "female",
-            "profession": "Fashion Designer",
-            "body_shape": "pear",
-            "skin_tone": "cool",
-            "style_inspiration": ["Modern", "Trendy"],
-            "style_vibes": ["Creative", "Bold"],
-            "style_message": "I love experimenting with new fashion trends",
-            "city": "Los Angeles,CA,US"
-        }
-        
-        headers = {"Authorization": f"Bearer {self.access_token}"}
-        response = requests.put(f"{self.base_url}/auth/onboarding", json=onboarding_data, headers=headers)
-        
-        if response.status_code == 200:
-            self.log_test("User Onboarding", True, "Profile setup complete")
+            # User exists, try login
+            login_data = {
+                "email": TEST_USER_EMAIL,
+                "password": TEST_USER_PASSWORD
+            }
+            login_response = make_request("POST", "/auth/login", login_data)
+            if login_response and login_response.status_code == 200:
+                data = login_response.json()
+                access_token = data.get("access_token")
+                user_data = data.get("user", {})
+                user_id = user_data.get("id")
+                log_test("User Login", True, "Existing user logged in successfully")
+            else:
+                log_test("Authentication", False, "Failed to login existing user")
+                return False
+    else:
+        log_test("Authentication", False, "Registration/Login failed")
+        return False
+    
+    # Test profile retrieval
+    headers = get_auth_headers()
+    profile_response = make_request("GET", "/auth/me", headers=headers)
+    if profile_response and profile_response.status_code == 200:
+        profile_data = profile_response.json()
+        log_test("Profile Retrieval", True, f"Retrieved profile for {profile_data.get('email')}")
+    else:
+        log_test("Profile Retrieval", False, "Failed to retrieve user profile")
+    
+    return access_token is not None
+
+def test_onboarding():
+    """Test user onboarding with comprehensive data"""
+    print("\n👤 Testing Onboarding...")
+    
+    headers = get_auth_headers()
+    onboarding_data = {
+        "age": 28,
+        "gender": "Female",
+        "profession": "Marketing Manager",
+        "body_shape": "Hourglass",
+        "skin_tone": "Medium",
+        "style_inspiration": ["Minimalist", "Classic"],
+        "style_vibes": ["Professional", "Chic"],
+        "style_message": "I love clean lines and timeless pieces",
+        "city": "New York,NY,US"
+    }
+    
+    response = make_request("PUT", "/auth/onboarding", onboarding_data, headers)
+    if response and response.status_code == 200:
+        data = response.json()
+        if data.get("onboarding_completed") == True:
+            log_test("Onboarding Completion", True, "User profile updated with onboarding data")
             return True
         else:
-            self.log_test("User Onboarding", False, f"Status: {response.status_code}")
-            return False
+            log_test("Onboarding Completion", False, "onboarding_completed not set to true")
+    else:
+        log_test("Onboarding Completion", False, f"Status: {response.status_code if response else 'No response'}")
+    
+    return False
     
     def test_railway_ai_wardrobe_extraction(self):
         """Test Railway AI product extraction via wardrobe endpoint"""
