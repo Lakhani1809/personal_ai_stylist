@@ -277,8 +277,8 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: ["manual_outfit_builder_deselection", "manual_outfit_saving"]
-  stuck_tasks: []
+  current_focus: ["Railway AI Fashion Segmentation Integration"]
+  stuck_tasks: ["Railway AI Fashion Segmentation Integration"]
   test_all: false
   test_priority: "high_first"
 
