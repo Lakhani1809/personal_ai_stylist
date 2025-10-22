@@ -101,8 +101,16 @@ async def extract_products_from_image(image_base64: str, user_id: str) -> List[D
 def normalize_category(category: str) -> str:
     """
     Normalize category names to match our wardrobe system
+    Railway AI typically returns: upper_clothes, pants, shoes, etc.
     """
     category_mapping = {
+        # Railway AI specific categories
+        "upper_clothes": "Tops",
+        "lower_clothes": "Bottoms", 
+        "full_body": "Dresses",
+        "outer_layer": "Jackets",
+        
+        # Standard clothing categories
         "shirt": "Shirts",
         "t-shirt": "T-shirts", 
         "tshirt": "T-shirts",
@@ -133,7 +141,7 @@ def normalize_category(category: str) -> str:
         "scarf": "Accessories"
     }
     
-    normalized = category_mapping.get(category.lower(), category.title())
+    normalized = category_mapping.get(category.lower(), category.replace('_', ' ').title())
     return normalized
 
 async def check_for_duplicate_items(new_items: List[Dict], existing_wardrobe: List[Dict]) -> List[Dict]:
