@@ -41,14 +41,14 @@ class RailwayAIIntegrationTest:
         })
     
     def setup_test_user(self):
-        """Create and setup a test user with comprehensive profile"""
-        print("\n🔧 Setting up test user with comprehensive profile...")
+        """Create and setup a test user for Railway AI testing"""
+        print("\n🔧 Setting up test user for Railway AI testing...")
         
         # Register user
         register_data = {
-            "email": f"maya_memory_test_{int(time.time())}@test.com",
+            "email": f"railway_ai_test_{int(time.time())}@test.com",
             "password": "testpass123",
-            "name": "Maya Memory Tester"
+            "name": "Railway AI Tester"
         }
         
         response = requests.post(f"{self.base_url}/auth/register", json=register_data)
@@ -61,29 +61,27 @@ class RailwayAIIntegrationTest:
             self.log_test("User Registration", False, f"Status: {response.status_code}")
             return False
         
-        # Complete comprehensive onboarding with all profile data
+        # Complete onboarding
         onboarding_data = {
-            "age": 28,
+            "age": 25,
             "gender": "female",
-            "profession": "Marketing Manager",
-            "body_shape": "hourglass",
-            "skin_tone": "warm",
-            "style_inspiration": ["Minimalist", "Classic", "Modern"],
-            "style_vibes": ["Professional", "Chic", "Versatile"],
-            "style_message": "I love timeless pieces that can transition from work to weekend",
-            "city": "New York,NY,US",
-            "color_preferences": ["navy", "white", "beige", "burgundy"],
-            "budget_range": "mid-range"
+            "profession": "Fashion Designer",
+            "body_shape": "pear",
+            "skin_tone": "cool",
+            "style_inspiration": ["Modern", "Trendy"],
+            "style_vibes": ["Creative", "Bold"],
+            "style_message": "I love experimenting with new fashion trends",
+            "city": "Los Angeles,CA,US"
         }
         
         headers = {"Authorization": f"Bearer {self.access_token}"}
         response = requests.put(f"{self.base_url}/auth/onboarding", json=onboarding_data, headers=headers)
         
         if response.status_code == 200:
-            self.log_test("Comprehensive Onboarding", True, "All profile data set")
+            self.log_test("User Onboarding", True, "Profile setup complete")
             return True
         else:
-            self.log_test("Comprehensive Onboarding", False, f"Status: {response.status_code}")
+            self.log_test("User Onboarding", False, f"Status: {response.status_code}")
             return False
     
     def add_diverse_wardrobe(self):
