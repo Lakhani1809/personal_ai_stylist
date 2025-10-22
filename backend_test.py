@@ -142,10 +142,10 @@ def test_authentication():
                 user_id = user_data.get("id")
                 log_test("User Login", True, "Existing user logged in successfully")
             else:
-                log_test("Authentication", False, "Failed to login existing user")
+                log_test("Authentication", False, f"Failed to login existing user: {login_response.status_code if login_response else 'No response'}")
                 return False
     else:
-        log_test("Authentication", False, "Registration/Login failed")
+        log_test("Authentication", False, f"Registration/Login failed: {response.status_code if response else 'No response'}")
         return False
     
     # Test profile retrieval
