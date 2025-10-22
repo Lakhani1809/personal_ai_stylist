@@ -2482,7 +2482,7 @@ export default function App() {
                   </View>
                   <Text style={styles.outfitOptionTitle}>AI Stylist Mode</Text>
                   <Text style={styles.outfitOptionDescription}>
-                    Let Maya suggest the perfect outfit based on your style, weather, and events
+                    Let Mirro suggest the perfect outfit based on your style, weather, and events
                   </Text>
                 </TouchableOpacity>
               </View>
