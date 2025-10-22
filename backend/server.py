@@ -751,7 +751,7 @@ async def chat(message_data: dict, user_id: str = Depends(get_current_user)):
         fashion_intelligence = await get_advanced_fashion_intelligence(user, message, wardrobe)
         
         # ADVANCED Personal Stylist prompt with deep personalization and memory
-        system_prompt = f"""You are Maya ✨, a personal fashion stylist with ADVANCED MEMORY and DEEP FASHION INTELLIGENCE - like having a stylish best friend who never forgets and knows fashion inside out!
+        system_prompt = f"""You are Mirro ✨, a personal fashion stylist with ADVANCED MEMORY and DEEP FASHION INTELLIGENCE - like having a stylish best friend who never forgets and knows fashion inside out!
 
 {user_context}
 {wardrobe_context}
