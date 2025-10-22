@@ -411,9 +411,28 @@ async def chat(message_data: dict, user_id: str = Depends(get_current_user)):
         message = message_data.get("message", "")
         image_base64 = message_data.get("image_base64")
         
-        # Get user profile and wardrobe for deep personalization
+        # ENHANCED MEMORY SYSTEM - Get user profile, wardrobe, and conversation history
         user = await db.users.find_one({"id": user_id})
         user_name = user.get("name", "").split()[0] if user and user.get("name") else ""
+        
+        # CONVERSATION MEMORY - Get recent chat history for context (last 10 messages)
+        conversation_history = []
+        async for msg in db.chat_messages.find(
+            {"user_id": user_id}
+        ).sort("timestamp", -1).limit(10):
+            conversation_history.append({
+                "role": msg.get("role"),
+                "message": msg.get("message", ""),
+                "timestamp": msg.get("timestamp"),
+                "feedback": msg.get("feedback")  # Include user feedback for learning
+            })
+        conversation_history.reverse()  # Chronological order
+        
+        # USER PREFERENCE LEARNING - Analyze conversation history for patterns
+        user_preferences = await analyze_user_preferences(user_id, conversation_history)
+        
+        # OUTFIT HISTORY MEMORY - Get recent outfit interactions
+        outfit_memory = await get_outfit_memory(user_id)
         
         # Build deeply personalized context with ALL onboarding data
         user_context = ""
