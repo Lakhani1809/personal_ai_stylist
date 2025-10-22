@@ -84,33 +84,39 @@ class RailwayAIIntegrationTest:
             self.log_test("User Onboarding", False, f"Status: {response.status_code}")
             return False
     
-    def add_diverse_wardrobe(self):
-        """Add diverse wardrobe items for memory and intelligence testing"""
-        print("\n👗 Adding diverse wardrobe items...")
+    def test_railway_ai_wardrobe_extraction(self):
+        """Test Railway AI product extraction via wardrobe endpoint"""
+        print("\n🚂 Testing Railway AI Wardrobe Product Extraction...")
         
         # Sample base64 image (small test image)
         test_image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
         
-        wardrobe_items = [
-            {"image_base64": test_image, "description": "Navy blazer"},
-            {"image_base64": test_image, "description": "White silk blouse"},
-            {"image_base64": test_image, "description": "Black wool trousers"},
-            {"image_base64": test_image, "description": "Burgundy cashmere sweater"},
-            {"image_base64": test_image, "description": "Beige trench coat"},
-            {"image_base64": test_image, "description": "Dark wash jeans"}
-        ]
-        
         headers = {"Authorization": f"Bearer {self.access_token}"}
-        added_items = 0
         
-        for item in wardrobe_items:
-            response = requests.post(f"{self.base_url}/wardrobe", json=item, headers=headers)
-            if response.status_code == 200:
-                added_items += 1
-                time.sleep(0.5)  # Small delay between additions
+        # Test wardrobe upload with Railway AI extraction
+        wardrobe_data = {"image_base64": test_image}
+        response = requests.post(f"{self.base_url}/wardrobe", json=wardrobe_data, headers=headers)
         
-        self.log_test("Diverse Wardrobe Addition", added_items >= 4, f"Added {added_items}/6 items")
-        return added_items >= 4
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Check for Railway AI specific response fields
+            has_extraction_method = "extraction_method" in data
+            has_items_stats = "items_added" in data and "items_extracted" in data
+            has_duplicate_info = "duplicates_skipped" in data
+            
+            success = has_extraction_method and has_items_stats and has_duplicate_info
+            
+            extraction_method = data.get("extraction_method", "unknown")
+            items_added = data.get("items_added", 0)
+            items_extracted = data.get("items_extracted", 0)
+            
+            self.log_test("Railway AI Wardrobe Extraction", success, 
+                         f"Method: {extraction_method}, Added: {items_added}, Extracted: {items_extracted}")
+            return success
+        else:
+            self.log_test("Railway AI Wardrobe Extraction", False, f"Status: {response.status_code}")
+            return False
     
     def create_planned_outfits(self):
         """Create planned outfits for outfit memory testing"""
