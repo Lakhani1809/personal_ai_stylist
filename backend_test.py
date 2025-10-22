@@ -121,34 +121,34 @@ def test_authentication():
     }
     
     response = make_request("POST", "/auth/register", reg_data)
-    if response:
-        if response.status_code == 200:
-            data = response.json()
+    if response is None:
+        log_test("Authentication", False, "No response from registration endpoint")
+        return False
+        
+    if response.status_code == 200:
+        data = response.json()
+        access_token = data.get("access_token")
+        user_data = data.get("user", {})
+        user_id = user_data.get("id")
+        log_test("User Registration", True, "New user registered successfully")
+    elif response.status_code == 400:
+        # User exists, try login
+        login_data = {
+            "email": TEST_USER_EMAIL,
+            "password": TEST_USER_PASSWORD
+        }
+        login_response = make_request("POST", "/auth/login", login_data)
+        if login_response and login_response.status_code == 200:
+            data = login_response.json()
             access_token = data.get("access_token")
             user_data = data.get("user", {})
             user_id = user_data.get("id")
-            log_test("User Registration", True, "New user registered successfully")
-        elif response.status_code == 400:
-            # User exists, try login
-            login_data = {
-                "email": TEST_USER_EMAIL,
-                "password": TEST_USER_PASSWORD
-            }
-            login_response = make_request("POST", "/auth/login", login_data)
-            if login_response and login_response.status_code == 200:
-                data = login_response.json()
-                access_token = data.get("access_token")
-                user_data = data.get("user", {})
-                user_id = user_data.get("id")
-                log_test("User Login", True, "Existing user logged in successfully")
-            else:
-                log_test("Authentication", False, f"Failed to login existing user: {login_response.status_code if login_response else 'No response'}")
-                return False
+            log_test("User Login", True, "Existing user logged in successfully")
         else:
-            log_test("Authentication", False, f"Registration failed with status: {response.status_code}")
+            log_test("Authentication", False, f"Failed to login existing user: {login_response.status_code if login_response else 'No response'}")
             return False
     else:
-        log_test("Authentication", False, "No response from registration endpoint")
+        log_test("Authentication", False, f"Registration failed with status: {response.status_code}")
         return False
     
     # Test profile retrieval
