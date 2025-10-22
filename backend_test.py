@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
 """
-Backend Testing Suite for AI Stylist App
-Focus: Manual Outfit Builder UI improvements and outfit generation fixes
-Testing DocumentTooLarge fixes, image compression, and new event formats
+Comprehensive Backend Testing for Chat Memory & Fashion Intelligence Enhancements
+Testing the advanced memory system and deep fashion intelligence features
 """
 
 import requests
 import json
-import base64
-import os
-from datetime import datetime, timedelta
 import time
-import uuid
+import base64
+from datetime import datetime, timedelta
+import os
+from dotenv import load_dotenv
 
-# Get backend URL from environment
-BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://smart-stylist-15.preview.emergentagent.com')
-API_BASE = f"{BACKEND_URL}/api"
+# Load environment variables
+load_dotenv()
 
-print(f"🔗 Testing backend at: {API_BASE}")
-print(f"🎯 Focus: Outfit generation fixes and manual builder improvements")
+# Get backend URL from frontend .env
+BACKEND_URL = "https://smart-stylist-15.preview.emergentagent.com/api"
+
+print(f"🔗 Testing backend at: {BACKEND_URL}")
+print(f"🎯 Focus: Chat Memory & Fashion Intelligence Enhancements")
 
 class BackendTester:
     def __init__(self):
