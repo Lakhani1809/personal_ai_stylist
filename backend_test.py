@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend Testing for Railway AI Fashion Segmentation Integration
-Testing the Railway AI service integration with wardrobe and validation endpoints
+Backend Testing Suite for AI Stylist App
+Focus: Testing completed functionality excluding Railway AI integration
 """
 
 import requests
 import json
-import time
 import base64
+import time
 from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
@@ -16,10 +16,23 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get backend URL from frontend .env
-BACKEND_URL = "https://smart-stylist-15.preview.emergentagent.com/api"
+FRONTEND_ENV_PATH = "/app/frontend/.env"
+BACKEND_URL = None
+
+try:
+    with open(FRONTEND_ENV_PATH, 'r') as f:
+        for line in f:
+            if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
+                BACKEND_URL = line.split('=')[1].strip()
+                break
+except:
+    pass
+
+if not BACKEND_URL:
+    BACKEND_URL = "http://localhost:8001"
 
 print(f"🔗 Testing backend at: {BACKEND_URL}")
-print(f"🎯 Focus: Railway AI Fashion Segmentation Integration")
+print(f"🎯 Focus: Completed functionality excluding Railway AI integration")
 
 class RailwayAIIntegrationTest:
     def __init__(self):
