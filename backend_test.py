@@ -82,24 +82,540 @@ class RailwayAITester:
     def get_auth_headers(self):
         """Get authorization headers"""
         return {"Authorization": f"Bearer {self.access_token}"}
-}
-
-def log_test(test_name, passed, details=""):
-    """Log test results"""
-    global test_results
-    test_results["total_tests"] += 1
-    if passed:
-        test_results["passed_tests"] += 1
-        print(f"✅ {test_name}")
-    else:
-        test_results["failed_tests"] += 1
-        print(f"❌ {test_name}: {details}")
     
-    test_results["test_details"].append({
-        "test": test_name,
-        "passed": passed,
-        "details": details
-    })
+    def test_railway_ai_direct_api(self):
+        """Test Railway AI service directly"""
+        try:
+            print("\n🚂 Testing Railway AI Service Directly...")
+            
+            # Create test image
+            test_image_b64 = self.create_test_image(600, 800, (100, 150, 200))
+            if not test_image_b64:
+                self.log_test("Railway AI Direct - Image Creation", False, "Failed to create test image")
+                return False
+            
+            # Convert base64 to bytes for multipart upload
+            image_bytes = base64.b64decode(test_image_b64)
+            
+            # Test 1: Check API endpoint availability
+            try:
+                files = {'file': ('test_fashion.jpg', BytesIO(image_bytes), 'image/jpeg')}
+                response = requests.post(RAILWAY_AI_URL, files=files, timeout=60)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    self.log_test("Railway AI Direct - API Availability", True, 
+                                f"Status: {response.status_code}, Response keys: {list(data.keys())}")
+                    
+                    # Test 2: Check response format
+                    required_fields = ["status", "num_components", "categories", "image_name"]
+                    missing_fields = [field for field in required_fields if field not in data]
+                    
+                    if not missing_fields:
+                        self.log_test("Railway AI Direct - Response Format", True, 
+                                    f"All required fields present: {required_fields}")
+                        
+                        # Test 3: Check success criteria
+                        status = data.get("status")
+                        num_components = data.get("num_components", 0)
+                        categories = data.get("categories", [])
+                        
+                        if status == "success" and num_components > 0:
+                            self.log_test("Railway AI Direct - Success Validation", True, 
+                                        f"Status: {status}, Components: {num_components}, Categories: {categories}")
+                        else:
+                            self.log_test("Railway AI Direct - Success Validation", False, 
+                                        f"Status: {status}, Components: {num_components}")
+                        
+                        return True
+                    else:
+                        self.log_test("Railway AI Direct - Response Format", False, 
+                                    f"Missing fields: {missing_fields}")
+                        return False
+                else:
+                    self.log_test("Railway AI Direct - API Availability", False, 
+                                f"Status: {response.status_code}, Response: {response.text}")
+                    return False
+                    
+            except requests.exceptions.Timeout:
+                self.log_test("Railway AI Direct - API Availability", False, "Request timeout (60s)")
+                return False
+            except Exception as e:
+                self.log_test("Railway AI Direct - API Availability", False, f"Exception: {str(e)}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Railway AI Direct - Setup", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_category_normalization(self):
+        """Test category normalization functionality"""
+        try:
+            print("\n🏷️ Testing Category Normalization...")
+            
+            # Import the normalization function
+            from services.railway_ai_service import normalize_category
+            
+            # Test cases for Railway AI specific mappings
+            test_cases = [
+                ("upper_clothes", "Tops"),
+                ("lower_clothes", "Bottoms"),
+                ("full_body", "Dresses"),
+                ("outer_layer", "Jackets"),
+                ("shirt", "Shirts"),
+                ("pants", "Pants"),
+                ("shoes", "Shoes"),
+                ("unknown_category", "Unknown Category")  # Test fallback
+            ]
+            
+            all_passed = True
+            for input_cat, expected_output in test_cases:
+                result = normalize_category(input_cat)
+                if result == expected_output:
+                    self.log_test(f"Category Normalization - {input_cat}", True, 
+                                f"'{input_cat}' → '{result}' (expected: '{expected_output}')")
+                else:
+                    self.log_test(f"Category Normalization - {input_cat}", False, 
+                                f"'{input_cat}' → '{result}' (expected: '{expected_output}')")
+                    all_passed = False
+            
+            return all_passed
+            
+        except Exception as e:
+            self.log_test("Category Normalization - Setup", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_duplicate_detection(self):
+        """Test duplicate detection algorithm"""
+        try:
+            print("\n🔍 Testing Duplicate Detection...")
+            
+            # Import the duplicate detection functions
+            from services.railway_ai_service import calculate_item_similarity, check_for_duplicate_items
+            
+            # Test similarity calculation
+            item1 = {
+                "exact_item_name": "Blue Cotton T-shirt",
+                "category": "Tops",
+                "color": "Blue",
+                "style": "Casual",
+                "fabric_type": "Cotton"
+            }
+            
+            # Identical item (should be high similarity)
+            item2 = {
+                "exact_item_name": "Blue Cotton T-shirt",
+                "category": "Tops", 
+                "color": "Blue",
+                "style": "Casual",
+                "fabric_type": "Cotton"
+            }
+            
+            # Similar item (should be medium-high similarity)
+            item3 = {
+                "exact_item_name": "Navy Cotton Shirt",
+                "category": "Tops",
+                "color": "Navy Blue",
+                "style": "Casual",
+                "fabric_type": "Cotton"
+            }
+            
+            # Different item (should be low similarity)
+            item4 = {
+                "exact_item_name": "Black Leather Jacket",
+                "category": "Jackets",
+                "color": "Black",
+                "style": "Edgy",
+                "fabric_type": "Leather"
+            }
+            
+            # Test similarity scores
+            similarity_identical = calculate_item_similarity(item1, item2)
+            similarity_similar = calculate_item_similarity(item1, item3)
+            similarity_different = calculate_item_similarity(item1, item4)
+            
+            # Test thresholds
+            if similarity_identical > 0.8:
+                self.log_test("Duplicate Detection - Identical Items", True, 
+                            f"Similarity: {similarity_identical:.2f} (>0.8 threshold)")
+            else:
+                self.log_test("Duplicate Detection - Identical Items", False, 
+                            f"Similarity: {similarity_identical:.2f} (should be >0.8)")
+            
+            if similarity_similar < 0.8:
+                self.log_test("Duplicate Detection - Similar Items", True, 
+                            f"Similarity: {similarity_similar:.2f} (<0.8 threshold)")
+            else:
+                self.log_test("Duplicate Detection - Similar Items", False, 
+                            f"Similarity: {similarity_similar:.2f} (should be <0.8)")
+            
+            if similarity_different < 0.3:
+                self.log_test("Duplicate Detection - Different Items", True, 
+                            f"Similarity: {similarity_different:.2f} (<0.3 expected)")
+            else:
+                self.log_test("Duplicate Detection - Different Items", False, 
+                            f"Similarity: {similarity_different:.2f} (should be <0.3)")
+            
+            # Test async duplicate checking
+            async def test_async_duplicate_check():
+                new_items = [item1, item3]  # One duplicate, one unique
+                existing_wardrobe = [item2, item4]  # Contains duplicate of item1
+                
+                unique_items = await check_for_duplicate_items(new_items, existing_wardrobe)
+                
+                if len(unique_items) == 1 and unique_items[0]["exact_item_name"] == item3["exact_item_name"]:
+                    self.log_test("Duplicate Detection - Async Check", True, 
+                                f"Filtered {len(new_items)} → {len(unique_items)} unique items")
+                    return True
+                else:
+                    self.log_test("Duplicate Detection - Async Check", False, 
+                                f"Expected 1 unique item, got {len(unique_items)}")
+                    return False
+            
+            # Run async test
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            async_result = loop.run_until_complete(test_async_duplicate_check())
+            loop.close()
+            
+            return async_result
+            
+        except Exception as e:
+            self.log_test("Duplicate Detection - Setup", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_wardrobe_integration(self):
+        """Test Railway AI integration with wardrobe endpoints"""
+        try:
+            print("\n👗 Testing Wardrobe Integration...")
+            
+            if not self.access_token:
+                self.log_test("Wardrobe Integration - Auth", False, "No access token available")
+                return False
+            
+            # Test 1: POST /api/wardrobe with Railway AI extraction
+            test_image_b64 = self.create_test_image(500, 700, (150, 100, 200))
+            if not test_image_b64:
+                self.log_test("Wardrobe Integration - Image Creation", False, "Failed to create test image")
+                return False
+            
+            wardrobe_data = {
+                "image_base64": f"data:image/jpeg;base64,{test_image_b64}"
+            }
+            
+            response = requests.post(
+                f"{BACKEND_URL}/wardrobe",
+                json=wardrobe_data,
+                headers=self.get_auth_headers()
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                extraction_method = data.get("extraction_method", "unknown")
+                items_added = data.get("items_added", 0)
+                
+                if extraction_method == "railway_ai":
+                    self.log_test("Wardrobe Integration - Railway AI Extraction", True, 
+                                f"Items added: {items_added}, Method: {extraction_method}")
+                else:
+                    self.log_test("Wardrobe Integration - Railway AI Extraction", False, 
+                                f"Expected railway_ai method, got: {extraction_method}")
+                
+                # Test 2: Verify items were added to wardrobe
+                wardrobe_response = requests.get(
+                    f"{BACKEND_URL}/wardrobe",
+                    headers=self.get_auth_headers()
+                )
+                
+                if wardrobe_response.status_code == 200:
+                    wardrobe_data = wardrobe_response.json()
+                    wardrobe_items = wardrobe_data.get("items", [])
+                    
+                    if len(wardrobe_items) >= items_added:
+                        self.log_test("Wardrobe Integration - Item Storage", True, 
+                                    f"Wardrobe contains {len(wardrobe_items)} items")
+                        
+                        # Check for Railway AI specific fields
+                        railway_items = [item for item in wardrobe_items if "railway" in str(item.get("tags", [])).lower()]
+                        if railway_items:
+                            self.log_test("Wardrobe Integration - Railway AI Tags", True, 
+                                        f"Found {len(railway_items)} items with Railway AI tags")
+                        else:
+                            self.log_test("Wardrobe Integration - Railway AI Tags", False, 
+                                        "No items found with Railway AI tags")
+                        
+                        return True
+                    else:
+                        self.log_test("Wardrobe Integration - Item Storage", False, 
+                                    f"Expected {items_added} items, found {len(wardrobe_items)}")
+                        return False
+                else:
+                    self.log_test("Wardrobe Integration - Item Retrieval", False, 
+                                f"Status: {wardrobe_response.status_code}")
+                    return False
+            else:
+                self.log_test("Wardrobe Integration - POST Request", False, 
+                            f"Status: {response.status_code}, Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Wardrobe Integration - Setup", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_validation_auto_extraction(self):
+        """Test validation endpoint with Railway AI auto-extraction"""
+        try:
+            print("\n✅ Testing Validation Auto-Extraction...")
+            
+            if not self.access_token:
+                self.log_test("Validation Auto-Extraction - Auth", False, "No access token available")
+                return False
+            
+            # Get initial wardrobe count
+            wardrobe_response = requests.get(
+                f"{BACKEND_URL}/wardrobe",
+                headers=self.get_auth_headers()
+            )
+            
+            initial_count = 0
+            if wardrobe_response.status_code == 200:
+                initial_count = len(wardrobe_response.json().get("items", []))
+            
+            # Test validation with image that should extract items
+            test_image_b64 = self.create_test_image(600, 800, (200, 150, 100))
+            validation_data = {
+                "image_base64": f"data:image/jpeg;base64,{test_image_b64}"
+            }
+            
+            response = requests.post(
+                f"{BACKEND_URL}/validate-outfit",
+                json=validation_data,
+                headers=self.get_auth_headers()
+            )
+            
+            if response.status_code == 200:
+                validation_result = response.json()
+                
+                # Check validation structure
+                required_fields = ["scores", "overall_score", "feedback"]
+                missing_fields = [field for field in required_fields if field not in validation_result]
+                
+                if not missing_fields:
+                    self.log_test("Validation Auto-Extraction - Response Format", True, 
+                                f"All required fields present: {required_fields}")
+                    
+                    # Check if items were auto-added to wardrobe
+                    final_wardrobe_response = requests.get(
+                        f"{BACKEND_URL}/wardrobe",
+                        headers=self.get_auth_headers()
+                    )
+                    
+                    if final_wardrobe_response.status_code == 200:
+                        final_count = len(final_wardrobe_response.json().get("items", []))
+                        
+                        if final_count > initial_count:
+                            self.log_test("Validation Auto-Extraction - Wardrobe Population", True, 
+                                        f"Wardrobe items increased: {initial_count} → {final_count}")
+                        else:
+                            self.log_test("Validation Auto-Extraction - Wardrobe Population", False, 
+                                        f"No new items added: {initial_count} → {final_count}")
+                        
+                        return True
+                    else:
+                        self.log_test("Validation Auto-Extraction - Wardrobe Check", False, 
+                                    f"Status: {final_wardrobe_response.status_code}")
+                        return False
+                else:
+                    self.log_test("Validation Auto-Extraction - Response Format", False, 
+                                f"Missing fields: {missing_fields}")
+                    return False
+            else:
+                self.log_test("Validation Auto-Extraction - POST Request", False, 
+                            f"Status: {response.status_code}, Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Validation Auto-Extraction - Setup", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_error_handling_fallback(self):
+        """Test error handling and OpenAI fallback"""
+        try:
+            print("\n🛡️ Testing Error Handling & Fallback...")
+            
+            if not self.access_token:
+                self.log_test("Error Handling - Auth", False, "No access token available")
+                return False
+            
+            # Test with invalid image data to trigger fallback
+            invalid_data = {
+                "image_base64": "data:image/jpeg;base64,invalid_base64_data"
+            }
+            
+            response = requests.post(
+                f"{BACKEND_URL}/wardrobe",
+                json=invalid_data,
+                headers=self.get_auth_headers()
+            )
+            
+            # Should still work due to fallback mechanisms
+            if response.status_code in [200, 400]:  # Either success with fallback or proper error
+                if response.status_code == 200:
+                    data = response.json()
+                    extraction_method = data.get("extraction_method", "unknown")
+                    
+                    if extraction_method in ["openai_fallback", "fallback"]:
+                        self.log_test("Error Handling - Graceful Fallback", True, 
+                                    f"Fallback method used: {extraction_method}")
+                    else:
+                        self.log_test("Error Handling - Graceful Fallback", False, 
+                                    f"Unexpected method: {extraction_method}")
+                else:
+                    self.log_test("Error Handling - Proper Error Response", True, 
+                                f"Status: {response.status_code} (expected error)")
+                
+                return True
+            else:
+                self.log_test("Error Handling - Response", False, 
+                            f"Unexpected status: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Error Handling - Setup", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_end_to_end_flow(self):
+        """Test complete end-to-end flow"""
+        try:
+            print("\n🔄 Testing End-to-End Flow...")
+            
+            if not self.access_token:
+                self.log_test("End-to-End - Auth", False, "No access token available")
+                return False
+            
+            # Step 1: Upload image → Railway AI extraction → duplicate check → wardrobe addition
+            test_image_b64 = self.create_test_image(400, 600, (180, 120, 80))
+            
+            upload_response = requests.post(
+                f"{BACKEND_URL}/wardrobe",
+                json={"image_base64": f"data:image/jpeg;base64,{test_image_b64}"},
+                headers=self.get_auth_headers()
+            )
+            
+            if upload_response.status_code != 200:
+                self.log_test("End-to-End - Image Upload", False, 
+                            f"Status: {upload_response.status_code}")
+                return False
+            
+            # Step 2: Validation → background extraction → wardrobe population
+            validation_response = requests.post(
+                f"{BACKEND_URL}/validate-outfit",
+                json={"image_base64": f"data:image/jpeg;base64,{test_image_b64}"},
+                headers=self.get_auth_headers()
+            )
+            
+            if validation_response.status_code != 200:
+                self.log_test("End-to-End - Validation", False, 
+                            f"Status: {validation_response.status_code}")
+                return False
+            
+            # Step 3: Check wardrobe contents
+            wardrobe_response = requests.get(
+                f"{BACKEND_URL}/wardrobe",
+                headers=self.get_auth_headers()
+            )
+            
+            if wardrobe_response.status_code == 200:
+                wardrobe_items = wardrobe_response.json().get("items", [])
+                
+                if len(wardrobe_items) > 0:
+                    self.log_test("End-to-End - Complete Flow", True, 
+                                f"Successfully completed flow with {len(wardrobe_items)} items")
+                    
+                    # Step 4: Test chat reference (optional)
+                    chat_response = requests.post(
+                        f"{BACKEND_URL}/chat",
+                        json={"message": "What's in my wardrobe?"},
+                        headers=self.get_auth_headers()
+                    )
+                    
+                    if chat_response.status_code == 200:
+                        self.log_test("End-to-End - Chat Integration", True, 
+                                    "Chat successfully references wardrobe")
+                    else:
+                        self.log_test("End-to-End - Chat Integration", False, 
+                                    f"Chat status: {chat_response.status_code}")
+                    
+                    return True
+                else:
+                    self.log_test("End-to-End - Complete Flow", False, 
+                                "No items found in wardrobe after complete flow")
+                    return False
+            else:
+                self.log_test("End-to-End - Wardrobe Check", False, 
+                            f"Status: {wardrobe_response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("End-to-End - Setup", False, f"Exception: {str(e)}")
+            return False
+    
+    def run_all_tests(self):
+        """Run all Railway AI integration tests"""
+        print("🚂 Starting Railway AI Fashion Segmentation Integration Tests")
+        print("=" * 70)
+        
+        # Setup
+        if not self.setup_test_user():
+            print("❌ Failed to setup test user. Aborting tests.")
+            return False
+        
+        # Run tests
+        tests = [
+            ("Railway AI Direct API", self.test_railway_ai_direct_api),
+            ("Category Normalization", self.test_category_normalization),
+            ("Duplicate Detection", self.test_duplicate_detection),
+            ("Wardrobe Integration", self.test_wardrobe_integration),
+            ("Validation Auto-Extraction", self.test_validation_auto_extraction),
+            ("Error Handling & Fallback", self.test_error_handling_fallback),
+            ("End-to-End Flow", self.test_end_to_end_flow)
+        ]
+        
+        passed_tests = 0
+        total_tests = len(tests)
+        
+        for test_name, test_func in tests:
+            try:
+                if test_func():
+                    passed_tests += 1
+            except Exception as e:
+                self.log_test(f"{test_name} - Exception", False, f"Unexpected error: {str(e)}")
+        
+        # Summary
+        print("\n" + "=" * 70)
+        print(f"🚂 Railway AI Integration Test Summary")
+        print(f"   Passed: {passed_tests}/{total_tests} ({passed_tests/total_tests*100:.1f}%)")
+        
+        if passed_tests == total_tests:
+            print("✅ ALL TESTS PASSED - Railway AI integration working optimally!")
+        elif passed_tests >= total_tests * 0.8:
+            print("⚠️ MOSTLY WORKING - Minor issues detected")
+        else:
+            print("❌ CRITICAL ISSUES - Railway AI integration needs attention")
+        
+        return passed_tests >= total_tests * 0.8
+
+if __name__ == "__main__":
+    tester = RailwayAITester()
+    success = tester.run_all_tests()
+    
+    # Print detailed results
+    print("\n📊 Detailed Test Results:")
+    for result in tester.test_results:
+        status = "✅" if result["success"] else "❌"
+        print(f"{status} {result['test']}: {result['details']}")
+    
+    sys.exit(0 if success else 1)
 
 def make_request(method, endpoint, data=None, headers=None):
     """Make HTTP request with error handling"""
