@@ -355,10 +355,17 @@ def test_manual_outfit_builder_improvements():
         outfits = response.json()
         time_formatted_count = 0
         
-        for outfit in outfits:
-            event_name = outfit.get("event_name", "")
-            if any(time_format in event_name for time_format in ["AM", "PM", ":"]):
-                time_formatted_count += 1
+        # Handle both list and dict response formats
+        if isinstance(outfits, list):
+            outfit_list = outfits
+        else:
+            outfit_list = outfits.get("outfits", []) if isinstance(outfits, dict) else []
+        
+        for outfit in outfit_list:
+            if isinstance(outfit, dict):
+                event_name = outfit.get("event_name", "")
+                if any(time_format in event_name for time_format in ["AM", "PM", ":"]):
+                    time_formatted_count += 1
         
         if time_formatted_count > 0:
             log_test("Time Formatting Integration", True, f"{time_formatted_count} outfits have proper time formatting")
