@@ -21,7 +21,7 @@ BACKEND_URL = "https://smart-stylist-15.preview.emergentagent.com/api"
 print(f"🔗 Testing backend at: {BACKEND_URL}")
 print(f"🎯 Focus: Railway AI Fashion Segmentation Integration")
 
-class ChatMemoryIntelligenceTest:
+class RailwayAIIntegrationTest:
     def __init__(self):
         self.base_url = BACKEND_URL
         self.access_token = None
