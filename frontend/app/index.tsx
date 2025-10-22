@@ -3542,7 +3542,7 @@ export default function App() {
           <ScrollView style={styles.validateContainer}>
             <View style={styles.validateHeader}>
               <Text style={styles.validateTitle}>Validate Your Outfit</Text>
-              <Text style={styles.validateSubtitle}>Get Maya's expert styling feedback</Text>
+              <Text style={styles.validateSubtitle}>Get Mirro's expert styling feedback</Text>
             </View>
             
             <TouchableOpacity
