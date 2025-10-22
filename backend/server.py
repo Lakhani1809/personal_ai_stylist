@@ -1342,7 +1342,7 @@ Format: {"color_combo": 4.5, "fit": 4.0, "style": 4.2, "occasion": 4.0, "overall
                             "role": "user",
                             "content": [
                                 {"type": "text", "text": validation_prompt},
-                                {"type": "image_url", "image_url": {"url": image_base64}}
+                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{clean_base64}"}}
                             ]
                         }
                     ],
