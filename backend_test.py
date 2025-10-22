@@ -35,7 +35,7 @@ print(f"🔗 Testing backend at: {BACKEND_URL}")
 print(f"🎯 Focus: Completed functionality excluding Railway AI integration")
 
 # Test configuration
-API_BASE = BACKEND_URL  # URL already includes /api from frontend env
+API_BASE = f"{BACKEND_URL}/api"  # Add /api to the backend URL
 TEST_USER_EMAIL = "mirro.test@example.com"
 TEST_USER_PASSWORD = "testpassword123"
 TEST_USER_NAME = "Mirro Test User"
