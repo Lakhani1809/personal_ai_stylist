@@ -84,7 +84,7 @@ async def extract_products_from_image(image_base64: str, user_id: str) -> List[D
                 
                 return formatted_products
             else:
-                print(f"⚠️ Railway AI: No clothing components found or processing failed")
+                print("⚠️ Railway AI: No clothing components found or processing failed")
                 return []
             
         else:
