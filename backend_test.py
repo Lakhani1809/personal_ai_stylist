@@ -118,43 +118,44 @@ class RailwayAIIntegrationTest:
             self.log_test("Railway AI Wardrobe Extraction", False, f"Status: {response.status_code}")
             return False
     
-    def create_planned_outfits(self):
-        """Create planned outfits for outfit memory testing"""
-        print("\n📅 Creating planned outfits for memory testing...")
+    def test_duplicate_detection(self):
+        """Test Railway AI duplicate detection functionality"""
+        print("\n🔍 Testing Railway AI Duplicate Detection...")
+        
+        # Sample base64 image (small test image)
+        test_image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
         
         headers = {"Authorization": f"Bearer {self.access_token}"}
         
-        # Create planned outfits for different dates
-        planned_outfits = [
-            {
-                "date": "2024-01-15",
-                "occasion": "work",
-                "event_name": "Important client meeting at 9:00 AM",
-                "items": {"top": "item1", "bottom": "item2", "layering": "item3"}
-            },
-            {
-                "date": "2024-01-16", 
-                "occasion": "date",
-                "event_name": "Dinner date at 7:30 PM",
-                "items": {"top": "item4", "bottom": "item5"}
-            },
-            {
-                "date": "2024-01-17",
-                "occasion": "casual",
-                "event_name": "Weekend brunch with friends",
-                "items": {"top": "item2", "bottom": "item6", "layering": "item5"}
-            }
-        ]
+        # Add the same item twice to test duplicate detection
+        wardrobe_data = {"image_base64": test_image}
         
-        created_outfits = 0
-        for outfit in planned_outfits:
-            response = requests.post(f"{self.base_url}/planner/outfit", json=outfit, headers=headers)
-            if response.status_code == 200:
-                created_outfits += 1
-                time.sleep(0.3)
+        # First upload
+        response1 = requests.post(f"{self.base_url}/wardrobe", json=wardrobe_data, headers=headers)
+        time.sleep(1)  # Small delay
         
-        self.log_test("Planned Outfits Creation", created_outfits >= 2, f"Created {created_outfits}/3 outfits")
-        return created_outfits >= 2
+        # Second upload (should detect duplicates)
+        response2 = requests.post(f"{self.base_url}/wardrobe", json=wardrobe_data, headers=headers)
+        
+        if response1.status_code == 200 and response2.status_code == 200:
+            data1 = response1.json()
+            data2 = response2.json()
+            
+            # Check if duplicate detection worked
+            items_added_1 = data1.get("items_added", 0)
+            items_added_2 = data2.get("items_added", 0)
+            duplicates_skipped_2 = data2.get("duplicates_skipped", 0)
+            
+            # Second upload should add fewer items or skip duplicates
+            duplicate_detection_working = (items_added_2 < items_added_1) or (duplicates_skipped_2 > 0)
+            
+            self.log_test("Railway AI Duplicate Detection", duplicate_detection_working, 
+                         f"First: {items_added_1} added, Second: {items_added_2} added, {duplicates_skipped_2} skipped")
+            return duplicate_detection_working
+        else:
+            self.log_test("Railway AI Duplicate Detection", False, 
+                         f"Upload failed: {response1.status_code}, {response2.status_code}")
+            return False
     
     def create_conversation_history(self):
         """Create conversation history for memory testing"""
