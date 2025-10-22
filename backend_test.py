@@ -124,14 +124,14 @@ def test_authentication():
     }
     
     response = make_request("POST", "/auth/register", reg_data)
-    if response and response.status_code in [200, 400]:  # 400 if user exists
+    if response:
         if response.status_code == 200:
             data = response.json()
             access_token = data.get("access_token")
             user_data = data.get("user", {})
             user_id = user_data.get("id")
             log_test("User Registration", True, "New user registered successfully")
-        else:
+        elif response.status_code == 400:
             # User exists, try login
             login_data = {
                 "email": TEST_USER_EMAIL,
@@ -147,8 +147,11 @@ def test_authentication():
             else:
                 log_test("Authentication", False, f"Failed to login existing user: {login_response.status_code if login_response else 'No response'}")
                 return False
+        else:
+            log_test("Authentication", False, f"Registration failed with status: {response.status_code}")
+            return False
     else:
-        log_test("Authentication", False, f"Registration/Login failed: {response.status_code if response else 'No response'}")
+        log_test("Authentication", False, "No response from registration endpoint")
         return False
     
     # Test profile retrieval
