@@ -3175,7 +3175,7 @@ export default function App() {
                   <View style={styles.welcomeIconContainer}>
                     <Ionicons name="sparkles" size={48} color="#007AFF" />
                   </View>
-                  <Text style={styles.welcomeTitle}>Hey {user.name}! I'm Maya, your AI stylist 👗</Text>
+                  <Text style={styles.welcomeTitle}>Hey {user.name}! I'm Mirro, your AI stylist 👗</Text>
                   <Text style={styles.welcomeText}>Ready for a fresh styling session? I'm here to help you look amazing! Ask me anything about fashion.</Text>
                   <View style={styles.welcomeHints}>
                     <View style={styles.hintRow}>
