@@ -75,6 +75,8 @@ def make_request(method, endpoint, data=None, headers=None):
         if headers:
             default_headers.update(headers)
         
+        print(f"🔗 Making {method} request to: {url}")
+        
         if method.upper() == "GET":
             response = requests.get(url, headers=default_headers, timeout=30)
         elif method.upper() == "POST":
@@ -84,6 +86,7 @@ def make_request(method, endpoint, data=None, headers=None):
         elif method.upper() == "DELETE":
             response = requests.delete(url, headers=default_headers, timeout=30)
         
+        print(f"📊 Response status: {response.status_code}")
         return response
     except requests.exceptions.RequestException as e:
         print(f"❌ Request error for {endpoint}: {str(e)}")
