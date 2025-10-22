@@ -1258,6 +1258,45 @@ async def validate_outfit(outfit_data: dict, user_id: str = Depends(get_current_
         if not image_base64:
             raise HTTPException(status_code=400, detail="Image is required")
         
+        # RAILWAY AI INTEGRATION - Extract items from validation image and add to wardrobe
+        print(f"🚂 Railway AI: Extracting products from validation image...")
+        
+        # Get user's existing wardrobe for duplicate checking
+        user = await db.users.find_one({"id": user_id})
+        existing_wardrobe = user.get("wardrobe", []) if user else []
+        
+        # Clean the base64 data
+        clean_base64 = image_base64.split(',')[-1] if ',' in image_base64 else image_base64
+        
+        # Extract products using Railway AI service
+        try:
+            extracted_products = await extract_products_from_image(clean_base64, user_id)
+            
+            if extracted_products:
+                print(f"🔍 Validation image: Railway AI extracted {len(extracted_products)} products")
+                
+                # Check for duplicates
+                unique_products = await check_for_duplicate_items(extracted_products, existing_wardrobe)
+                
+                if unique_products:
+                    print(f"📦 Auto-adding {len(unique_products)} new items to wardrobe from validation")
+                    
+                    # Add unique items to wardrobe automatically
+                    for item in unique_products:
+                        await db.users.update_one(
+                            {"id": user_id},
+                            {"$push": {"wardrobe": item}},
+                            upsert=True
+                        )
+                    
+                    print(f"✅ Successfully auto-added {len(unique_products)} items from validation image")
+                else:
+                    print(f"ℹ️ All {len(extracted_products)} items from validation image already in wardrobe")
+            else:
+                print(f"⚠️ Railway AI: No products extracted from validation image")
+        except Exception as railway_error:
+            print(f"❌ Railway AI extraction error during validation: {str(railway_error)}")
+        
         # Use custom model handler for outfit validation
         validation_success = False
         try:
