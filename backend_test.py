@@ -1,53 +1,87 @@
 #!/usr/bin/env python3
 """
-Backend Testing Suite for AI Stylist App
-Focus: Testing completed functionality excluding Railway AI integration
+Comprehensive Backend Testing for Railway AI Fashion Segmentation Integration
+Tests the Railway AI integration according to the specifications provided.
 """
 
 import requests
 import json
 import base64
-import time
-from datetime import datetime, timedelta
+import asyncio
+import sys
 import os
-from dotenv import load_dotenv
+from datetime import datetime
+from io import BytesIO
+from PIL import Image
+import uuid
 
-# Load environment variables
-load_dotenv()
-
-# Get backend URL from frontend .env
-FRONTEND_ENV_PATH = "/app/frontend/.env"
-BACKEND_URL = None
-
-try:
-    with open(FRONTEND_ENV_PATH, 'r') as f:
-        for line in f:
-            if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
-                BACKEND_URL = line.split('=')[1].strip()
-                break
-except:
-    pass
-
-if not BACKEND_URL:
-    BACKEND_URL = "http://localhost:8001"
-
-print(f"🔗 Testing backend at: {BACKEND_URL}")
-print(f"🎯 Focus: Completed functionality excluding Railway AI integration")
+# Add backend to path for imports
+sys.path.append('/app/backend')
 
 # Test configuration
-API_BASE = f"{BACKEND_URL}/api"  # Add /api to the backend URL
-TEST_USER_EMAIL = "mirro.test@example.com"
-TEST_USER_PASSWORD = "testpassword123"
-TEST_USER_NAME = "Mirro Test User"
+BACKEND_URL = "https://smart-stylist-15.preview.emergentagent.com/api"
+RAILWAY_AI_URL = "https://fashion-ai-segmentation-production.up.railway.app/upload"
 
-# Global variables for test session
-access_token = None
-user_id = None
-test_results = {
-    "total_tests": 0,
-    "passed_tests": 0,
-    "failed_tests": 0,
-    "test_details": []
+class RailwayAITester:
+    def __init__(self):
+        self.test_results = []
+        self.access_token = None
+        self.user_id = None
+        
+    def log_test(self, test_name: str, success: bool, details: str):
+        """Log test results"""
+        status = "✅ PASS" if success else "❌ FAIL"
+        print(f"{status}: {test_name}")
+        print(f"   Details: {details}")
+        self.test_results.append({
+            "test": test_name,
+            "success": success,
+            "details": details,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    def create_test_image(self, width=400, height=400, color=(255, 0, 0)) -> str:
+        """Create a test image and return as base64"""
+        try:
+            # Create a simple colored image
+            image = Image.new('RGB', (width, height), color)
+            buffer = BytesIO()
+            image.save(buffer, format='JPEG')
+            image_bytes = buffer.getvalue()
+            return base64.b64encode(image_bytes).decode('utf-8')
+        except Exception as e:
+            print(f"❌ Failed to create test image: {e}")
+            return ""
+    
+    def setup_test_user(self):
+        """Create a test user and get authentication token"""
+        try:
+            # Register test user
+            test_email = f"railwaytest_{int(datetime.now().timestamp())}@test.com"
+            register_data = {
+                "email": test_email,
+                "password": "testpass123",
+                "name": "Railway Test User"
+            }
+            
+            response = requests.post(f"{BACKEND_URL}/auth/register", json=register_data)
+            if response.status_code == 200:
+                data = response.json()
+                self.access_token = data.get("access_token")
+                self.user_id = data.get("user", {}).get("id")
+                self.log_test("User Registration", True, f"Created test user: {test_email}")
+                return True
+            else:
+                self.log_test("User Registration", False, f"Status: {response.status_code}, Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("User Registration", False, f"Exception: {str(e)}")
+            return False
+    
+    def get_auth_headers(self):
+        """Get authorization headers"""
+        return {"Authorization": f"Bearer {self.access_token}"}
 }
 
 def log_test(test_name, passed, details=""):
