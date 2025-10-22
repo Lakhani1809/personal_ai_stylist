@@ -7,8 +7,8 @@ import asyncio
 from typing import List, Dict, Optional
 import uuid
 
-RAILWAY_API_URL = "https://fashion-ai-segmentation-production.up.railway.app/"
-RAILWAY_API_KEY = "a7fbf9bf-6718-4e18-ac5c-d85575fa3c9a"
+RAILWAY_API_URL = "https://fashion-ai-segmentation-production.up.railway.app/upload"
+# No API key needed - the service is completely open!
 
 async def extract_products_from_image(image_base64: str, user_id: str) -> List[Dict]:
     """
