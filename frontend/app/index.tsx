@@ -3156,7 +3156,7 @@ export default function App() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           >
             <View style={styles.chatHeader}>
-              <Text style={styles.chatHeaderTitle}>Chat with Maya</Text>
+              <Text style={styles.chatHeaderTitle}>Chat with Mirro</Text>
               <TouchableOpacity
                 style={styles.newChatButton}
                 onPress={startFreshChatSession}
