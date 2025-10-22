@@ -1051,7 +1051,57 @@ async def add_wardrobe_item(item_data: dict, user_id: str = Depends(get_current_
         # Use compressed image for storage
         clean_base64 = compressed_base64
         
-        # Try OpenAI Vision analysis with better error handling
+        # RAILWAY AI INTEGRATION - Intelligent Product Extraction
+        print(f"🚂 Using Railway AI for intelligent product extraction...")
+        
+        # Get user's existing wardrobe for duplicate checking
+        user = await db.users.find_one({"id": user_id})
+        existing_wardrobe = user.get("wardrobe", []) if user else []
+        
+        # Extract products using Railway AI service
+        extracted_products = await extract_products_from_image(clean_base64, user_id)
+        
+        if extracted_products:
+            print(f"✅ Railway AI extracted {len(extracted_products)} products")
+            
+            # Check for duplicates
+            unique_products = await check_for_duplicate_items(extracted_products, existing_wardrobe)
+            
+            if unique_products:
+                print(f"📦 Adding {len(unique_products)} unique items to wardrobe")
+                
+                # Process each unique product
+                processed_items = []
+                for product in unique_products:
+                    processed_items.append(product)
+                
+                # Add all unique items to wardrobe
+                for item in processed_items:
+                    await db.users.update_one(
+                        {"id": user_id},
+                        {"$push": {"wardrobe": item}},
+                        upsert=True
+                    )
+                
+                return {
+                    "message": f"Successfully added {len(processed_items)} item(s) to your wardrobe! 🎉", 
+                    "items_added": len(processed_items),
+                    "items_extracted": len(extracted_products),
+                    "duplicates_skipped": len(extracted_products) - len(unique_products),
+                    "extraction_method": "railway_ai"
+                }
+            else:
+                return {
+                    "message": "All extracted items already exist in your wardrobe! No duplicates added. ✨",
+                    "items_added": 0,
+                    "items_extracted": len(extracted_products),
+                    "duplicates_skipped": len(extracted_products),
+                    "extraction_method": "railway_ai"
+                }
+        else:
+            print(f"⚠️ Railway AI extraction failed, falling back to OpenAI Vision analysis...")
+            
+        # FALLBACK TO OPENAI VISION if Railway AI fails
         analysis_data = {
             "exact_item_name": "Fashion Item",
             "category": "Tops", 
@@ -1059,7 +1109,7 @@ async def add_wardrobe_item(item_data: dict, user_id: str = Depends(get_current_
             "pattern": "Solid",
             "fabric_type": "Cotton", 
             "style": "Casual",
-            "tags": ["clothing", "wardrobe"]
+            "tags": ["clothing", "wardrobe", "openai-fallback"]
         }
         
         # Use custom model handler for clothing analysis
