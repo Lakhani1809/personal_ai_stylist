@@ -720,7 +720,37 @@ async def chat(message_data: dict, user_id: str = Depends(get_current_user)):
                 if styling_tips:
                     context_info += f"• Trend tip: {styling_tips[0]}\n"
         
-        # ADVANCED Personal Stylist prompt with deep personalization
+        # ENHANCED MEMORY & INTELLIGENCE INTEGRATION
+        
+        # Build conversation memory context
+        memory_context = ""
+        if conversation_history:
+            recent_topics = [msg.get("message", "")[:50] for msg in conversation_history[-3:] if msg.get("role") == "user"]
+            if recent_topics:
+                memory_context += f"\n💭 Recent Conversation Context:\n"
+                for i, topic in enumerate(recent_topics, 1):
+                    memory_context += f"• Message {i}: {topic}...\n"
+        
+        # Build user preference intelligence
+        preference_context = ""
+        if user_preferences.get("favorite_colors"):
+            preference_context += f"\n🎨 User's Color Preferences: {', '.join(user_preferences['favorite_colors'][:3])}\n"
+        if user_preferences.get("preferred_styles"):
+            preference_context += f"• Preferred Styles: {', '.join(user_preferences['preferred_styles'][:3])}\n"
+        if user_preferences.get("common_occasions"):
+            preference_context += f"• Common Occasions: {', '.join(user_preferences['common_occasions'][:3])}\n"
+        
+        # Build outfit memory context
+        outfit_context = ""
+        if outfit_memory.get("planned_outfits"):
+            outfit_context += f"\n📅 Recent Outfit Planning:\n"
+            for outfit in outfit_memory["planned_outfits"][:2]:
+                outfit_context += f"• {outfit.get('date', 'Recent')}: {outfit.get('occasion', 'Event')} - {outfit.get('event_name', 'Planned outfit')}\n"
+        
+        # Get advanced fashion intelligence
+        fashion_intelligence = await get_advanced_fashion_intelligence(user, message, wardrobe)
+        
+        # ADVANCED Personal Stylist prompt with deep personalization and memory
         system_prompt = f"""You are Maya ✨, a personal fashion stylist - like having a stylish best friend who knows fashion inside out!
 
 {user_context}
