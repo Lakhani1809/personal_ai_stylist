@@ -524,55 +524,105 @@ class ChatMemoryIntelligenceTest:
             self.log_test("Message Chunking Format", False, f"Status: {response.status_code}")
             return False
     
-    def run_all_tests(self):
-        """Run all backend tests"""
-        print("🧪 Starting Backend Testing Suite")
-        print("=" * 50)
+    def run_comprehensive_tests(self):
+        """Run all comprehensive memory and intelligence tests"""
+        print("🚀 Starting Comprehensive Chat Memory & Fashion Intelligence Testing")
+        print("=" * 80)
         
-        # Setup
+        # Setup phase
         if not self.setup_test_user():
-            print("❌ Failed to setup test user, aborting tests")
+            print("❌ Setup failed, aborting tests")
             return
         
-        # Core tests for the fixes
-        print("\n🎯 Testing Outfit Generation Fixes...")
-        self.test_wardrobe_image_compression()
-        self.test_outfit_generation_fix()
+        if not self.add_diverse_wardrobe():
+            print("❌ Wardrobe setup failed, aborting tests")
+            return
         
-        print("\n🎯 Testing Manual Builder Improvements...")
-        self.test_manual_builder_new_event_format()
-        self.test_manual_builder_time_formatting()
+        if not self.create_planned_outfits():
+            print("❌ Planned outfits setup failed, aborting tests")
+            return
         
-        print("\n🎯 Testing Existing Functionality...")
-        self.test_existing_functionality()
+        if not self.create_conversation_history():
+            print("❌ Conversation history setup failed, aborting tests")
+            return
+        
+        # Wait for data to be processed
+        print("\n⏳ Waiting for data processing...")
+        time.sleep(2)
+        
+        # Memory System Tests
+        print("\n" + "="*50)
+        print("🧠 MEMORY SYSTEM TESTS")
+        print("="*50)
+        
+        memory_tests = [
+            self.test_conversation_memory_retrieval,
+            self.test_user_preference_learning,
+            self.test_wardrobe_awareness,
+            self.test_outfit_memory_integration
+        ]
+        
+        memory_passed = sum(test() for test in memory_tests)
+        
+        # Intelligence Features Tests
+        print("\n" + "="*50)
+        print("🎨 FASHION INTELLIGENCE TESTS")
+        print("="*50)
+        
+        intelligence_tests = [
+            self.test_color_theory_analysis,
+            self.test_body_type_styling,
+            self.test_seasonal_advice,
+            self.test_care_maintenance_intelligence,
+            self.test_trend_intelligence
+        ]
+        
+        intelligence_passed = sum(test() for test in intelligence_tests)
+        
+        # Integration Tests
+        print("\n" + "="*50)
+        print("🔗 INTEGRATION TESTS")
+        print("="*50)
+        
+        integration_tests = [
+            self.test_weather_integration,
+            self.test_enhanced_system_prompt,
+            self.test_message_chunking_format
+        ]
+        
+        integration_passed = sum(test() for test in integration_tests)
         
         # Summary
-        print("\n" + "=" * 50)
-        print("📊 TEST SUMMARY")
-        print("=" * 50)
+        total_tests = len(memory_tests) + len(intelligence_tests) + len(integration_tests)
+        total_passed = memory_passed + intelligence_passed + integration_passed
         
-        total_tests = len(self.test_results)
-        passed_tests = sum(1 for result in self.test_results if result["success"])
-        failed_tests = total_tests - passed_tests
+        print("\n" + "="*80)
+        print("📊 COMPREHENSIVE TEST RESULTS SUMMARY")
+        print("="*80)
+        print(f"🧠 Memory System Tests: {memory_passed}/{len(memory_tests)} passed")
+        print(f"🎨 Fashion Intelligence Tests: {intelligence_passed}/{len(intelligence_tests)} passed")
+        print(f"🔗 Integration Tests: {integration_passed}/{len(integration_tests)} passed")
+        print(f"\n🎯 OVERALL SUCCESS RATE: {total_passed}/{total_tests} ({total_passed/total_tests*100:.1f}%)")
         
-        print(f"Total Tests: {total_tests}")
-        print(f"✅ Passed: {passed_tests}")
-        print(f"❌ Failed: {failed_tests}")
-        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        if total_passed >= total_tests * 0.8:  # 80% success rate
+            print("✅ COMPREHENSIVE TESTING PASSED - Memory & Intelligence features working excellently!")
+        elif total_passed >= total_tests * 0.6:  # 60% success rate
+            print("⚠️ PARTIAL SUCCESS - Most features working, some issues identified")
+        else:
+            print("❌ TESTING FAILED - Significant issues with memory and intelligence features")
         
-        if failed_tests > 0:
-            print("\n❌ FAILED TESTS:")
-            for result in self.test_results:
-                if not result["success"]:
-                    print(f"  - {result['test']}: {result['message']}")
-        
-        return passed_tests, failed_tests
+        return total_passed, total_tests
+
+def main():
+    """Main test execution"""
+    tester = ChatMemoryIntelligenceTest()
+    passed, total = tester.run_comprehensive_tests()
+    
+    # Return appropriate exit code
+    if passed >= total * 0.8:
+        exit(0)  # Success
+    else:
+        exit(1)  # Failure
 
 if __name__ == "__main__":
-    tester = BackendTester()
-    passed, failed = tester.run_all_tests()
-    
-    if failed == 0:
-        print("\n🎉 All tests passed! Backend fixes are working correctly.")
-    else:
-        print(f"\n⚠️  {failed} test(s) failed. Please review the issues above.")
+    main()
