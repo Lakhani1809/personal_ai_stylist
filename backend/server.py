@@ -23,6 +23,7 @@ from model_handlers.custom_model_handler import model_handler
 from services.weather_service import weather_service
 from services.events_service import events_service
 from services.fashion_service import fashion_service
+from services.railway_ai_service import extract_products_from_image, check_for_duplicate_items
 
 # Image compression function
 def compress_image(image_base64: str, quality: int = 30, max_size: tuple = (800, 800)) -> str:
