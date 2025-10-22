@@ -1014,17 +1014,20 @@ Format: {"color_combo": 4.5, "fit": 4.0, "style": 4.2, "occasion": 4.0, "overall
         # Enhanced fallback if both custom models and OpenAI failed
         if not validation_success:
             print("⚠️ Using enhanced validation fallback")
-            analysis_data = {
-                "color_combo": 3.5,
-                "fit": 3.5,
-                "style": 3.5,
-                "occasion": 3.5,
+            validation = {
+                "id": str(uuid.uuid4()),
+                "scores": {
+                    "color_combo": 3.5,
+                    "fit": 3.5,
+                    "style": 3.5,
+                    "occasion": 3.5
+                },
                 "overall_score": 3.5,
                 "feedback": "Unable to analyze outfit. Please try again with a clearer image.",
                 "image_base64": image_base64.split(',')[-1] if ',' in image_base64 else image_base64
             }
         
-        return analysis_data
+        return validation
     except Exception as e:
         print(f"❌ Critical validation error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to validate outfit: {str(e)}")
