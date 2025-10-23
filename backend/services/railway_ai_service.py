@@ -150,7 +150,7 @@ async def extract_products_from_image(image_base64: str, user_id: str) -> List[D
                     print(f"🖼️ Successfully downloaded {len(segmented_products)} segmented product images")
                     return segmented_products
                 else:
-                    print(f"⚠️ Failed to download segmented images, creating items with original image")
+                    print("⚠️ Failed to download segmented images, creating items with original image")
                     # Fallback: create items with original image if segmented download fails
                     formatted_products = []
                     for idx, category in enumerate(categories):
