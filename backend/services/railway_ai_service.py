@@ -18,38 +18,31 @@ async def download_segmented_images(image_name: str, categories: List[str], crop
     Args:
         image_name: Name of the processed image from Railway AI
         categories: List of detected clothing categories
-        num_components: Number of detected components
+        crops: List of crop file paths from Railway AI
         user_id: User ID for logging/tracking
         
     Returns:
         List of products with segmented images, or empty list if download fails
     """
     try:
-        print(f"🖼️ Downloading {num_components} segmented images for user {user_id}")
+        print(f"🖼️ Downloading {len(crops)} segmented images for user {user_id}")
         
         segmented_products = []
         
-        # Download each segmented component
-        for idx, category in enumerate(categories):
-            component_filename = f"{image_name}_component_{idx + 1}.png"
+        # Download each segmented component using the crops paths
+        for idx, (category, crop_path) in enumerate(zip(categories, crops)):
             
-            # Prepare download request
-            download_params = {
-                'image_name': image_name,
-                'component_index': idx + 1
-            }
+            # Build download URL using the crop path
+            download_url = f"{RAILWAY_BASE_URL}/outputs/{crop_path}"
             
-            print(f"📥 Downloading component {idx + 1}: {component_filename}")
+            print(f"📥 Downloading component {idx + 1}: {crop_path}")
+            print(f"🔗 Download URL: {download_url}")
             
             # Make async request to download segmented image
             loop = asyncio.get_event_loop()
             response = await loop.run_in_executor(
                 None,
-                lambda: requests.get(
-                    RAILWAY_DOWNLOAD_URL,
-                    params=download_params,
-                    timeout=30
-                )
+                lambda url=download_url: requests.get(url, timeout=30)
             )
             
             if response.status_code == 200:
@@ -57,10 +50,13 @@ async def download_segmented_images(image_name: str, categories: List[str], crop
                 import base64
                 segmented_image_base64 = base64.b64encode(response.content).decode('utf-8')
                 
+                # Extract filename from crop path
+                filename = crop_path.split("/")[-1]
+                
                 # Create product with segmented image
                 segmented_product = {
                     "id": str(uuid.uuid4()),
-                    "exact_item_name": f"{category.replace('_', ' ').title()} Item {idx + 1}",
+                    "exact_item_name": f"{category.replace('_', ' ').replace('-', ' ').title()}",
                     "category": normalize_category(category),
                     "color": "Unknown",
                     "pattern": "Solid",
@@ -71,14 +67,15 @@ async def download_segmented_images(image_name: str, categories: List[str], crop
                     "extraction_source": "railway_ai_segmented",
                     "tags": ["extracted", "ai-segmented", "individual-item", category],
                     "railway_image_name": image_name,
-                    "component_filename": component_filename
+                    "crop_path": crop_path,
+                    "filename": filename
                 }
                 
                 segmented_products.append(segmented_product)
-                print(f"✅ Downloaded segmented image for {category}")
+                print(f"✅ Downloaded segmented image for {category}: {filename}")
                 
             else:
-                print(f"❌ Failed to download component {idx + 1}: {response.status_code}")
+                print(f"❌ Failed to download crop {crop_path}: HTTP {response.status_code}")
                 return []  # Return empty if any download fails
         
         print(f"🎉 Successfully downloaded all {len(segmented_products)} segmented images")
