@@ -708,7 +708,7 @@ class RailwayAISegmentationTester:
 
 async def main():
     """Main test execution"""
-    tester = RailwayAITester()
+    tester = RailwayAISegmentationTester()
     results = await tester.run_all_tests()
     
     # Determine overall status
