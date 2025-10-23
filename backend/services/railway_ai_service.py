@@ -11,7 +11,7 @@ RAILWAY_API_URL = "https://fashion-ai-segmentation-production.up.railway.app/upl
 RAILWAY_BASE_URL = "https://fashion-ai-segmentation-production.up.railway.app"
 # No API key needed - the service is completely open!
 
-async def download_segmented_images(image_name: str, categories: List[str], num_components: int, user_id: str) -> List[Dict]:
+async def download_segmented_images(image_name: str, categories: List[str], crops: List[str], user_id: str) -> List[Dict]:
     """
     Download segmented images for each detected clothing component from Railway AI
     
