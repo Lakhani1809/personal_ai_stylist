@@ -8,7 +8,7 @@ from typing import List, Dict, Optional
 import uuid
 
 RAILWAY_API_URL = "https://fashion-ai-segmentation-production.up.railway.app/upload"
-RAILWAY_DOWNLOAD_URL = "https://fashion-ai-segmentation-production.up.railway.app/download"
+RAILWAY_BASE_URL = "https://fashion-ai-segmentation-production.up.railway.app"
 # No API key needed - the service is completely open!
 
 async def download_segmented_images(image_name: str, categories: List[str], num_components: int, user_id: str) -> List[Dict]:
