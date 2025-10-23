@@ -105,9 +105,13 @@ async def extract_products_from_image(image_base64: str, user_id: str) -> List[D
         
         image_bytes = base64.b64decode(image_base64)
         
-        # Prepare multipart form data with correct field name "file"
+        # Generate unique filename to track for crop downloads
+        import time
+        actual_filename = f"upload_{int(time.time())}_{user_id[-8:]}"
+        
+        # Prepare multipart form data with correct field name "file" and actual filename
         files = {
-            'file': ('image.jpg', BytesIO(image_bytes), 'image/jpeg')
+            'file': (f'{actual_filename}.jpg', BytesIO(image_bytes), 'image/jpeg')
         }
         
         # No headers needed - API is completely open!
