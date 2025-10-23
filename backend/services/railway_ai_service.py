@@ -63,26 +63,35 @@ async def extract_products_from_image(image_base64: str, user_id: str) -> List[D
             if status == "success" and num_components > 0:
                 print(f"✅ Railway AI extracted {num_components} clothing items: {categories}")
                 
-                # Create formatted products from the detected categories
-                formatted_products = []
-                for idx, category in enumerate(categories):
-                    formatted_product = {
-                        "id": str(uuid.uuid4()),
-                        "exact_item_name": f"{category.replace('_', ' ').title()} Item {idx + 1}",
-                        "category": normalize_category(category),
-                        "color": "Unknown",  # Railway AI doesn't provide color in current response
-                        "pattern": "Solid",
-                        "fabric_type": "Cotton",
-                        "style": "Casual",
-                        "confidence_score": 0.9,  # High confidence since it was detected
-                        "image_base64": image_base64,  # Use original for now (segmented images would need separate download)
-                        "extraction_source": "railway_ai",
-                        "tags": ["extracted", "ai-segmented", category],
-                        "railway_image_name": image_name  # For future segmented image download
-                    }
-                    formatted_products.append(formatted_product)
+                # Download segmented images for each detected component
+                segmented_products = await download_segmented_images(
+                    image_name, categories, num_components, user_id
+                )
                 
-                return formatted_products
+                if segmented_products:
+                    print(f"🖼️ Successfully downloaded {len(segmented_products)} segmented product images")
+                    return segmented_products
+                else:
+                    print(f"⚠️ Failed to download segmented images, creating items with original image")
+                    # Fallback: create items with original image if segmented download fails
+                    formatted_products = []
+                    for idx, category in enumerate(categories):
+                        formatted_product = {
+                            "id": str(uuid.uuid4()),
+                            "exact_item_name": f"{category.replace('_', ' ').title()} Item {idx + 1}",
+                            "category": normalize_category(category),
+                            "color": "Unknown",
+                            "pattern": "Solid",
+                            "fabric_type": "Cotton",
+                            "style": "Casual",
+                            "confidence_score": 0.9,
+                            "image_base64": image_base64,  # Use original as fallback
+                            "extraction_source": "railway_ai_fallback",
+                            "tags": ["extracted", "ai-segmented", category],
+                            "railway_image_name": image_name
+                        }
+                        formatted_products.append(formatted_product)
+                    return formatted_products
             else:
                 print("⚠️ Railway AI: No clothing components found or processing failed")
                 return []
