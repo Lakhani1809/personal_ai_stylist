@@ -8,7 +8,85 @@ from typing import List, Dict, Optional
 import uuid
 
 RAILWAY_API_URL = "https://fashion-ai-segmentation-production.up.railway.app/upload"
+RAILWAY_DOWNLOAD_URL = "https://fashion-ai-segmentation-production.up.railway.app/download"
 # No API key needed - the service is completely open!
+
+async def download_segmented_images(image_name: str, categories: List[str], num_components: int, user_id: str) -> List[Dict]:
+    """
+    Download segmented images for each detected clothing component from Railway AI
+    
+    Args:
+        image_name: Name of the processed image from Railway AI
+        categories: List of detected clothing categories
+        num_components: Number of detected components
+        user_id: User ID for logging/tracking
+        
+    Returns:
+        List of products with segmented images, or empty list if download fails
+    """
+    try:
+        print(f"🖼️ Downloading {num_components} segmented images for user {user_id}")
+        
+        segmented_products = []
+        
+        # Download each segmented component
+        for idx, category in enumerate(categories):
+            component_filename = f"{image_name}_component_{idx + 1}.png"
+            
+            # Prepare download request
+            download_params = {
+                'image_name': image_name,
+                'component_index': idx + 1
+            }
+            
+            print(f"📥 Downloading component {idx + 1}: {component_filename}")
+            
+            # Make async request to download segmented image
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: requests.get(
+                    RAILWAY_DOWNLOAD_URL,
+                    params=download_params,
+                    timeout=30
+                )
+            )
+            
+            if response.status_code == 200:
+                # Convert downloaded image to base64
+                import base64
+                segmented_image_base64 = base64.b64encode(response.content).decode('utf-8')
+                
+                # Create product with segmented image
+                segmented_product = {
+                    "id": str(uuid.uuid4()),
+                    "exact_item_name": f"{category.replace('_', ' ').title()} Item {idx + 1}",
+                    "category": normalize_category(category),
+                    "color": "Unknown",
+                    "pattern": "Solid",
+                    "fabric_type": "Cotton",
+                    "style": "Casual",
+                    "confidence_score": 0.95,  # Higher confidence for segmented items
+                    "image_base64": segmented_image_base64,  # Use segmented image
+                    "extraction_source": "railway_ai_segmented",
+                    "tags": ["extracted", "ai-segmented", "individual-item", category],
+                    "railway_image_name": image_name,
+                    "component_filename": component_filename
+                }
+                
+                segmented_products.append(segmented_product)
+                print(f"✅ Downloaded segmented image for {category}")
+                
+            else:
+                print(f"❌ Failed to download component {idx + 1}: {response.status_code}")
+                return []  # Return empty if any download fails
+        
+        print(f"🎉 Successfully downloaded all {len(segmented_products)} segmented images")
+        return segmented_products
+        
+    except Exception as e:
+        print(f"❌ Error downloading segmented images: {str(e)}")
+        return []
 
 async def extract_products_from_image(image_base64: str, user_id: str) -> List[Dict]:
     """
