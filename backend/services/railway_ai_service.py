@@ -144,20 +144,20 @@ async def extract_products_from_image(image_base64: str, user_id: str) -> List[D
                 print(f"✅ Railway AI extracted {num_components} clothing items: {categories}")
                 print(f"📁 Crop paths available: {crops}")
                 
-                # Generate crop paths based on Railway AI pattern
-                # Railway AI creates files like: crops_centered/{image_name}_{category}_{number}.png
+                # Generate crop paths using the actual filename (not the API response image_name)
+                # Railway AI creates files like: crops_centered/{actual_filename}_{category}_{number}.png
                 generated_crops = []
                 for idx, category in enumerate(categories):
-                    # Normalize category for file naming (remove spaces, lowercase)
+                    # Normalize category for file naming (remove spaces, lowercase) 
                     file_category = category.lower().replace("-", "_").replace(" ", "_")
-                    crop_path = f"crops_centered/{image_name}_{file_category}_{idx + 1}.png"
+                    crop_path = f"crops_centered/{actual_filename}_{file_category}_{idx + 1}.png"
                     generated_crops.append(crop_path)
                 
-                print(f"🖼️ Generated crop paths: {generated_crops}")
+                print(f"🖼️ Generated crop paths using actual filename: {generated_crops}")
                 
                 # Download segmented images using generated paths
                 segmented_products = await download_segmented_images(
-                    image_name, categories, generated_crops, user_id
+                    actual_filename, categories, generated_crops, user_id
                 )
                 
                 if segmented_products:
