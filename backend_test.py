@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
 """
 Comprehensive Backend Testing for Railway AI Fashion Segmentation Integration
-Tests the corrected Railway AI implementation with proper response parsing and segmented image download
-Focus: Upload → Parse "crops" array → Download segmented images → Create individual wardrobe items
+Tests the corrected implementation that generates crop paths instead of expecting them in response
+
+FOCUS AREAS (from review request):
+1. Crop Path Generation Test - Verify Railway AI response format and path generation
+2. Segmented Image Download Test - Test downloading generated crop paths from /outputs/
+3. Individual Wardrobe Items Test - Upload outfit photo with multiple items
+4. Error Handling Test - Test when generated crop paths don't exist (404 errors)
+
+SUCCESS CRITERIA: When user uploads outfit photo, Railway AI should extract individual 
+clothing items as separate wardrobe items, each showing only that specific piece of clothing.
 """
 
 import requests
@@ -11,6 +19,7 @@ import base64
 import asyncio
 import sys
 import os
+import time
 from datetime import datetime
 from io import BytesIO
 from PIL import Image, ImageDraw
@@ -19,8 +28,18 @@ import uuid
 # Add backend to path for imports
 sys.path.append('/app/backend')
 
-# Test configuration
-BACKEND_URL = "https://smart-stylist-15.preview.emergentagent.com/api"
+# Get backend URL from frontend env
+try:
+    with open('/app/frontend/.env', 'r') as f:
+        for line in f:
+            if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
+                BACKEND_URL = line.split('=')[1].strip() + "/api"
+                break
+        else:
+            BACKEND_URL = "http://localhost:8001/api"
+except:
+    BACKEND_URL = "http://localhost:8001/api"
+
 RAILWAY_AI_URL = "https://fashion-ai-segmentation-production.up.railway.app"
 
 class RailwayAITester:
