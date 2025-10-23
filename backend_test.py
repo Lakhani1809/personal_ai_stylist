@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Comprehensive Backend Testing for Railway AI Fashion Segmentation Integration
-Tests the Railway AI integration according to the specifications provided.
+Tests the corrected Railway AI implementation with proper response parsing and segmented image download
+Focus: Upload → Parse "crops" array → Download segmented images → Create individual wardrobe items
 """
 
 import requests
@@ -12,7 +13,7 @@ import sys
 import os
 from datetime import datetime
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageDraw
 import uuid
 
 # Add backend to path for imports
@@ -20,7 +21,7 @@ sys.path.append('/app/backend')
 
 # Test configuration
 BACKEND_URL = "https://smart-stylist-15.preview.emergentagent.com/api"
-RAILWAY_AI_URL = "https://fashion-ai-segmentation-production.up.railway.app/upload"
+RAILWAY_AI_URL = "https://fashion-ai-segmentation-production.up.railway.app"
 
 class RailwayAITester:
     def __init__(self):
