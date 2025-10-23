@@ -134,14 +134,21 @@ async def extract_products_from_image(image_base64: str, user_id: str) -> List[D
             num_components = data.get("num_components", 0)
             categories = data.get("categories", [])
             image_name = data.get("image_name", "extracted")
+            crops = data.get("crops", [])  # Get the crop file paths
             
             if status == "success" and num_components > 0:
                 print(f"✅ Railway AI extracted {num_components} clothing items: {categories}")
+                print(f"📁 Crop paths available: {crops}")
                 
-                # Download segmented images for each detected component
-                segmented_products = await download_segmented_images(
-                    image_name, categories, num_components, user_id
-                )
+                # Download segmented images if crops are available
+                if crops and len(crops) > 0:
+                    print(f"🖼️ Found {len(crops)} crop paths, downloading segmented images...")
+                    segmented_products = await download_segmented_images(
+                        image_name, categories, crops, user_id
+                    )
+                else:
+                    print(f"⚠️ No crops found in response, using fallback approach")
+                    segmented_products = []
                 
                 if segmented_products:
                     print(f"🖼️ Successfully downloaded {len(segmented_products)} segmented product images")
