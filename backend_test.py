@@ -42,31 +42,75 @@ except:
 
 RAILWAY_AI_URL = "https://fashion-ai-segmentation-production.up.railway.app"
 
-class RailwayAITester:
+class RailwayAISegmentationTester:
     def __init__(self):
         self.test_results = []
+        self.failed_tests = []
         self.access_token = None
         self.user_id = None
         
-    def log_test(self, test_name: str, success: bool, details: str = ""):
-        """Log test results"""
+        print(f"🧪 Railway AI Segmentation Tester initialized")
+        print(f"📡 Backend URL: {BACKEND_URL}")
+        print(f"🚂 Railway AI URL: {RAILWAY_AI_URL}")
+        
+    def log_test(self, test_name: str, success: bool, details: str = "", error: str = ""):
+        """Log test results with detailed information"""
         status = "✅ PASS" if success else "❌ FAIL"
         print(f"{status} {test_name}")
-        if details:
-            print(f"   {details}")
+        if success and details:
+            print(f"   ✓ {details}")
+        elif not success and error:
+            print(f"   ✗ {error}")
         
         self.test_results.append({
             "test": test_name,
             "success": success,
             "details": details,
+            "error": error,
             "timestamp": datetime.now().isoformat()
         })
+        
+        if not success:
+            self.failed_tests.append(test_name)
     
-    def create_realistic_fashion_image(self) -> str:
-        """Create a more realistic fashion image for testing"""
+    def create_realistic_outfit_image(self, outfit_type="multi_item") -> str:
+        """Create a realistic outfit image for testing Railway AI segmentation"""
         try:
-            # Create an image that looks more like clothing
-            image = Image.new('RGB', (600, 800), (240, 240, 240))  # Light gray background
+            if outfit_type == "multi_item":
+                # Create an image that looks like it has multiple clothing items
+                image = Image.new('RGB', (600, 800), (245, 245, 245))  # Light background
+                draw = ImageDraw.Draw(image)
+                
+                # Draw upper clothing (shirt/top)
+                draw.rectangle([150, 100, 450, 350], fill=(70, 130, 180), outline=(25, 25, 112), width=3)  # Blue shirt
+                draw.rectangle([180, 120, 420, 180], fill=(100, 149, 237), outline=(25, 25, 112), width=2)  # Collar
+                
+                # Draw lower clothing (pants/skirt)
+                draw.rectangle([180, 350, 420, 650], fill=(139, 69, 19), outline=(101, 67, 33), width=3)  # Brown pants
+                
+                # Draw shoes
+                draw.ellipse([150, 650, 250, 720], fill=(0, 0, 0), outline=(64, 64, 64), width=2)  # Left shoe
+                draw.ellipse([350, 650, 450, 720], fill=(0, 0, 0), outline=(64, 64, 64), width=2)  # Right shoe
+                
+            elif outfit_type == "single_item":
+                # Create an image with just one clothing item
+                image = Image.new('RGB', (400, 600), (250, 250, 250))
+                draw = ImageDraw.Draw(image)
+                
+                # Draw a single dress
+                draw.polygon([(100, 100), (300, 100), (320, 500), (80, 500)], fill=(220, 20, 60), outline=(139, 0, 0), width=3)
+                
+            # Convert to base64
+            buffer = BytesIO()
+            image.save(buffer, format='JPEG', quality=85)
+            img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            
+            return img_base64
+            
+        except Exception as e:
+            print(f"❌ Error creating test image: {e}")
+            # Return minimal fallback image
+            return "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A"
             draw = ImageDraw.Draw(image)
             
             # Draw a shirt-like shape (rectangle with rounded top)
