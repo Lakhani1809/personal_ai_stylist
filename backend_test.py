@@ -180,7 +180,7 @@ class RailwayAISegmentationTester:
             print("\n🚂 Testing Railway AI Upload Response Analysis...")
             
             # Create test image
-            test_image_b64 = self.create_realistic_fashion_image()
+            test_image_b64 = self.create_realistic_outfit_image("multi_item")
             image_bytes = base64.b64decode(test_image_b64)
             
             # Prepare multipart form data
@@ -341,7 +341,7 @@ class RailwayAISegmentationTester:
                 initial_count = 0
             
             # Upload image to wardrobe endpoint
-            test_image_b64 = self.create_realistic_fashion_image()
+            test_image_b64 = self.create_realistic_outfit_image("multi_item")
             
             wardrobe_data = {
                 "image_base64": f"data:image/jpeg;base64,{test_image_b64}"
@@ -436,7 +436,7 @@ class RailwayAISegmentationTester:
             requests.delete(f"{BACKEND_URL}/wardrobe/clear", headers=self.get_auth_headers())
             
             # Create a complex test image (simulating outfit with shirt + pants + shoes)
-            test_image_b64 = self.create_realistic_fashion_image()
+            test_image_b64 = self.create_realistic_outfit_image("multi_item")
             
             # Upload to wardrobe
             wardrobe_data = {
